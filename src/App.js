@@ -9,7 +9,7 @@ function App() {
       <h1> Welcome </h1>
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Just testing to see if React will deploy:)
+          koalas are cute
         </p>
         <a
           className="App-link"
