@@ -1,0 +1,15 @@
+{
+  // eslint extension
+  // "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  // prettier extension
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+  "eslint.enable": true,
+  "eslint.alwaysShowStatus": true,
+  "eslint.validate": ["javascript"],
+  "json.format.enable": false
+}
