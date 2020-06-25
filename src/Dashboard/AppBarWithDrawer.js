@@ -49,7 +49,7 @@ export default function AppBarWithDrawer(props) {
             noWrap
             className={classes.title}
           >
-            Dashboard
+            KOALAS
           </Typography>
           <IconButton color="inherit">
             <Badge badgeContent={4} color="secondary">
