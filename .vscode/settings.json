@@ -11,5 +11,6 @@
   "eslint.enable": true,
   "eslint.alwaysShowStatus": true,
   "eslint.validate": ["javascript"],
-  "json.format.enable": false
+  "json.format.enable": false,
+  "git.ignoreLimitWarning": true
 }
