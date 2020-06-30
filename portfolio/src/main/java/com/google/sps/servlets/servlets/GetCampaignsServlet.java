@@ -37,8 +37,7 @@ import com.google.ads.googleads.v3.services.stub.GrpcGoogleAdsServiceStub;
 import com.google.auth.oauth2.UserCredentials;
 import com.google.auth.Credentials;
 
-import com.google.gson.Gson;
-
+import com.google.protobuf.util.JsonFormat;
 
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
@@ -54,12 +53,13 @@ public class GetCampaignsServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
-    params.customerId = Long.parseLong("3827095360");
+    params.customerId = Long.parseLong("4498877497");
     System.out.println(params.customerId);
 
     GoogleAdsClient googleAdsClient;
     try {
-      googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().build();
+      long managerId = Long.parseLong("9797005693");
+      googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().setLoginCustomerId(managerId).build();
     } catch (FileNotFoundException fnfe) {
       System.err.printf(
           "Failed to load GoogleAdsClient configuration from file. Exception: %s%n", fnfe);
@@ -70,13 +70,12 @@ public class GetCampaignsServlet extends HttpServlet {
     }
 
     System.out.println("googleadsclient");
-    String json = "test";
     
-    System.out.println(googleAdsClient.getLatestVersion()); //[INFO] GCLOUD: com.google.ads.googleads.lib.catalog.GoogleAdsVersionFactory$VersionDescriptorInvocationHandler@6a7ad3dc
+    String returnJSON = "";
     // this line of code isn't working
     //GoogleAdsServiceClient googleAdsServiceClient = googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
     try {
-      json = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId);
+      returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
@@ -90,8 +89,8 @@ public class GetCampaignsServlet extends HttpServlet {
         System.err.printf("  Error %d: %s%n", i++, googleAdsError);
       }
     }
-    response.setContentType("application/json;");
-    response.getWriter().println(new Gson().toJson(json));
+    response.setContentType("application/json");
+    response.getWriter().println(returnJSON);
   }
 
    /**
@@ -103,7 +102,7 @@ public class GetCampaignsServlet extends HttpServlet {
    */
   private String runExample(GoogleAdsClient googleAdsClient, long customerId) {
     System.out.println("runExample called");
-    String json = "test";
+    String returnJSON = "";
     try (GoogleAdsServiceClient googleAdsServiceClient =
         googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
       String query = "SELECT campaign.id, campaign.name FROM campaign ORDER BY campaign.id";
@@ -120,15 +119,19 @@ public class GetCampaignsServlet extends HttpServlet {
 
       // Iterates through and prints all of the results in the stream response.
       for (SearchGoogleAdsStreamResponse response : stream) {
+        try {
+          returnJSON += JsonFormat.printer().print(response); 
+        } catch (Exception e) {
+          System.err.println(e);
+        }
         for (GoogleAdsRow googleAdsRow : response.getResultsList()) {
           System.out.printf(
               "Campaign with ID %d and name '%s' was found.%n",
               googleAdsRow.getCampaign().getId().getValue(),
               googleAdsRow.getCampaign().getName().getValue());
-          json = json + (googleAdsRow.getCampaign().getName().getValue());
         }
       }
     }
-    return json;
+    return returnJSON;
   }
 }
