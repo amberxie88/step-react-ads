@@ -41,7 +41,7 @@ import com.google.protobuf.util.JsonFormat;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.json.JSONArray;
-import java.util.Arrays;
+import java.util.*;
 
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
@@ -76,8 +76,6 @@ public class GetCampaignsServlet extends HttpServlet {
     System.out.println("googleadsclient");
     
     String returnJSON = "";
-    // this line of code isn't working
-    //GoogleAdsServiceClient googleAdsServiceClient = googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
     try {
       returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId);
       returnJSON = processJSON(returnJSON);
@@ -110,7 +108,7 @@ public class GetCampaignsServlet extends HttpServlet {
     String returnJSON = "";
     try (GoogleAdsServiceClient googleAdsServiceClient =
         googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
-      String query = "SELECT campaign.name, ad_group.name, metrics.impressions, metrics.clicks FROM ad_group";
+      String query = "SELECT campaign.id, campaign.name, ad_group.name, ad_group_criterion.keyword.text FROM keyword_view";
       // Constructs the SearchGoogleAdsStreamRequest.
       SearchGoogleAdsStreamRequest request =
           SearchGoogleAdsStreamRequest.newBuilder()
@@ -129,13 +127,6 @@ public class GetCampaignsServlet extends HttpServlet {
         } catch (Exception e) {
           System.err.println(e);
         }
-        /*
-        for (GoogleAdsRow googleAdsRow : response.getResultsList()) {
-          System.out.printf(
-              "Campaign with ID %d and name '%s' was found.%n",
-              googleAdsRow.getCampaign().getId().getValue(),
-              googleAdsRow.getCampaign().getName().getValue());
-        }*/
       }
     }
     return returnJSON;
@@ -143,39 +134,63 @@ public class GetCampaignsServlet extends HttpServlet {
 
   private String processJSON(String jsonString) {
     JSONObject jsonObject = new JSONObject(jsonString);
-    JSONArray results = jsonObject.getJSONArray("results");
+    JSONArray resultsComplete = jsonObject.getJSONArray("results");
     String fieldMaskStr = (String) jsonObject.get("fieldMask");
-    String[] fieldMask = fieldMaskStr.split(",");
-    System.out.println("ah");
-    System.out.println(Arrays.toString(fieldMask)); 
+    String[] fieldMaskArr = fieldMaskStr.split(",");
+    System.out.println(Arrays.toString(fieldMaskArr)); 
+    Set<String> invalidRequestValues = new HashSet<String>();
+
 
     JSONArray returnArray = new JSONArray();
-    for (int i = 0; i < results.length(); i++) {
+    for (int i = 0; i < resultsComplete.length(); i++) {
       JSONObject resultObj = new JSONObject();
-      for (String requestedValue: fieldMask) {
-        String value = getValueFromJSON((JSONObject) results.get(i), requestedValue);
-        resultObj.put(requestedValue, value);
+      for (String requestedValue: fieldMaskArr) {
+        try {
+          String value = getValueFromJSON((JSONObject) resultsComplete.get(i), requestedValue);
+          resultObj.put(requestedValue, value);
+        } catch (Exception e) {
+          invalidRequestValues.add(requestedValue);
+        }
       }
       returnArray.put(resultObj);
     }
 
-    return returnArray.toString();
+    System.out.println(Arrays.toString(invalidRequestValues.toArray()));
+    JSONObject metaObj = processMetaJSON(invalidRequestValues);
+
+    JSONObject finalJSON = new JSONObject();
+    finalJSON.put("response", returnArray);
+    finalJSON.put("meta", metaObj);
+
+    return finalJSON.toString();
+  }
+
+  private JSONObject processMetaJSON(Set<String> invalidRequestValuesSet) {
+    JSONObject metaObj = new JSONObject();
+    if (invalidRequestValuesSet.size() == 0) {
+      metaObj.put("status", "200");
+      return metaObj;
+    }
+
+    String errorMessage = "Values not found: ";
+    for (String requestValue: invalidRequestValuesSet) {
+      errorMessage = errorMessage + requestValue + " ";
+    }
+    //JSONArray invalidRequestValuesJSON = new JSONArray(invalidRequestValuesSet.toArray());
+    metaObj.put("message", errorMessage);
+    metaObj.put("status", "400");
+    return metaObj;
   }
 
   private String getValueFromJSON(JSONObject obj, String requestedValue) {
     String returnValue = "";
     String[] path = requestedValue.split("\\.");
-    try {
-      JSONObject objInUse = obj;
-      for (int i = 0; i < path.length - 1; i++) {
-        String stepInPath = path[i];
-        obj = (JSONObject) obj.get(stepInPath);
-      }
-      returnValue = obj.get(path[path.length-1]).toString();
-    } catch (Exception e) {
-      System.out.println("Error in getValueFromJSON");
-      System.err.println("Error in getValueFromJSON");
+    JSONObject objInUse = obj;
+    for (int i = 0; i < path.length - 1; i++) {
+      String stepInPath = path[i];
+      obj = (JSONObject) obj.get(stepInPath);
     }
+    returnValue = obj.get(path[path.length-1]).toString();
     return returnValue;
   }
 }
