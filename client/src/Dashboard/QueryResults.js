@@ -17,10 +17,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// const rows = [];
-
-function createData(id, result) {
-  return { id, result };
+//JSON data parsing here
+function createData(results) {
+  const campaign = results[0].campaign;
+  const id = campaign.id;
+  const name = campaign.name;
+  return { id, name };
 }
 
 function parseJSON(response) {
@@ -40,9 +42,10 @@ class QueryResults extends React.Component {
       accept: 'application/json',
     })
       .then(parseJSON)
-      .then((result) => {
+      .then((jsonResult) => {
+        console.log(jsonResult);
         this.setState({
-          rows: [createData(0, result)],
+          rows: [createData(jsonResult.results)],
         });
       });
   }
@@ -57,6 +60,7 @@ class QueryResults extends React.Component {
         <Title>Query Here</Title>
         <Query />
         {button}
+        <Title>Query Results</Title>
         <DisplayRows rows={rows} />
       </React.Fragment>
     );
@@ -69,13 +73,15 @@ function Results(props) {
     <Table size="small">
       <TableHead>
         <TableRow>
-          <TableCell>Results</TableCell>
+          <TableCell>Campaign ID</TableCell>
+          <TableCell>Campaign Name</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
         {rows.map((row) => (
           <TableRow key={row.id}>
-            <TableCell>{row.result}</TableCell>
+            <TableCell>{row.id}</TableCell>
+            <TableCell>{row.name}</TableCell>
           </TableRow>
         ))}
       </TableBody>
