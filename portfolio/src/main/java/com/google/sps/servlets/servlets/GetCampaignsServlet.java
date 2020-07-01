@@ -80,7 +80,7 @@ public class GetCampaignsServlet extends HttpServlet {
 
     System.out.println("googleadsclient");
     
-    String returnJSON = ""
+    String returnJSON = "";
     try {
       returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId);
       returnJSON = processJSON(returnJSON);
