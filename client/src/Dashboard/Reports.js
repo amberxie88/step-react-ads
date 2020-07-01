@@ -6,11 +6,14 @@ import Paper from '@material-ui/core/Paper';
 import Chart from './Chart';
 import Deposits from './Deposits';
 import Orders from './Orders';
-import Query from './Queries';
 import QueryResults from './QueryResults';
+
+import { Styles } from './Styles'; //this must be the last import because it consumes the styles of all the above imports
 
 export default function Reports(props) {
   const { classes } = props;
+  console.log(props.classes);
+  console.log(classes);
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   return (
     <React.Fragment>
