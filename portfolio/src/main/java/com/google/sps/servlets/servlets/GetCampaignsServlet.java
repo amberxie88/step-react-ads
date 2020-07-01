@@ -14,6 +14,7 @@
 package com.google.sps.servlets;
 
 import java.io.IOException;
+import java.io.File;
 import java.io.FileNotFoundException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -58,8 +59,10 @@ public class GetCampaignsServlet extends HttpServlet {
     System.out.println(params.customerId);
 
     GoogleAdsClient googleAdsClient;
+    File propertiesFile = new File("ads.properties");
     try {
-      googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().build();
+      googleAdsClient = GoogleAdsClient.newBuilder()
+        .fromPropertiesFile(propertiesFile).build();
     } catch (FileNotFoundException fnfe) {
       System.err.printf(
           "Failed to load GoogleAdsClient configuration from file. Exception: %s%n", fnfe);
@@ -91,7 +94,7 @@ public class GetCampaignsServlet extends HttpServlet {
       }
     }
     response.setContentType("application/json;");
-    response.getWriter().println(new Gson().toJson(json));
+    response.getWriter().println(new Gson().toJson(json));    
   }
 
    /**
@@ -121,11 +124,12 @@ public class GetCampaignsServlet extends HttpServlet {
       // Iterates through and prints all of the results in the stream response.
       for (SearchGoogleAdsStreamResponse response : stream) {
         for (GoogleAdsRow googleAdsRow : response.getResultsList()) {
-          System.out.printf(
-              "Campaign with ID %d and name '%s' was found.%n",
-              googleAdsRow.getCampaign().getId().getValue(),
-              googleAdsRow.getCampaign().getName().getValue());
-          json = json + (googleAdsRow.getCampaign().getName().getValue());
+          System.out.println(googleAdsRow);
+          // System.out.printf(
+          //     "Campaign with ID %d and name '%s' was found.%n",
+          //     googleAdsRow.getCampaign().getId().getValue(),
+          //     googleAdsRow.getCampaign().getName().getValue());
+          json = json + (googleAdsRow.toString());
         }
       }
     }
