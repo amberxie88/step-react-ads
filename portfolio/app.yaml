@@ -8,10 +8,15 @@ instance_class: F1
 # [START handlers]
 handlers:
   - url: /
-    static_files: build/index.html
-    upload: build/index.html
+    static_files: src/main/webapp/index.html
+    upload: src/main/webapp/index.html
 
   - url: /(.*)
-    static_files: build/\1
-    upload: build/(.*)
+    static_files: src/main/webapp/\1
+    upload: src/main/webapp/(.*)
+
+  - url: /campaign
+    script: auto
+    login: optional
+    secure: optional
 # [END handlers]
