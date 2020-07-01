@@ -1,15 +1,29 @@
 import React from 'react';
+import HomeIcon from '@material-ui/icons/Home';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import Reports from '../PageComponents/ReportsDashboard/ReportsDashboard';
 import QueryResults from '../PageComponents/QueryDashboard/QueryResults';
 
 const Title = 'KOALAS';
-const RouteNamesWithAttributes = [
-  { name: 'Dashboard', icon: <DashboardIcon />, component: <Reports /> },
-  { name: 'Queries', icon: <BarChartIcon />, component: <QueryResults /> },
+const PagesWithAttributes = [
+  {
+    name: 'Home',
+    route: '/',
+    icon: <HomeIcon />,
+    component: <Reports />,
+  },
+  {
+    name: 'Dashboard',
+    route: '/Dashboard',
+    icon: <DashboardIcon />,
+    component: <Reports />,
+  },
+  {
+    name: 'Queries',
+    route: '/Query',
+    icon: <BarChartIcon />,
+    component: <QueryResults />,
+  },
 ];
-const RouteNames = RouteNamesWithAttributes.map((route) => {
-  return route.name;
-});
-export { Title, RouteNames, RouteNamesWithAttributes };
+export { Title, PagesWithAttributes };

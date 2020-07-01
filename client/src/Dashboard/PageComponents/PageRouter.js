@@ -1,20 +1,21 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-import Reports from './ReportsDashboard/ReportsDashboard';
-import QueryResults from './QueryDashboard/QueryResults';
-import { RouteNamesWithAttributes } from '../Utilities/Constants';
+import { PagesWithAttributes } from '../Utilities/Constants';
 
-const mapRouteNamesWithAttributesToRoutesAndComponents = (route) => {
-  return <Route path={'/' + route.name}>{route.component}</Route>;
-};
-
-const generateRoutes = () => {
-  return RouteNamesWithAttributes.map(
-    mapRouteNamesWithAttributesToRoutesAndComponents,
+const mapPageToRouteAndComponent = (page) => {
+  return (
+    <Route exact path={page.route}>
+      {page.component}
+    </Route>
   );
 };
 
+const generateRoutes = () => {
+  return PagesWithAttributes.map(mapPageToRouteAndComponent);
+};
+
 const PageRouter = () => {
+  console.log(generateRoutes());
   return <Switch>{generateRoutes()}</Switch>;
 };
 
