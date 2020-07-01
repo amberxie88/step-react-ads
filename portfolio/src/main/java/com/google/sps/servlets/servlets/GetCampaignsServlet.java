@@ -56,7 +56,6 @@ public class GetCampaignsServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
     //params.customerId = Long.parseLong("4498877497"); //Amber
     params.customerId = Long.parseLong("3827095360"); //Kaitlyn
