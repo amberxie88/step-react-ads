@@ -38,6 +38,10 @@ import com.google.auth.oauth2.UserCredentials;
 import com.google.auth.Credentials;
 
 import com.google.protobuf.util.JsonFormat;
+import com.google.gson.Gson;
+import org.json.JSONObject;
+import org.json.JSONArray;
+import java.util.Arrays;
 
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
@@ -76,6 +80,7 @@ public class GetCampaignsServlet extends HttpServlet {
     //GoogleAdsServiceClient googleAdsServiceClient = googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
     try {
       returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId);
+      returnJSON = processJSON(returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
@@ -105,7 +110,7 @@ public class GetCampaignsServlet extends HttpServlet {
     String returnJSON = "";
     try (GoogleAdsServiceClient googleAdsServiceClient =
         googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
-      String query = "SELECT campaign.id, campaign.name FROM campaign ORDER BY campaign.id";
+      String query = "SELECT campaign.name, ad_group.name, metrics.impressions, metrics.clicks FROM ad_group";
       // Constructs the SearchGoogleAdsStreamRequest.
       SearchGoogleAdsStreamRequest request =
           SearchGoogleAdsStreamRequest.newBuilder()
@@ -124,14 +129,49 @@ public class GetCampaignsServlet extends HttpServlet {
         } catch (Exception e) {
           System.err.println(e);
         }
+        /*
         for (GoogleAdsRow googleAdsRow : response.getResultsList()) {
           System.out.printf(
               "Campaign with ID %d and name '%s' was found.%n",
               googleAdsRow.getCampaign().getId().getValue(),
               googleAdsRow.getCampaign().getName().getValue());
-        }
+        }*/
       }
     }
     return returnJSON;
+  }
+
+  private String processJSON(String jsonString) {
+    JSONObject jsonObject = new JSONObject(jsonString);
+    JSONArray results = jsonObject.getJSONArray("results");
+    String fieldMaskStr = (String) jsonObject.get("fieldMask");
+    String[] fieldMask = fieldMaskStr.split(",");
+    System.out.println("ah");
+    System.out.println(Arrays.toString(fieldMask)); 
+
+    for (int i = 0; i < results.length(); i++) {
+      for (String requestedValue: fieldMask) {
+        String value = getValueFromJSON((JSONObject) results.get(i), requestedValue);
+      }
+    }
+
+    return jsonString;
+  }
+
+  private String getValueFromJSON(JSONObject obj, String requestedValue) {
+    String returnValue = "";
+    String[] path = requestedValue.split("\\.");
+    try {
+      JSONObject objInUse = obj;
+      for (int i = 0; i < path.length - 1; i++) {
+        String stepInPath = path[i];
+        obj = (JSONObject) obj.get(stepInPath);
+      }
+      returnValue = obj.get(path[path.length-1]).toString();
+    } catch (Exception e) {
+      System.out.println("Error in getValueFromJSON");
+      System.err.println("Error in getValueFromJSON");
+    }
+    return returnValue;
   }
 }
