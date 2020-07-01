@@ -1,30 +1,21 @@
 import React from 'react';
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Chart from './Chart';
-import Deposits from './Deposits';
-import Orders from './Orders';
-import QueryResults from './QueryResults';
+import Chart from './Reports/Chart';
+import Deposits from './Reports/Deposits';
+import Orders from './Reports/Orders';
+import { makeStyles } from '@material-ui/core/styles';
 
-import { Styles } from './Styles'; //this must be the last import because it consumes the styles of all the above imports
+import { stylesSettings } from '../../Utilities/Styles';
+const Styles = makeStyles(stylesSettings);
 
 export default function Reports(props) {
-  const { classes } = props;
-  console.log(props.classes);
-  console.log(classes);
+  const classes = Styles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   return (
     <React.Fragment>
       <Grid container spacing={3}>
-        {/* Query */}
-        <Grid item xs={12}>
-          <Paper className={classes.paper}>
-            <QueryResults />
-          </Paper>
-        </Grid>
-
         {/* Chart */}
         <Grid item xs={12} md={8} lg={9}>
           <Paper className={fixedHeightPaper}>
@@ -47,7 +38,3 @@ export default function Reports(props) {
     </React.Fragment>
   );
 }
-
-Reports.propTypes = {
-  classes: PropTypes.object,
-};

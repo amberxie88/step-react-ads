@@ -11,10 +11,13 @@ import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { Title } from './Constants';
-import { mainListItems } from './ListItems';
+import { makeStyles } from '@material-ui/core/styles';
 
-import { Styles } from './Styles'; //this must be the last import because it consumes the styles of all the above imports
+import { Title } from '../Utilities/Constants';
+import { DrawerItems } from './DrawerItems';
+
+import { stylesSettings } from '../Utilities/Styles';
+const Styles = makeStyles(stylesSettings);
 
 export default function AppBarWithDrawer(props) {
   const classes = Styles();
@@ -74,7 +77,7 @@ export default function AppBarWithDrawer(props) {
           </IconButton>
         </div>
         <Divider />
-        <List>{mainListItems}</List>
+        <List>{DrawerItems}</List>
       </Drawer>
     </React.Fragment>
   );
