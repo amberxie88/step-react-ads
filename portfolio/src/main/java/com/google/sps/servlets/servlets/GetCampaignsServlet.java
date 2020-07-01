@@ -149,13 +149,17 @@ public class GetCampaignsServlet extends HttpServlet {
     System.out.println("ah");
     System.out.println(Arrays.toString(fieldMask)); 
 
+    JSONArray returnArray = new JSONArray();
     for (int i = 0; i < results.length(); i++) {
+      JSONObject resultObj = new JSONObject();
       for (String requestedValue: fieldMask) {
         String value = getValueFromJSON((JSONObject) results.get(i), requestedValue);
+        resultObj.put(requestedValue, value);
       }
+      returnArray.put(resultObj);
     }
 
-    return jsonString;
+    return returnArray.toString();
   }
 
   private String getValueFromJSON(JSONObject obj, String requestedValue) {
