@@ -18,7 +18,7 @@ export default function Reports(props) {
         {/* Query */}
         <Grid item xs={12}>
           <Paper className={classes.paper}>
-            <QueryResults />
+            <Query />
           </Paper>
         </Grid>
 
