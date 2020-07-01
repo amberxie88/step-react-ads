@@ -55,7 +55,14 @@ public class GetCampaignsServlet extends HttpServlet {
   }
 
   @Override
+<<<<<<< HEAD
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+=======
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String query = request.getParameter("query");
+    System.out.println(query);
+    // customer ID of interest
+>>>>>>> dev_kc
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
     //params.customerId = Long.parseLong("4498877497"); //Amber
     params.customerId = Long.parseLong("3827095360"); //Kaitlyn
@@ -81,7 +88,7 @@ public class GetCampaignsServlet extends HttpServlet {
     
     String returnJSON = "";
     try {
-      returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId);
+      returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId, query);
       returnJSON = processJSON(returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
@@ -107,12 +114,12 @@ public class GetCampaignsServlet extends HttpServlet {
    * @param customerId the client customer ID.
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
-  private String runExample(GoogleAdsClient googleAdsClient, long customerId) {
+  private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
     System.out.println("runExample called");
     String returnJSON = "";
     try (GoogleAdsServiceClient googleAdsServiceClient =
         googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
-      String query = "SELECT campaign.id, campaign.name, ad_group.name, ad_group_criterion.keyword.text FROM keyword_view";
+      //String query = "SELECT campaign.id, campaign.name, ad_group.name, ad_group_criterion.keyword.text FROM keyword_view";
       // Constructs the SearchGoogleAdsStreamRequest.
       SearchGoogleAdsStreamRequest request =
           SearchGoogleAdsStreamRequest.newBuilder()
