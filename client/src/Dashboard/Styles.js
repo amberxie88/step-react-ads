@@ -81,4 +81,4 @@ const Styles = makeStyles((theme) => ({
   },
 }));
 
-export default Styles;
+export { Styles };

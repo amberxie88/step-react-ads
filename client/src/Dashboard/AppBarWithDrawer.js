@@ -1,6 +1,5 @@
 import React from 'react';
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -12,10 +11,13 @@ import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { mainListItems, secondaryListItems } from './ListItems';
+import { Title } from './Constants';
+import { mainListItems } from './ListItems';
+
+import { Styles } from './Styles'; //this must be the last import because it consumes the styles of all the above imports
 
 export default function AppBarWithDrawer(props) {
-  const { classes } = props;
+  const classes = Styles();
   const [open, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -49,7 +51,7 @@ export default function AppBarWithDrawer(props) {
             noWrap
             className={classes.title}
           >
-            KOALAS
+            {Title}
           </Typography>
           <IconButton color="inherit">
             <Badge badgeContent={4} color="secondary">
@@ -58,6 +60,7 @@ export default function AppBarWithDrawer(props) {
           </IconButton>
         </Toolbar>
       </AppBar>
+
       <Drawer
         variant="permanent"
         classes={{
@@ -72,13 +75,7 @@ export default function AppBarWithDrawer(props) {
         </div>
         <Divider />
         <List>{mainListItems}</List>
-        <Divider />
-        <List>{secondaryListItems}</List>
       </Drawer>
     </React.Fragment>
   );
 }
-
-AppBarWithDrawer.propTypes = {
-  classes: PropTypes.object,
-};
