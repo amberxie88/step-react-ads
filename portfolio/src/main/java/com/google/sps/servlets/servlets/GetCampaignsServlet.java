@@ -54,19 +54,17 @@ public class GetCampaignsServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
-    params.customerId = Long.parseLong("4498877497");
+    //params.customerId = Long.parseLong("4498877497"); //Amber
+    params.customerId = Long.parseLong("3827095360"); //Kaitlyn
     System.out.println(params.customerId);
 
     GoogleAdsClient googleAdsClient;
     File propertiesFile = new File("ads.properties");
     try {
-<<<<<<< HEAD
       googleAdsClient = GoogleAdsClient.newBuilder()
         .fromPropertiesFile(propertiesFile).build();
-=======
-      long managerId = Long.parseLong("9797005693");
-      googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().setLoginCustomerId(managerId).build();
->>>>>>> 8b7a704648292a7a3dbca12595e46d66eb90e568
+      //long managerId = Long.parseLong("9797005693");
+      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).setLoginCustomerId(managerId).build();
     } catch (FileNotFoundException fnfe) {
       System.err.printf(
           "Failed to load GoogleAdsClient configuration from file. Exception: %s%n", fnfe);
@@ -79,7 +77,6 @@ public class GetCampaignsServlet extends HttpServlet {
     System.out.println("googleadsclient");
     
     String returnJSON = "";
-    // this line of code isn't working
     //GoogleAdsServiceClient googleAdsServiceClient = googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
     try {
       returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId);
@@ -96,13 +93,8 @@ public class GetCampaignsServlet extends HttpServlet {
         System.err.printf("  Error %d: %s%n", i++, googleAdsError);
       }
     }
-<<<<<<< HEAD
-    response.setContentType("application/json;");
-    response.getWriter().println(new Gson().toJson(json));    
-=======
     response.setContentType("application/json");
     response.getWriter().println(returnJSON);
->>>>>>> 8b7a704648292a7a3dbca12595e46d66eb90e568
   }
 
    /**
@@ -137,19 +129,10 @@ public class GetCampaignsServlet extends HttpServlet {
           System.err.println(e);
         }
         for (GoogleAdsRow googleAdsRow : response.getResultsList()) {
-<<<<<<< HEAD
-          System.out.println(googleAdsRow);
-          // System.out.printf(
-          //     "Campaign with ID %d and name '%s' was found.%n",
-          //     googleAdsRow.getCampaign().getId().getValue(),
-          //     googleAdsRow.getCampaign().getName().getValue());
-          json = json + (googleAdsRow.toString());
-=======
           System.out.printf(
               "Campaign with ID %d and name '%s' was found.%n",
               googleAdsRow.getCampaign().getId().getValue(),
               googleAdsRow.getCampaign().getName().getValue());
->>>>>>> 8b7a704648292a7a3dbca12595e46d66eb90e568
         }
       }
     }
