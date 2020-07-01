@@ -47,6 +47,16 @@
       <artifactId>joda-time</artifactId>
       <version>2.8.2</version>
     </dependency>
+<<<<<<< HEAD
+=======
+    <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java-util -->
+    <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java-util</artifactId>
+        <version>3.10.0</version>
+    </dependency>
+
+>>>>>>> 8b7a704648292a7a3dbca12595e46d66eb90e568
   </dependencies>
 
   <build>
