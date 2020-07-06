@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import QueryResults from './QueryResults';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Title from './Title';
+import Title from '../../Utilities/Title';
 
 const useStyles = makeStyles((theme) => ({
   root: {

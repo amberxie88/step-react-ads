@@ -16,13 +16,6 @@ export default function Reports(props) {
   return (
     <React.Fragment>
       <Grid container spacing={3}>
-        {/* Query */}
-        <Grid item xs={12}>
-          <Paper className={classes.paper}>
-            <Query />
-          </Paper>
-        </Grid>
-
         {/* Chart */}
         <Grid item xs={12} md={8} lg={9}>
           <Paper className={fixedHeightPaper}>

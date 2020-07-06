@@ -3,7 +3,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import Reports from '../PageComponents/ReportsDashboard/ReportsDashboard';
-import QueryResults from '../PageComponents/QueryDashboard/QueryResults';
+import Queries from '../PageComponents/QueryDashboard/Queries';
 
 const Title = 'KOALAS';
 const PagesWithAttributes = [
@@ -23,7 +23,7 @@ const PagesWithAttributes = [
     name: 'Queries',
     route: '/Query',
     icon: <BarChartIcon />,
-    component: <QueryResults />,
+    component: <Queries />,
   },
 ];
 export { Title, PagesWithAttributes };
