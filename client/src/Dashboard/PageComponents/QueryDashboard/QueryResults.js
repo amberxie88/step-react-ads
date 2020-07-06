@@ -1,11 +1,5 @@
 import React from 'react';
-<<<<<<< HEAD:client/src/Dashboard/PageComponents/QueryDashboard/QueryResults.js
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Title from '../../Utilities/Title';
-=======
 import Title from './Title';
->>>>>>> dev_kc:client/src/Dashboard/QueryResults.js
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
