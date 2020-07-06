@@ -55,14 +55,10 @@ public class GetCampaignsServlet extends HttpServlet {
   }
 
   @Override
-<<<<<<< HEAD
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-=======
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String query = request.getParameter("query");
     System.out.println(query);
     // customer ID of interest
->>>>>>> dev_kc
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
     //params.customerId = Long.parseLong("4498877497"); //Amber
     params.customerId = Long.parseLong("3827095360"); //Kaitlyn
