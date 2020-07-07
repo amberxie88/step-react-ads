@@ -9,5 +9,5 @@
   </static-files>
   <staging>
     <enable-jar-splitting>true</enable-jar-splitting>
-</staging>
+  </staging>
 </appengine-web-app>
