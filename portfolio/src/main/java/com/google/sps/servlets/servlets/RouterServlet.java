@@ -26,38 +26,40 @@ import java.nio.file.Files;
 import java.io.File;
 import java.nio.file.Path;
 
-
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
-@WebServlet("/*")
+//remove this annotation so the mapping in web.xml applies
+//@WebServlet("/*")
 public class RouterServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    String path = request.getRequestURI().substring(request.getContextPath().length());
-    System.out.println("path");
-    System.out.println(path);
+    
+    // String path = request.getRequestURI().substring(request.getContextPath().length());
+    // System.out.println("path");
+    // System.out.println(path);
 
     // RequestDispatcher view = request.getRequestDispatcher("/webapp/index.html");
     // view.forward(request, response);
-    if (path.startsWith("/Query")) {
+   // if (path.startsWith("/Query") || path.startsWith("/Dashboard")) {
       //redirect to home page
       //doesn't send you to the same page you were on before you refresh
-      // response.sendRedirect("/");
+      //response.sendRedirect("/");
 
 
       //this is me trying to load index.html
       // RequestDispatcher view = request.getRequestDispatcher("/");
       // view.forward(request, response);
 
-
       //serve some html
       //works fine, but we need to serve index.html
-      Path fileName = Path.of("./index.html");
-      String index = Files.readString(fileName);
+
+      // response.setContentType("text/html;");
+      // response.getWriter().println(index);
+
+      // Path fileName = Path.of("./index.html");
+      // String index = Files.readString(fileName);
+      String index = "<h1>koalas!</h1>";
       response.setContentType("text/html;");
       response.getWriter().println(index);
-
-    }
-
-  }
+    //}
+ }
 }
