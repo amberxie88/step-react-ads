@@ -22,6 +22,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 
+import java.nio.file.Files;
+import java.io.File;
+import java.nio.file.Path;
+
+
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/*")
 public class RouterServlet extends HttpServlet {
@@ -37,7 +42,7 @@ public class RouterServlet extends HttpServlet {
     if (path.startsWith("/Query")) {
       //redirect to home page
       //doesn't send you to the same page you were on before you refresh
-      response.sendRedirect("/");
+      // response.sendRedirect("/");
 
 
       //this is me trying to load index.html
@@ -47,8 +52,10 @@ public class RouterServlet extends HttpServlet {
 
       //serve some html
       //works fine, but we need to serve index.html
-      // response.setContentType("text/html;");
-      // response.getWriter().println("<h1>Hello world!</h1>");
+      Path fileName = Path.of("./index.html");
+      String index = Files.readString(fileName);
+      response.setContentType("text/html;");
+      response.getWriter().println(index);
 
     }
 
