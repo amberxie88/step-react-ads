@@ -34,9 +34,22 @@ public class RouterServlet extends HttpServlet {
 
     // RequestDispatcher view = request.getRequestDispatcher("/webapp/index.html");
     // view.forward(request, response);
-    if (path.startsWith("/query")) {
-        RequestDispatcher view = request.getRequestDispatcher("/");
-        view.forward(request, response);
+    if (path.startsWith("/Query")) {
+      //redirect to home page
+      //doesn't send you to the same page you were on before you refresh
+      response.sendRedirect("/");
+
+
+      //this is me trying to load index.html
+      // RequestDispatcher view = request.getRequestDispatcher("/");
+      // view.forward(request, response);
+
+
+      //serve some html
+      //works fine, but we need to serve index.html
+      // response.setContentType("text/html;");
+      // response.getWriter().println("<h1>Hello world!</h1>");
+
     }
 
   }
