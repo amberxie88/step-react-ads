@@ -7,6 +7,7 @@
     <!-- prevent unwanted caching when accessing via the web preview server -->
     <include path="/**" expiration="0s" />
   </static-files>
+  <!-- allow for the google ad jar file to upload to GCP -->
   <staging>
     <enable-jar-splitting>true</enable-jar-splitting>
   </staging>
