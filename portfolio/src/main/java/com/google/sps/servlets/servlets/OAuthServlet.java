@@ -57,7 +57,6 @@ public class OAuthServlet extends HttpServlet {
 
     try {
       String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
-      response.getWriter().println(authorizationLink); // TODO: delete this later
       response.sendRedirect(authorizationLink);
     } catch (Exception e) {
       response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");

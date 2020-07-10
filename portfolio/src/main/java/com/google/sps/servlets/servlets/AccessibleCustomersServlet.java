@@ -111,9 +111,6 @@ public class AccessibleCustomersServlet extends HttpServlet {
   
 
   private String getName(GoogleAdsClient googleAdsClient, long customerId) {
-    if (customerId == Long.parseLong("2153955409")) {
-      return "not a test account"; // developer token problems
-    }
     try (CustomerServiceClient customerServiceClient =
         googleAdsClient.getLatestVersion().createCustomerServiceClient()) {
       String customerResourceName = ResourceNames.customer(customerId);

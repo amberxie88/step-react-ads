@@ -37,7 +37,6 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.sps.data.DatastoreRetrieval;
 
 
-/** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
 @WebServlet("/oauth2callback")
 public class CallbackServlet extends HttpServlet {
 
@@ -50,20 +49,12 @@ public class CallbackServlet extends HttpServlet {
     String state = request.getParameter("state");
     String code = request.getParameter("code");
     String scope = request.getParameter("scope");
-
-    System.out.println(request.getSession());
-
-
-    String completeUrl = "http://localhost:8080/oauth2callback?" + request.getQueryString(); // change for deployment?
+    String completeUrl = "http://localhost:8080/oauth2callback?" + request.getQueryString(); 
     AuthorizationResponse authorizationResponse = new AuthorizationResponse(completeUrl);
 
-    System.out.println("authorizationResponse: ");
-    System.out.println(authorizationResponse.toString());
-
     String statusMessage = processAuthorizationResponse(authorizationResponse, request.getSession().getId());
-
     response.setContentType("application/json");
-    response.getWriter().println(statusMessage); // Write into datastore and redirect home? somehow show success msg
+    response.getWriter().println(statusMessage); 
   }
 
   private String processAuthorizationResponse(AuthorizationResponse authorizationResponse, String sessionId) {
@@ -72,8 +63,8 @@ public class CallbackServlet extends HttpServlet {
     }
     if (sessionStateExists(authorizationResponse.state.toString(), sessionId)) {
       URI baseUri = URI.create("http://localhost:8080/");
-      String clientId = System.getenv("CLIENT_ID");//DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
-      String clientSecret = System.getenv("CLIENT_SECRET");//DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
+      String clientId = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
+      String clientSecret = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
       UserAuthorizer userAuthorizer =
           UserAuthorizer.newBuilder()
               .setClientId(ClientId.of(clientId, clientSecret))
@@ -83,11 +74,10 @@ public class CallbackServlet extends HttpServlet {
       try {
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
         DatastoreRetrieval.addCredentialToDatastore("refresh", userCredentials.getRefreshToken());
-        return "Your Refresh Token has been generated"; // TODO: return success message. do datastore in sep method
+        return "Your Refresh Token has been generated";
       } catch (Exception e) {
-        System.out.println("Failed to generate Refresh Token");
+        return "Failed to generate Refresh Token";
       }
-      return "nope";
     } else {
       return "Invalid Request: State does not exist"; 
     }
@@ -98,13 +88,11 @@ public class CallbackServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
     for (Entity entity: results.asIterable()) {
-      System.out.println(entity.getProperty("state"));
       if (state.equals(entity.getProperty("state")) && sessionId.equals(entity.getProperty("sessionId"))) {
         datastore.delete((com.google.appengine.api.datastore.Key) entity.getKey());
         return true; 
       }
     }
-    System.out.println("Cool");
     return false;
   }
 
