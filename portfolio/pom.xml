@@ -65,6 +65,20 @@
     <version>20200518</version>
 </dependency>
 
+<dependency>
+  <groupId>com.google.oauth-client</groupId>
+  <artifactId>google-oauth-client</artifactId>
+  <version>1.30.4</version>
+</dependency>
+
+<dependency>
+  <groupId>com.google.oauth-client</groupId>
+  <artifactId>google-oauth-client-servlet</artifactId>
+  <version>1.30.4</version>
+</dependency>
+
+
+
   </dependencies>
 
   <build>
