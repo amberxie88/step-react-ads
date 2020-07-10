@@ -92,48 +92,12 @@ public class OAuthServlet extends HttpServlet {
               .setScopes(SCOPES)
               .setCallbackUri(URI.create(OAUTH2_CALLBACK))
               .build();
-      baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
+      baseUri = URI.create("http://localhost:8080/");
       System.out.printf(
           "Paste this url in your browser:%n%s%n",
           userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri));
       return userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri).toString();
-      
-
-    // Prints the configuration file contents.
-    /* Properties adsProperties = new Properties();
-    adsProperties.put(ConfigPropertyKey.CLIENT_ID.getPropertyKey(), clientId);
-    adsProperties.put(ConfigPropertyKey.CLIENT_SECRET.getPropertyKey(), clientSecret);
-    adsProperties.put(
-        ConfigPropertyKey.REFRESH_TOKEN.getPropertyKey(), userCredentials.getRefreshToken());
-    adsProperties.put(
-        ConfigPropertyKey.DEVELOPER_TOKEN.getPropertyKey(), "INSERT_DEVELOPER_TOKEN_HERE");
-
-    showConfigurationFile(adsProperties);
-    return userCredentials.getRefreshToken().toString();*/
 }
-
-
-/*
-  private void showConfigurationFile(Properties adsProperties) throws IOException {
-    System.out.printf(
-        "Copy the text below into a file named %s in your home directory, and replace "
-            + "INSERT_XXX_HERE with your configuration:%n",
-        GoogleAdsClient.Builder.DEFAULT_PROPERTIES_CONFIG_FILE_NAME);
-    System.out.println(
-        "######################## Configuration file start ########################");
-    adsProperties.store(System.out, null);
-    System.out.printf(
-        "# Required for manager accounts only: Specify the login customer ID used to%n"
-            + "# authenticate API calls. This will be the customer ID of the authenticated%n"
-            + "# manager account. You can also specify this later in code if your application%n"
-            + "# uses multiple manager account + OAuth pairs.%n"
-            + "#%n");
-    System.out.println(
-        "# " + ConfigPropertyKey.LOGIN_CUSTOMER_ID.getPropertyKey() + "=INSERT_LOGIN_CUSTOMER_ID");
-    System.out.println(
-        "######################## Configuration file end ##########################");
-  }*/
-
   
   /** Response object with attributes corresponding to OAuth2 callback parameters. */
   static class AuthorizationResponse extends GenericUrl {

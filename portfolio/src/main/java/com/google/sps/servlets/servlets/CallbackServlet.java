@@ -54,7 +54,7 @@ public class CallbackServlet extends HttpServlet {
     System.out.println(request.getSession());
 
 
-    String completeUrl = "http://app-infra-transformer-step.appspot.com/oauth2callback?" + request.getQueryString(); // change for deployment?
+    String completeUrl = "http://localhost:8080/oauth2callback?" + request.getQueryString(); // change for deployment?
     AuthorizationResponse authorizationResponse = new AuthorizationResponse(completeUrl);
 
     System.out.println("authorizationResponse: ");
@@ -71,9 +71,9 @@ public class CallbackServlet extends HttpServlet {
       return "Invalid Request: Code not provided";
     }
     if (sessionStateExists(authorizationResponse.state.toString(), sessionId)) {
-      URI baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
-      String clientId = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
-      String clientSecret = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
+      URI baseUri = URI.create("http://localhost:8080/");
+      String clientId = System.getenv("CLIENT_ID");//DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
+      String clientSecret = System.getenv("CLIENT_SECRET");//DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
       UserAuthorizer userAuthorizer =
           UserAuthorizer.newBuilder()
               .setClientId(ClientId.of(clientId, clientSecret))
