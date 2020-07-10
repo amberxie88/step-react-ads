@@ -1,10 +1,8 @@
 import React from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
-import Reports from './PageComponents/ReportsDashboard/ReportsDashboard';
 import AppBarWithDrawer from './AppBarWithDrawer/AppBarWithDrawer';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
-import QueryResults from './PageComponents/QueryDashboard/QueryResults';
+import { BrowserRouter } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { PageRouter } from './PageComponents/PageRouter';
 import { stylesSettings } from './Utilities/Styles';

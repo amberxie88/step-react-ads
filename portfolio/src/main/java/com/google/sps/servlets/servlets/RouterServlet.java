@@ -22,9 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 
-import java.nio.file.Files;
-import java.io.File;
-import java.nio.file.Path;
 
 //remove this annotation so the mapping in web.xml applies
 //@WebServlet("/*")
