@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '@material-ui/core/styles';
 import {
   LineChart,
@@ -8,31 +8,63 @@ import {
   Label,
   ResponsiveContainer,
 } from 'recharts';
+import axios from 'axios';
 import Title from '../../../Utilities/Title';
-
-// Generate Sales Data
-function createData(time, amount) {
-  return { time, amount };
-}
-
-const data = [
-  createData('00:00', 0),
-  createData('03:00', 300),
-  createData('06:00', 600),
-  createData('09:00', 800),
-  createData('12:00', 1500),
-  createData('15:00', 2000),
-  createData('18:00', 2400),
-  createData('21:00', 2400),
-  createData('24:00', undefined),
-];
 
 export default function Chart() {
   const theme = useTheme();
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    (async function getData() {
+      // const response = await axios.get('/data');
+      const response = {
+        data: [
+          {
+            time: '00:00',
+            amount: 0,
+          },
+          {
+            time: '03:00',
+            amount: 300,
+          },
+          {
+            time: '06:00',
+            amount: 600,
+          },
+          {
+            time: '09:00',
+            amount: 800,
+          },
+          {
+            time: '12:00',
+            amount: 1500,
+          },
+          {
+            time: '15:00',
+            amount: 2000,
+          },
+          {
+            time: '18:00',
+            amount: 2400,
+          },
+          {
+            time: '21:00',
+            amount: 2400,
+          },
+          {
+            time: '24:00',
+            amount: 'undefined',
+          },
+        ],
+      };
+      setData(response.data);
+    })();
+  }, []);
 
   return (
     <React.Fragment>
-      <Title>Today</Title>
+      <Title>Today's Sales</Title>
       <ResponsiveContainer>
         <LineChart
           data={data}
