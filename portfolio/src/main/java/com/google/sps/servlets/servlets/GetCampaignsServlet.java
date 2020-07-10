@@ -44,6 +44,9 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import java.util.*;
 
+import com.google.sps.data.DatastoreRetrieval;
+import com.google.sps.data.CredentialRetrieval;
+
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
 @WebServlet("/campaign")
@@ -56,26 +59,22 @@ public class GetCampaignsServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // GET QUERY STRING
     String query = request.getParameter("query");
     System.out.println(query);
+
     // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
-    //params.customerId = Long.parseLong("4498877497"); //Amber
-    params.customerId = Long.parseLong("3827095360"); //Kaitlyn
+    params.customerId = Long.parseLong("4498877497"); //Amber
+    //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
     System.out.println(params.customerId);
 
     GoogleAdsClient googleAdsClient;
-    File propertiesFile = new File("ads.properties");
     try {
-      googleAdsClient = GoogleAdsClient.newBuilder()
-        .fromPropertiesFile(propertiesFile).build();
-      //long managerId = Long.parseLong("9797005693");
-      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).setLoginCustomerId(managerId).build();
-    } catch (FileNotFoundException fnfe) {
-      System.err.printf(
-          "Failed to load GoogleAdsClient configuration from file. Exception: %s%n", fnfe);
-      return;
-    } catch (IOException ioe) {
+      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
+        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
+        .setLoginCustomerId(Long.parseLong("9797005693")).build();
+    } catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
       return;
     }
