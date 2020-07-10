@@ -45,6 +45,7 @@ import org.json.JSONArray;
 import java.util.*;
 
 import com.google.sps.data.DatastoreRetrieval;
+import com.google.sps.data.CredentialRetrieval;
 
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
@@ -71,7 +72,8 @@ public class GetCampaignsServlet extends HttpServlet {
     GoogleAdsClient googleAdsClient;
     try {
       googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
-        .setDeveloperToken(DEVELOPER_TOKEN).setLoginCustomerId(Long.parseLong("9797005693")).build();
+        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
+        .setLoginCustomerId(Long.parseLong("9797005693")).build();
     } catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
       return;
@@ -107,7 +109,7 @@ public class GetCampaignsServlet extends HttpServlet {
    * @param customerId the client customer ID.
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
-  private String runExample(GoogleAdsClient googleAdsClient, long customerId, String queryFIXTHISLATER) {
+  private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
     System.out.println("runExample called");
     String returnJSON = "";
     try (GoogleAdsServiceClient googleAdsServiceClient =
