@@ -8,39 +8,42 @@ import TableRow from '@material-ui/core/TableRow';
 
 export default function QueryResults(props) {
   const rows = props.rows;
+  const fields = props.fields;
   console.log(rows);
+  console.log(fields);
   return (
     <React.Fragment>
       <Title>Query Results</Title>
-      <DisplayRows rows={rows} />
+      <Results rows={rows} fields={fields} />
     </React.Fragment>
   );
 }
 
-function DisplayRows(props) {
-  const rows = props.rows;
-  return <Results rows={rows} />;
-}
+// function DisplayRows(props) {
+//   const rows = props.rows;
+//   return <Results rows={rows} />;
+// }
 
 function Results(props) {
   const rows = props.rows;
+  const fields = props.fields;
+  console.log(rows);
+  console.log(fields);
   return (
     <Table size="small">
       <TableHead>
         <TableRow>
-          <TableCell>Campaign ID</TableCell>
-          <TableCell>Campaign Name</TableCell>
-          <TableCell>Ad Group Name</TableCell>
-          <TableCell>Keyword</TableCell>
+          {fields.map((key, index) => (
+            <TableCell key={'col' + index}>{key}</TableCell>
+          ))}
         </TableRow>
       </TableHead>
       <TableBody>
         {rows.map((row) => (
-          <TableRow key={row.id}>
-            <TableCell>{row.id}</TableCell>
-            <TableCell>{row.name}</TableCell>
-            <TableCell>{row.adGroupName}</TableCell>
-            <TableCell>{row.keyword}</TableCell>
+          <TableRow key={'row' + row.id}>
+            {fields.map((key) => (
+              <TableCell key={key}>{row[key]}</TableCell>
+            ))}
           </TableRow>
         ))}
       </TableBody>
