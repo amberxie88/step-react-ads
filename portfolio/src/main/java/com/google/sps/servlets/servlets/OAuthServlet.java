@@ -1,0 +1,169 @@
+// Copyright 2018 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package com.google.sps.servlets;
+
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.util.Key;
+import com.google.auth.oauth2.ClientId;
+import com.google.auth.oauth2.UserAuthorizer;
+import com.google.auth.oauth2.UserCredentials;
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
+import java.math.BigInteger;
+import java.net.URI;
+import java.security.SecureRandom;
+
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.sps.data.DatastoreRetrieval;
+
+/** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
+@WebServlet("/oauth")
+public class OAuthServlet extends HttpServlet {
+
+  private static final ImmutableList<String> SCOPES =
+      ImmutableList.<String>builder().add("https://www.googleapis.com/auth/adwords").build();
+  private static final String OAUTH2_CALLBACK = "/oauth2callback";
+
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String clientId = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
+    String clientSecret = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
+    String loginEmailAddressHint = null;
+    String sessionId = (String) request.getSession().getId();
+    System.out.println(request.getSession());
+    System.out.println(sessionId);
+
+    try {
+      String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
+      response.getWriter().println(authorizationLink); // TODO: delete this later
+      response.sendRedirect(authorizationLink);
+    } catch (Exception e) {
+      response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
+      System.out.println(e);
+    }
+    response.setContentType("application/html;");
+  }
+
+  public String runExample(String clientId, String clientSecret, String loginEmailAddressHint, String sessionId)
+      throws Exception {
+    // Creates an anti-forgery state token as described here:
+    // https://developers.google.com/identity/protocols/OpenIDConnect#createxsrftoken
+    String state = new BigInteger(130, new SecureRandom()).toString(32);
+
+    // Saves state in datastore
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Entity oauthEntity = new Entity("OAuth");
+    oauthEntity.setProperty("state", state);
+    oauthEntity.setProperty("sessionId", sessionId);
+    datastore.put(oauthEntity);
+    System.out.println("Putting a new state");
+
+
+    // Creates an HTTP server that will listen for the OAuth2 callback request.
+    URI baseUri;
+    UserAuthorizer userAuthorizer;
+    AuthorizationResponse authorizationResponse = null;
+    
+    userAuthorizer =
+          UserAuthorizer.newBuilder()
+              .setClientId(ClientId.of(clientId, clientSecret))
+              .setScopes(SCOPES)
+              .setCallbackUri(URI.create(OAUTH2_CALLBACK))
+              .build();
+      baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
+      System.out.printf(
+          "Paste this url in your browser:%n%s%n",
+          userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri));
+      return userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri).toString();
+      
+
+    // Prints the configuration file contents.
+    /* Properties adsProperties = new Properties();
+    adsProperties.put(ConfigPropertyKey.CLIENT_ID.getPropertyKey(), clientId);
+    adsProperties.put(ConfigPropertyKey.CLIENT_SECRET.getPropertyKey(), clientSecret);
+    adsProperties.put(
+        ConfigPropertyKey.REFRESH_TOKEN.getPropertyKey(), userCredentials.getRefreshToken());
+    adsProperties.put(
+        ConfigPropertyKey.DEVELOPER_TOKEN.getPropertyKey(), "INSERT_DEVELOPER_TOKEN_HERE");
+
+    showConfigurationFile(adsProperties);
+    return userCredentials.getRefreshToken().toString();*/
+}
+
+
+/*
+  private void showConfigurationFile(Properties adsProperties) throws IOException {
+    System.out.printf(
+        "Copy the text below into a file named %s in your home directory, and replace "
+            + "INSERT_XXX_HERE with your configuration:%n",
+        GoogleAdsClient.Builder.DEFAULT_PROPERTIES_CONFIG_FILE_NAME);
+    System.out.println(
+        "######################## Configuration file start ########################");
+    adsProperties.store(System.out, null);
+    System.out.printf(
+        "# Required for manager accounts only: Specify the login customer ID used to%n"
+            + "# authenticate API calls. This will be the customer ID of the authenticated%n"
+            + "# manager account. You can also specify this later in code if your application%n"
+            + "# uses multiple manager account + OAuth pairs.%n"
+            + "#%n");
+    System.out.println(
+        "# " + ConfigPropertyKey.LOGIN_CUSTOMER_ID.getPropertyKey() + "=INSERT_LOGIN_CUSTOMER_ID");
+    System.out.println(
+        "######################## Configuration file end ##########################");
+  }*/
+
+  
+  /** Response object with attributes corresponding to OAuth2 callback parameters. */
+  static class AuthorizationResponse extends GenericUrl {
+
+    /** The authorization code to exchange for an access token and (optionally) a refresh token. */
+    @Key String code;
+
+    /** Error from the request or from the processing of the request. */
+    @Key String error;
+
+    /** State parameter from the callback request. */
+    @Key String state;
+
+    /**
+     * Constructs a new instance based on an absolute URL. All fields annotated with the {@link Key}
+     * annotation will be set if they are present in the URL.
+     *
+     * @param encodedUrl absolute URL with query parameters.
+     */
+    public AuthorizationResponse(String encodedUrl) {
+      super(encodedUrl);
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper(getClass())
+          .add("code", code)
+          .add("error", error)
+          .add("state", state)
+          .toString();
+    }
+  }
+}
