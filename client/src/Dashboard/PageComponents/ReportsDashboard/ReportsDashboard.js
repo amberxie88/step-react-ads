@@ -3,8 +3,9 @@ import clsx from 'clsx';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Chart from './Reports/Chart';
+import ClicksPerCampaignChart from './Reports/ClicksPerCampaignChart';
 import Deposits from './Reports/Deposits';
-import Orders from './Reports/Orders';
+import CampaignData from './Reports/CampaignData';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { stylesSettings } from '../../Utilities/Styles';
@@ -16,22 +17,28 @@ export default function Reports(props) {
   return (
     <React.Fragment>
       <Grid container spacing={3}>
+        {/* ClicksPerCampaignChart */}
+        <Grid item xs={12} md={12} xl={5}>
+          <Paper className={fixedHeightPaper}>
+            <ClicksPerCampaignChart />
+          </Paper>
+        </Grid>
         {/* Chart */}
-        <Grid item xs={12} md={8} lg={9}>
+        <Grid item xs={12} md={8} xl={5}>
           <Paper className={fixedHeightPaper}>
             <Chart />
           </Paper>
         </Grid>
         {/* Recent Deposits */}
-        <Grid item xs={12} md={4} lg={3}>
+        <Grid item xs={12} md={4} xl={2}>
           <Paper className={fixedHeightPaper}>
             <Deposits />
           </Paper>
         </Grid>
-        {/* Recent Orders */}
+        {/* CampaignData */}
         <Grid item xs={12}>
           <Paper className={classes.paper}>
-            <Orders />
+            <CampaignData />
           </Paper>
         </Grid>
       </Grid>
