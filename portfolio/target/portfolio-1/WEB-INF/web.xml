@@ -3,14 +3,17 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
          http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
+  <!-- dummy servlet mapping to enable 404 catching -->
+  <!-- https://cloud.google.com/appengine/docs/standard/java/config/webxml -->
   <servlet>
-      <servlet-name>404error</servlet-name>
+      <servlet-name>404catcher</servlet-name>
       <servlet-class>com.google.sps.servlets.RouterServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-      <servlet-name>404error</servlet-name>
+      <servlet-name>404catcher</servlet-name>
       <url-pattern>/404</url-pattern>
   </servlet-mapping>
+  <!-- serve the index page on 404 error -->
   <error-page>
       <error-code>404</error-code>
       <location>/index.html</location>
