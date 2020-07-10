@@ -163,11 +163,15 @@ public class GetCampaignsServlet extends HttpServlet {
     }
 
     System.out.println(Arrays.toString(invalidRequestValues.toArray()));
+    System.out.println(jsonObject.get("fieldMask"));
     JSONObject metaObj = processMetaJSON(invalidRequestValues);
 
     JSONObject finalJSON = new JSONObject();
     finalJSON.put("response", returnArray);
     finalJSON.put("meta", metaObj);
+    finalJSON.put("fieldmask", fieldMaskArr);
+
+    System.out.println(finalJSON.toString());
 
     return finalJSON.toString();
   }

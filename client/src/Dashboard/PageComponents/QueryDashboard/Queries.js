@@ -12,12 +12,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 //JSON data parsing here
-function createData(results) {
-  const id = results[0]['campaign.id'];
-  const name = results[0]['campaign.name'];
-  const adGroupName = results[0]['adGroup.name'];
-  const keyword = results[0]['adGroupCriterion.keyword.text'];
-  return { id, name, adGroupName, keyword };
+function addKey(index, responseObj) {
+  responseObj.id = index;
+  return responseObj;
+}
+
+function parseRows(response) {
+  const responseRows = [];
+  let i;
+  for (i = 0; i < response.length; i++) {
+    responseRows.push(addKey(i, response[i]));
+  }
+  console.log(responseRows);
+  return responseRows;
 }
 
 function parseJSON(response) {
@@ -29,7 +36,7 @@ class Query extends React.Component {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.handleQuery = this.handleQuery.bind(this);
-    this.state = { value: '', rows: [] };
+    this.state = { value: '', rows: [], fields: [] };
   }
 
   handleQuery() {
@@ -45,9 +52,10 @@ class Query extends React.Component {
     fetch(request)
       .then(parseJSON)
       .then((jsonResult) => {
-        console.log(jsonResult.response);
+        console.log(jsonResult);
         this.setState({
-          rows: [createData(jsonResult.response)],
+          rows: parseRows(jsonResult.response),
+          fields: jsonResult.fieldmask,
         });
       });
   }
@@ -57,7 +65,8 @@ class Query extends React.Component {
   }
 
   render() {
-    const rows = this.state.rows;
+    // const rows = this.state.rows;
+    // const fields = this.state.fields;
     return (
       <React.Fragment>
         <Title>Query Here</Title>
@@ -77,7 +86,7 @@ class Query extends React.Component {
         />
         {/* <input type="submit" value="Submit" /> */}
         <SubmitButton onClick={this.handleQuery} />
-        <QueryResults rows={rows} />
+        <QueryResults rows={this.state.rows} fields={this.state.fields} />
       </React.Fragment>
     );
   }
