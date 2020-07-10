@@ -41,13 +41,9 @@ function Results(props) {
       <TableBody>
         {rows.map((row) => (
           <TableRow key={'row' + row.id}>
-            {Object.keys(row).map((key) => (
+            {fields.map((key) => (
               <TableCell key={key}>{row[key]}</TableCell>
             ))}
-            {/* <TableCell>{row['campaign.id']}</TableCell>
-            <TableCell>{row['adGroup.name']}</TableCell>
-            <TableCell>{row['campaign.name']}</TableCell>
-            <TableCell>{row['adGroupCriterion.keyword.text']}</TableCell> */}
           </TableRow>
         ))}
       </TableBody>

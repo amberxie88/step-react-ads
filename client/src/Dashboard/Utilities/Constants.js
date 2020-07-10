@@ -3,15 +3,16 @@ import HomeIcon from '@material-ui/icons/Home';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import Reports from '../PageComponents/ReportsDashboard/ReportsDashboard';
-import Queries from '../PageComponents/QueryDashboard/Queries';
+import Queries from '../PageComponents/QueryDashboard/QueryDashboard';
+import Login from '../PageComponents/LoginDashboard/LoginDashboard';
 
-const Title = 'KOALAS';
+const Title = 'Google Ads API Web App Demo';
 const PagesWithAttributes = [
   {
-    name: 'Home',
+    name: 'Login',
     route: '/',
     icon: <HomeIcon />,
-    component: <Reports />,
+    component: <Login />,
   },
   {
     name: 'Dashboard',
