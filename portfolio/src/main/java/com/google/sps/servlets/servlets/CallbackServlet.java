@@ -46,6 +46,7 @@ public class CallbackServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    System.out.println("callback");
     String state = request.getParameter("state");
     String code = request.getParameter("code");
     String scope = request.getParameter("scope");
@@ -74,6 +75,7 @@ public class CallbackServlet extends HttpServlet {
       try {
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
         DatastoreRetrieval.addCredentialToDatastore("refresh", userCredentials.getRefreshToken());
+        System.out.println("refresh token generated");
         return "Your Refresh Token has been generated";
       } catch (Exception e) {
         return "Failed to generate Refresh Token";

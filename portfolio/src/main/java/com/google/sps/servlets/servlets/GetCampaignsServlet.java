@@ -199,6 +199,7 @@ public class GetCampaignsServlet extends HttpServlet {
     for (int i = 0; i < path.length - 1; i++) {
       String stepInPath = path[i];
       obj = (JSONObject) obj.get(stepInPath);
+      
     }
     returnValue = obj.get(path[path.length-1]).toString();
     return returnValue;

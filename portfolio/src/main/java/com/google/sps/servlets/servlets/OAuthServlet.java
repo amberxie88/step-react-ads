@@ -48,21 +48,38 @@ public class OAuthServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    //client id/secret (for dev)
+    //add credentials to datastore
+    DatastoreRetrieval.addCredentialToDatastore("CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
+    DatastoreRetrieval.addCredentialToDatastore("CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
+    DatastoreRetrieval.addCredentialToDatastore("DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
+    
+
     String clientId = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
     String clientSecret = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
     String loginEmailAddressHint = null;
     String sessionId = (String) request.getSession().getId();
     System.out.println(request.getSession());
     System.out.println(sessionId);
+    System.out.println(clientId);
+    System.out.println(clientSecret);
 
-    try {
-      String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
-      response.sendRedirect(authorizationLink);
-    } catch (Exception e) {
-      response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
-      System.out.println(e);
-    }
-    response.setContentType("application/html;");
+    response.setContentType("application/json;");
+    response.getWriter().println("http://app-infra-transformer-step.appspot.com/");
+    return;
+
+    // try {
+    //   String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
+    //   System.out.println("redirecting");
+    //   System.out.println(authorizationLink);
+    //   response.sendRedirect("http://www.google.com");
+    //   return;
+    // } catch (Exception e) {
+    //   response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
+    //   System.out.println(e);
+    // }
+    
   }
 
   public String runExample(String clientId, String clientSecret, String loginEmailAddressHint, String sessionId)
