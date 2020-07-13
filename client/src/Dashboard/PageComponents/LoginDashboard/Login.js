@@ -39,7 +39,8 @@ class Login extends React.Component {
       .then((jsonResult) => {
         console.log(jsonResult);
         console.log(jsonResult.redirect);
-        window.open(jsonResult.redirect, '_blank');
+        //window.open(jsonResult.redirect, '_blank');
+        window.location.href = jsonResult.redirect;
       }
       );
     // .then((jsonResult) => {
