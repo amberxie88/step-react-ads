@@ -9,6 +9,10 @@ function preventDefault(event) {
   event.preventDefault();
 }
 
+function parseJSON(response) {
+  return response.json();
+}
+
 const useStyles = makeStyles({
   depositContext: {
     flex: 1,
@@ -32,7 +36,12 @@ class Login extends React.Component {
     });
     fetch(request) //.then(console.log('logged in!'));
       .then(parseJSON)
-      .then();
+      .then((jsonResult) => {
+        console.log(jsonResult);
+        console.log(jsonResult.redirect);
+        window.open(jsonResult.redirect, '_blank');
+      }
+      );
     // .then((jsonResult) => {
     //   console.log(jsonResult);
     //   this.setState({
