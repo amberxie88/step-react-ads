@@ -43,13 +43,6 @@ class Login extends React.Component {
         window.location.href = jsonResult.redirect;
       }
       );
-    // .then((jsonResult) => {
-    //   console.log(jsonResult);
-    //   this.setState({
-    //     rows: parseRows(jsonResult.response),
-    //     fields: jsonResult.fieldmask,
-    //   });
-    // });
   }
 
   render() {
