@@ -49,8 +49,8 @@ import com.google.sps.data.CredentialRetrieval;
 
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
-@WebServlet("/campaign")
-public class GetCampaignsServlet extends HttpServlet {
+@WebServlet("/chart-2")
+public class GetChart2Servlet extends HttpServlet {
 
   private static class GetCampaignsWithStatsParams extends CodeSampleParams {
     @Parameter(names = ArgumentNames.CUSTOMER_ID, required = true)
@@ -58,10 +58,9 @@ public class GetCampaignsServlet extends HttpServlet {
   }
 
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // GET QUERY STRING
-    String query = request.getParameter("query");
-    System.out.println(query);
+    String query = "SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions FROM campaign ORDER BY campaign.id";
 
     // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
@@ -73,6 +72,7 @@ public class GetCampaignsServlet extends HttpServlet {
 
     GoogleAdsClient googleAdsClient;
     try {
+      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().build();
       googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
         .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
         .setLoginCustomerId(Long.parseLong("9797005693")).build();
@@ -85,7 +85,7 @@ public class GetCampaignsServlet extends HttpServlet {
     
     String returnJSON = "";
     try {
-      returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId, query);
+      returnJSON = new GetChart2Servlet().runExample(googleAdsClient, params.customerId, query);
       returnJSON = processJSON(returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
@@ -114,8 +114,7 @@ public class GetCampaignsServlet extends HttpServlet {
   private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
     System.out.println("runExample called");
     String returnJSON = "";
-    System.out.println(query);
-    System.out.println(customerId);
+    
     try (GoogleAdsServiceClient googleAdsServiceClient =
         googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
       //query = "SELECT campaign.id, campaign.name, ad_group.name, ad_group_criterion.keyword.text FROM keyword_view";
