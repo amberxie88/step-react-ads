@@ -30,8 +30,9 @@ class Login extends React.Component {
       method: 'GET',
       mode: 'cors', //allow CORS
     });
-    fetch(request).then(console.log('logged in!'));
-    // .then(parseJSON)
+    fetch(request) //.then(console.log('logged in!'));
+      .then(parseJSON)
+      .then();
     // .then((jsonResult) => {
     //   console.log(jsonResult);
     //   this.setState({
