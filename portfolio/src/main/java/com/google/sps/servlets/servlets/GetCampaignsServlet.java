@@ -44,6 +44,9 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import java.util.*;
 
+import com.google.sps.data.DatastoreRetrieval;
+import com.google.sps.data.CredentialRetrieval;
+
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
 @WebServlet("/campaign")
@@ -55,24 +58,23 @@ public class GetCampaignsServlet extends HttpServlet {
   }
 
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // GET QUERY STRING
+    String query = request.getParameter("query");
+    System.out.println(query);
+
+    // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
-    //params.customerId = Long.parseLong("4498877497"); //Amber
-    params.customerId = Long.parseLong("3827095360"); //Kaitlyn
+    params.customerId = Long.parseLong("4498877497"); //Amber
+    //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
     System.out.println(params.customerId);
 
     GoogleAdsClient googleAdsClient;
-    File propertiesFile = new File("ads.properties");
     try {
-      googleAdsClient = GoogleAdsClient.newBuilder()
-        .fromPropertiesFile(propertiesFile).build();
-      //long managerId = Long.parseLong("9797005693");
-      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).setLoginCustomerId(managerId).build();
-    } catch (FileNotFoundException fnfe) {
-      System.err.printf(
-          "Failed to load GoogleAdsClient configuration from file. Exception: %s%n", fnfe);
-      return;
-    } catch (IOException ioe) {
+      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
+        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
+        .setLoginCustomerId(Long.parseLong("9797005693")).build();
+    } catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
       return;
     }
@@ -81,7 +83,7 @@ public class GetCampaignsServlet extends HttpServlet {
     
     String returnJSON = "";
     try {
-      returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId);
+      returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId, query);
       returnJSON = processJSON(returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
@@ -107,12 +109,12 @@ public class GetCampaignsServlet extends HttpServlet {
    * @param customerId the client customer ID.
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
-  private String runExample(GoogleAdsClient googleAdsClient, long customerId) {
+  private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
     System.out.println("runExample called");
     String returnJSON = "";
     try (GoogleAdsServiceClient googleAdsServiceClient =
         googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
-      String query = "SELECT campaign.id, campaign.name, ad_group.name, ad_group_criterion.keyword.text FROM keyword_view";
+      //String query = "SELECT campaign.id, campaign.name, ad_group.name, ad_group_criterion.keyword.text FROM keyword_view";
       // Constructs the SearchGoogleAdsStreamRequest.
       SearchGoogleAdsStreamRequest request =
           SearchGoogleAdsStreamRequest.newBuilder()
@@ -160,11 +162,15 @@ public class GetCampaignsServlet extends HttpServlet {
     }
 
     System.out.println(Arrays.toString(invalidRequestValues.toArray()));
+    System.out.println(jsonObject.get("fieldMask"));
     JSONObject metaObj = processMetaJSON(invalidRequestValues);
 
     JSONObject finalJSON = new JSONObject();
     finalJSON.put("response", returnArray);
     finalJSON.put("meta", metaObj);
+    finalJSON.put("fieldmask", fieldMaskArr);
+
+    System.out.println(finalJSON.toString());
 
     return finalJSON.toString();
   }
