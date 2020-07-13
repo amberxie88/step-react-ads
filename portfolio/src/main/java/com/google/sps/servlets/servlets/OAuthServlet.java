@@ -51,9 +51,9 @@ public class OAuthServlet extends HttpServlet {
 
     //client id/secret (for dev)
     //add credentials to datastore
-    DatastoreRetrieval.addCredentialToDatastore("CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
-    DatastoreRetrieval.addCredentialToDatastore("CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
-    DatastoreRetrieval.addCredentialToDatastore("DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
+    //DatastoreRetrieval.addCredentialToDatastore("CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
+    //DatastoreRetrieval.addCredentialToDatastore("CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
+    //DatastoreRetrieval.addCredentialToDatastore("DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
     
 
     String clientId = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
@@ -67,19 +67,20 @@ public class OAuthServlet extends HttpServlet {
 
     //response.setContentType("application/json;");
     //response.getWriter().println("http://app-infra-transformer-step.appspot.com/");
-    response.sendRedirect("http://app-infra-transformer-step.appspot.com/");
-    return;
+    //response.addHeader("Access-Control-Allow-Origin", "*");
+    //response.sendRedirect("http://app-infra-transformer-step.appspot.com/");
 
-    // try {
-    //   String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
-    //   System.out.println("redirecting");
-    //   System.out.println(authorizationLink);
-    //   response.sendRedirect("http://www.google.com");
-    //   return;
-    // } catch (Exception e) {
-    //   response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
-    //   System.out.println(e);
-    // }
+    try {
+      String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
+      //System.out.println("redirecting");
+      //System.out.println(authorizationLink);
+      response.setContentType("application/json;");
+      response.addHeader("Access-Control-Allow-Origin", "*");
+      response.getWriter().println("{\"redirect\": \"" + authorizationLink + "\"}");
+    } catch (Exception e) {
+      response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
+      System.out.println(e);
+    }
     
   }
 
