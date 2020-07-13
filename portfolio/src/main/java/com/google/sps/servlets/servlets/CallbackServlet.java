@@ -56,6 +56,8 @@ public class CallbackServlet extends HttpServlet {
     String statusMessage = processAuthorizationResponse(authorizationResponse, request.getSession().getId());
     response.setContentType("application/json");
     response.getWriter().println(statusMessage); 
+
+    response.sendRedirect("http://localhost:5000/");
   }
 
   private String processAuthorizationResponse(AuthorizationResponse authorizationResponse, String sessionId) {
