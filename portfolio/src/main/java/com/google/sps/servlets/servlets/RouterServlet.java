@@ -15,19 +15,24 @@
 package com.google.sps.servlets;
 
 import java.io.IOException;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.RequestDispatcher;
 
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
-@WebServlet("/data")
-public class DataServlet extends HttpServlet {
 
+//remove this annotation so the mapping in web.xml applies
+//@WebServlet("/*")
+public class RouterServlet extends HttpServlet {
+
+  //dummy servlet for 404 error handling
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setContentType("application/json;");
-    response.setCharacterEncoding("UTF-8");
-    response.getWriter().println("{\"response\":[{\"campaign.name\":\"Sales-Search-1\",\"metrics.clicks\":\"3\"},{\"campaign.name\":\"Sales-Search-2\",\"metrics.clicks\":\"10\"},{\"campaign.name\":\"Sales-Search-3\",\"metrics.clicks\":\"1\"},{\"campaign.name\":\"Sales-Search-4\",\"metrics.clicks\":\"6\"}],\"meta\":{\"status\":\"200\"}}");
-  }
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+    response.setContentType("text/html;");
+    response.getWriter().println("<h1>404 page found :^)</h1>");
+
+ }
 }
