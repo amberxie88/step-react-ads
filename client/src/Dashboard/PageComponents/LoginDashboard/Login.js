@@ -24,20 +24,21 @@ class Login extends React.Component {
 
   handleLogin() {
     alert('login requested');
-    // const request = new Request('/campaign', {
-    //   accept: 'application/json',
-    //   method: 'GET',
-    //   body: params,
-    // });
-    // fetch(request)
-    //   .then(parseJSON)
-    //   .then((jsonResult) => {
-    //     console.log(jsonResult);
-    //     this.setState({
-    //       rows: parseRows(jsonResult.response),
-    //       fields: jsonResult.fieldmask,
-    //     });
+
+    const request = new Request('/oauth', {
+      //accept: 'application/json',
+      method: 'GET',
+      mode: 'cors', //allow CORS
+    });
+    fetch(request).then(console.log('logged in!'));
+    // .then(parseJSON)
+    // .then((jsonResult) => {
+    //   console.log(jsonResult);
+    //   this.setState({
+    //     rows: parseRows(jsonResult.response),
+    //     fields: jsonResult.fieldmask,
     //   });
+    // });
   }
 
   render() {
