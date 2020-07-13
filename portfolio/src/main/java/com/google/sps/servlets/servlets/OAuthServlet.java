@@ -65,8 +65,9 @@ public class OAuthServlet extends HttpServlet {
     System.out.println(clientId);
     System.out.println(clientSecret);
 
-    response.setContentType("application/json;");
-    response.getWriter().println("http://app-infra-transformer-step.appspot.com/");
+    //response.setContentType("application/json;");
+    //response.getWriter().println("http://app-infra-transformer-step.appspot.com/");
+    response.sendRedirect("http://app-infra-transformer-step.appspot.com/");
     return;
 
     // try {
