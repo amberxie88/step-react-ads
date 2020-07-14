@@ -48,21 +48,40 @@ public class OAuthServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    //client id/secret (for dev)
+    //add credentials to datastore
+    //DatastoreRetrieval.addCredentialToDatastore("CLIENT_ID", "686361195889-5n3om5eoth8isjm2sukclrit3b6t8o4p.apps.googleusercontent.com");
+    //DatastoreRetrieval.addCredentialToDatastore("CLIENT_SECRET", "3HCTvQagQtgYTshzdjCPzdsa");
+    //DatastoreRetrieval.addCredentialToDatastore("DEVELOPER_TOKEN", "iTAQj22KlySYRGyuTi5WEw");
+    
+
     String clientId = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
     String clientSecret = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
     String loginEmailAddressHint = null;
     String sessionId = (String) request.getSession().getId();
     System.out.println(request.getSession());
     System.out.println(sessionId);
+    System.out.println(clientId);
+    System.out.println(clientSecret);
+
+    //response.setContentType("application/json;");
+    //response.getWriter().println("http://app-infra-transformer-step.appspot.com/");
+    //response.addHeader("Access-Control-Allow-Origin", "*");
+    //response.sendRedirect("http://app-infra-transformer-step.appspot.com/");
 
     try {
       String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
-      response.sendRedirect(authorizationLink);
+      //System.out.println("redirecting");
+      //System.out.println(authorizationLink);
+      response.setContentType("application/json;");
+      response.addHeader("Access-Control-Allow-Origin", "*");
+      response.getWriter().println("{\"redirect\": \"" + authorizationLink + "\"}");
     } catch (Exception e) {
       response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
       System.out.println(e);
     }
-    response.setContentType("application/html;");
+    
   }
 
   public String runExample(String clientId, String clientSecret, String loginEmailAddressHint, String sessionId)

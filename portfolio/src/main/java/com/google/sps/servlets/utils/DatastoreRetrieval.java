@@ -27,4 +27,13 @@ public class DatastoreRetrieval {
     oauthEntity.setProperty("value", value);
     datastore.put(oauthEntity);
   }
+
+  public static void addSessionCredentialToDatastore(String name, String value, String sessionId) {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Entity oauthEntity = new Entity("Settings");
+    oauthEntity.setProperty("name", name);
+    oauthEntity.setProperty("value", value);
+    oauthEntity.setProperty("session", sessionId);
+    datastore.put(oauthEntity);
+  }
 }

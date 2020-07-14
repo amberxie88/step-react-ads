@@ -4,6 +4,7 @@ import QueryResults from './QueryResults';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Title from '../../Utilities/Title';
+import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,24 +40,20 @@ class Query extends React.Component {
     this.state = { value: '', rows: [], fields: [] };
   }
 
-  handleQuery() {
-    alert('A query was submitted: ' + this.state.value);
+  async handleQuery() {
+    alert(this.state.value);
     const query = this.state.value;
-    const params = new URLSearchParams();
-    params.append('query', query);
-    const request = new Request('/campaign', {
-      accept: 'application/json',
-      method: 'POST',
-      body: params,
-    });
-    fetch(request)
-      .then(parseJSON)
-      .then((jsonResult) => {
-        console.log(jsonResult);
-        this.setState({
-          rows: parseRows(jsonResult.response),
-          fields: jsonResult.fieldmask,
-        });
+    const { data } = await axios.post(
+      '/campaign',
+      new URLSearchParams({ query }),
+    );
+    if (data.meta.status !== "200"){
+      alert(data.meta.message);
+      return;
+    }
+    this.setState({
+        rows: parseRows(data.response),
+        fields: data.fieldmask,
       });
   }
 
