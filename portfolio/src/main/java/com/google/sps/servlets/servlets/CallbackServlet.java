@@ -77,7 +77,7 @@ public class CallbackServlet extends HttpServlet {
               .build();
       try {
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
-        DatastoreRetrieval.addCredentialToDatastore("refresh", userCredentials.getRefreshToken());
+        DatastoreRetrieval.addSessionCredentialToDatastore("refresh", userCredentials.getRefreshToken(), sessionId);
         return "Your Refresh Token has been generated. This page may be closed.";
       } catch (Exception e) {
         return "Failed to generate Refresh Token";
