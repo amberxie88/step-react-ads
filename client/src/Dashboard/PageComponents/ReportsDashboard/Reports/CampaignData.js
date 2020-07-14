@@ -22,8 +22,7 @@ export default function CampaignData() {
       const response = await axios.post(
         '/campaign',
         new URLSearchParams({
-          query: `SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions
-      FROM campaign`,
+          query: `SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions FROM campaign ORDER BY campaign.id          `,
         }),
         {
           headers: {

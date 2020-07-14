@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import QueryResults from './QueryResults';
 import TextField from '@material-ui/core/TextField';
@@ -27,10 +28,6 @@ function parseRows(response) {
   return responseRows;
 }
 
-function parseJSON(response) {
-  return response.json();
-}
-
 class Query extends React.Component {
   constructor(props) {
     super(props);
@@ -40,20 +37,23 @@ class Query extends React.Component {
   }
 
   async handleQuery() {
-    //alert(this.state.value);
     const query = this.state.value;
-    const { data } = await axios.post(
-      '/campaign',
-      new URLSearchParams({ query }),
-    );
-    if (data.meta.status !== "200"){
-      alert(data.meta.message);
-      return;
-    }
-    this.setState({
+    try {
+      const { data } = await axios.post(
+        '/campaign',
+        new URLSearchParams({ query }),
+      );
+      if (data.meta.status !== '200') {
+        alert(data.meta.message);
+        return;
+      }
+      this.setState({
         rows: parseRows(data.response),
         fields: data.fieldmask,
       });
+    } catch (err) {
+      console.log(err.message);
+    }
   }
 
   handleChange(event) {
