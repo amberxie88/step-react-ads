@@ -15,11 +15,12 @@ import Title from '../../../Utilities/Title';
 
 export default function ClicksPerCampaignChart() {
   const theme = useTheme();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]); //data for chart along with setter function
 
   useEffect(() => {
+    //loads data asynchronously so page can load faster
     (async function getData() {
-      const response = await axios.get('/data'); //fake data so there's some actual results
+      const { data } = await axios.get('/data'); //fake data so there's some actual results
 
       // only returns 1 campaign
       // const response = await axios.post(
@@ -34,7 +35,7 @@ export default function ClicksPerCampaignChart() {
       //   },
       // );
 
-      setData(response.data.response);
+      setData(data.response);
     })();
   }, []);
 
