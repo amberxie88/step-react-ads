@@ -69,8 +69,9 @@ public class GetCampaignsServlet extends HttpServlet {
 
     // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
-    params.customerId = Long.parseLong("4498877497"); //Amber
-    //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
+    //params.customerId = Long.parseLong("4498877497"); //Amber
+    params.customerId = Long.parseLong("8458272058"); //Kaitlyn
+    System.out.println(params.customerId);
 
     GoogleAdsClient googleAdsClient;
     try {
