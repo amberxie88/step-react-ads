@@ -12,7 +12,8 @@ export default function Queries(props) {
   const classes = Styles();
   return (
     <React.Fragment>
-      <Grid>
+      <Grid container spacing={3}>
+        {/* CampaignData */}
         <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Query />
