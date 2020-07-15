@@ -16,8 +16,12 @@ export default function QueryResults(props) {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-  
+
   const handleChangeRowsPerPage = (event) => {
+    // If the selection is [A]ll the rows.
+    if (event.target.value.toString().charAt(0) == 'A') {
+      event.target.value = rows.length;
+    }
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
@@ -64,7 +68,7 @@ function Results(props) {
         </TableBody>
       </Table>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPageOptions={[5, 10, 25, 'All ' + rows.length.toString() + ' Rows']}
         component="div"
         count={rows.length}
         rowsPerPage={rowsPerPage}
