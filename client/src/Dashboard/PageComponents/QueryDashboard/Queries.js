@@ -24,7 +24,6 @@ function parseRows(response) {
   for (i = 0; i < response.length; i++) {
     responseRows.push(addKey(i, response[i]));
   }
-  console.log(responseRows);
   return responseRows;
 }
 
@@ -37,11 +36,11 @@ class Query extends React.Component {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.handleQuery = this.handleQuery.bind(this);
-    this.state = { value: '', rows: [], fields: [] };
+    this.state = { value: '', rows: [], fields: [], rowsPerPage: 5 };
   }
 
   async handleQuery() {
-    alert(this.state.value);
+    //alert(this.state.value);
     const query = this.state.value;
     const { data } = await axios.post(
       '/campaign',
@@ -83,7 +82,9 @@ class Query extends React.Component {
         />
         {/* <input type="submit" value="Submit" /> */}
         <SubmitButton onClick={this.handleQuery} />
-        <QueryResults rows={this.state.rows} fields={this.state.fields} />
+        <QueryResults rows={this.state.rows} fields={this.state.fields}
+          rowsPerPage={this.state.rowsPerPage}
+        />
       </React.Fragment>
     );
   }
