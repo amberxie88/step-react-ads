@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Title from '../../Utilities/Title';
 import Button from '@material-ui/core/Button';
+import axios from 'axios';
 
 function preventDefault(event) {
   event.preventDefault();
@@ -28,7 +29,6 @@ class Login extends React.Component {
 
   handleLogin() {
     alert('login requested');
-
     const request = new Request('/oauth', {
       //accept: 'application/json',
       method: 'GET',
