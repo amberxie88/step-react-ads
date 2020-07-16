@@ -46,6 +46,7 @@ public class CallbackServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    System.out.println("callback!");
     String state = request.getParameter("state");
     String code = request.getParameter("code");
     String scope = request.getParameter("scope");
@@ -55,9 +56,12 @@ public class CallbackServlet extends HttpServlet {
     String statusMessage = processAuthorizationResponse(authorizationResponse, request.getSession().getId());
     response.setContentType("application/json");
     response.getWriter().println(statusMessage); 
+
+    response.sendRedirect("http://localhost:5000/");
   }
 
   private String processAuthorizationResponse(AuthorizationResponse authorizationResponse, String sessionId) {
+    System.out.println("Processing");
     if (authorizationResponse.code == null) {
       return "Invalid Request: Code not provided";
     }
@@ -73,8 +77,8 @@ public class CallbackServlet extends HttpServlet {
               .build();
       try {
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
-        DatastoreRetrieval.addCredentialToDatastore("refresh", userCredentials.getRefreshToken());
-        return "Your Refresh Token has been generated";
+        DatastoreRetrieval.addSessionCredentialToDatastore("refresh", userCredentials.getRefreshToken(), sessionId);
+        return "Your Refresh Token has been generated. This page may be closed.";
       } catch (Exception e) {
         return "Failed to generate Refresh Token";
       }
