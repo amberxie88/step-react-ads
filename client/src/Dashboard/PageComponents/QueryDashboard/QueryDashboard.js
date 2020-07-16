@@ -10,11 +10,9 @@ const Styles = makeStyles(stylesSettings);
 
 export default function Queries(props) {
   const classes = Styles();
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   return (
     <React.Fragment>
       <Grid>
-        {/* CampaignData */}
         <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Query />

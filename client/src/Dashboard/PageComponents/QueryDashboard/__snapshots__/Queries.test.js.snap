@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Queries Unit Testing Queries correctly saves data with properly formatted input 1`] = `
+exports[`Queries Unit Testing Queries correctly displays data with properly formatted input 1`] = `"loaded"`;
+
+exports[`Queries Unit Testing Queries correctly displays data with properly formatted input 2`] = `
 Array [
   Object {
     "campaign.id": "10375582075",
@@ -11,4 +13,12 @@ Array [
 ]
 `;
 
-exports[`Queries Unit Testing Queries correctly saves data with properly formatted input 2`] = `"<h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Query Results</h2><table class=\\"MuiTable-root\\"><thead class=\\"MuiTableHead-root\\"><tr class=\\"MuiTableRow-root MuiTableRow-head\\"><th class=\\"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall\\" scope=\\"col\\">campaign.id</th><th class=\\"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall\\" scope=\\"col\\">campaign.name</th><th class=\\"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall\\" scope=\\"col\\">metrics.clicks</th></tr></thead><tbody class=\\"MuiTableBody-root\\"><tr class=\\"MuiTableRow-root\\"><td class=\\"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall\\">10375582075</td><td class=\\"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall\\">Sales-Search-1</td><td class=\\"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall\\">0</td></tr></tbody></table>"`;
+exports[`Queries Unit Testing Queries correctly displays data with properly formatted input 3`] = `undefined`;
+
+exports[`Queries Unit Testing Queries correctly displays data with properly formatted input 4`] = `"<h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Query Results</h2><table class=\\"MuiTable-root\\"><thead class=\\"MuiTableHead-root\\"><tr class=\\"MuiTableRow-root MuiTableRow-head\\"><th class=\\"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall\\" scope=\\"col\\">campaign.id</th><th class=\\"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall\\" scope=\\"col\\">campaign.name</th><th class=\\"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall\\" scope=\\"col\\">metrics.clicks</th></tr></thead><tbody class=\\"MuiTableBody-root\\"><tr class=\\"MuiTableRow-root\\"><td class=\\"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall\\">10375582075</td><td class=\\"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall\\">Sales-Search-1</td><td class=\\"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall\\">0</td></tr></tbody></table>"`;
+
+exports[`Queries Unit Testing Queries correctly displays data with properly formatted input 5`] = `"error"`;
+
+exports[`Queries Unit Testing Queries correctly displays data with properly formatted input 6`] = `"Some Kind of Error"`;
+
+exports[`Queries Unit Testing Queries correctly displays data with properly formatted input 7`] = `"<h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Something Went Wrong. Here&#x27;s the Error Message: Some Kind of Error</h2>"`;

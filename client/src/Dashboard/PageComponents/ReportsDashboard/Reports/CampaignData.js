@@ -19,18 +19,13 @@ export default function CampaignData() {
 
   useEffect(() => {
     (async function getData() {
-      const response = await axios.post(
+      const { data } = await axios.post(
         '/campaign',
         new URLSearchParams({
           query: `SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions FROM campaign ORDER BY campaign.id          `,
         }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        },
       );
-      setRows(response.data.response);
+      setRows(data.response);
     })();
   }, []);
   return (
