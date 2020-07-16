@@ -1,4 +1,3 @@
-// Link.react.test.js
 import React from 'react';
 import Queries from './Queries';
 import { configure, shallow } from 'enzyme';
@@ -10,9 +9,8 @@ configure({ adapter: new Adapter() });
 jest.mock('axios');
 
 describe('Queries Unit Testing', () => {
-  it('Queries correctly saves data with properly formatted input', async () => {
+  it('Queries correctly displays data with properly formatted input', async () => {
     const mockedAPICall = {
-      // data return from api for correct call
       data: {
         response: [
           {
@@ -22,14 +20,33 @@ describe('Queries Unit Testing', () => {
           },
         ],
         fieldmask: ['campaign.id', 'campaign.name', 'metrics.clicks'],
+        meta: { status: '200' },
       },
     };
     axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
     const component = shallow(<Queries />);
     component.find('SubmitButton').simulate('click'); //click the submit button. This should trigger the api call
     await waitForState(component, (state) => state.rows !== []); //wait for rows state variable to change from initial state
-    expect(component.state('rows')).toMatchSnapshot(); //internal state needs to match expected results
+    expect(component.state('status')).toMatchSnapshot();
+    expect(component.state('rows')).toMatchSnapshot();
+    expect(component.state('fieldmask')).toMatchSnapshot();
     const QueryResultsHTML = component.find('QueryResults').html();
     expect(QueryResultsHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+  });
+
+  it('Queries correctly displays data with properly formatted input', async () => {
+    const mockedAPICall = {
+      data: {
+        meta: { status: '400', message: 'Some Kind of Error' },
+      },
+    };
+    axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
+    const component = shallow(<Queries />);
+    component.find('SubmitButton').simulate('click'); //click the submit button. This should trigger the api call
+    await waitForState(component, (state) => state.rows !== []); //wait for rows state variable to change from initial state
+    expect(component.state('status')).toMatchSnapshot();
+    expect(component.state('errorMessage')).toMatchSnapshot();
+    const ErrorHTML = component.find('Title').at(1).html();
+    expect(ErrorHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });
 });

@@ -5,7 +5,6 @@ import QueryResults from './QueryResults';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Title from '../../Utilities/Title';
-import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,26 +32,62 @@ class Query extends React.Component {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.handleQuery = this.handleQuery.bind(this);
-    this.state = { value: '', rows: [], fields: [], rowsPerPage: 5 };
+    this.state = {
+      value: '',
+      rows: [],
+      fields: [],
+      rowsPerPage: 5,
+      status: 'inputRequired',
+      errorMessage: '',
+    };
   }
 
   async handleQuery() {
     const query = this.state.value;
+    this.setState({ status: 'loading' });
     try {
       const { data } = await axios.post(
         '/campaign',
         new URLSearchParams({ query }),
       );
       if (data.meta.status !== '200') {
-        alert(data.meta.message);
-        return;
+        throw new Error(data.meta.message);
+      } else {
+        this.setState({
+          rows: parseRows(data.response),
+          fields: data.fieldmask,
+          status: 'loaded',
+        });
       }
-      this.setState({
-        rows: parseRows(data.response),
-        fields: data.fieldmask,
-      });
     } catch (err) {
       console.log(err.message);
+      this.setState({ status: 'error', errorMessage: err.message });
+    }
+  }
+
+  pickContentToDisplay() {
+    switch (this.state.status) {
+      case 'inputRequired':
+        return <Title> Enter a query to see the results </Title>;
+      case 'loading':
+        return <Title> Loading ... </Title>;
+      case 'loaded':
+        return (
+          <QueryResults
+            rows={this.state.rows}
+            fields={this.state.fields}
+            rowsPerPage={this.state.rowsPerPage}
+          />
+        );
+      case 'error':
+        return (
+          <Title>
+            {"Something Went Wrong. Here's the Error Message: " +
+              this.state.errorMessage}
+          </Title>
+        );
+      default:
+        return <Title> Something Went Wrong</Title>;
     }
   }
 
@@ -80,11 +115,8 @@ class Query extends React.Component {
             shrink: true,
           }}
         />
-        {/* <input type="submit" value="Submit" /> */}
         <SubmitButton onClick={this.handleQuery} />
-        <QueryResults rows={this.state.rows} fields={this.state.fields}
-          rowsPerPage={this.state.rowsPerPage}
-        />
+        {this.pickContentToDisplay()}
       </React.Fragment>
     );
   }
