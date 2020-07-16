@@ -8,8 +8,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
 
 export default function QueryResults(props) {
-  const rows = props.rows;
-  const fields = props.fields;
+  const { rows, fields } = props;
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(0);
 
@@ -28,15 +27,17 @@ export default function QueryResults(props) {
   return (
     <React.Fragment>
       <Title>Query Results</Title>
-      <Results rows={rows} fields={fields} 
-        rowsPerPage={rowsPerPage} page={page}
-        handleChangePage={handleChangePage} 
+      <Results
+        rows={rows}
+        fields={fields}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        handleChangePage={handleChangePage}
         handleChangeRowsPerPage={handleChangeRowsPerPage}
       />
     </React.Fragment>
   );
 }
-
 
 function Results(props) {
   const rows = props.rows;
@@ -58,17 +59,24 @@ function Results(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.slice(page*rowsPerPage, page*rowsPerPage + rowsPerPage).map((row) => (
-            <TableRow key={'row' + row.id}>
-              {fields.map((key) => (
-                <TableCell key={key}>{row[key]}</TableCell>
-              ))}
-            </TableRow>
-          ))}
+          {rows
+            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            .map((row) => (
+              <TableRow key={'row' + row.id}>
+                {fields.map((key) => (
+                  <TableCell key={key}>{row[key]}</TableCell>
+                ))}
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 'All ' + rows.length.toString() + ' Rows']}
+        rowsPerPageOptions={[
+          5,
+          10,
+          25,
+          'All ' + rows.length.toString() + ' Rows',
+        ]}
         component="div"
         count={rows.length}
         rowsPerPage={rowsPerPage}
