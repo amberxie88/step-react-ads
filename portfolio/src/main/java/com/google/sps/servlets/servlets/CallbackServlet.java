@@ -54,9 +54,10 @@ public class CallbackServlet extends HttpServlet {
     AuthorizationResponse authorizationResponse = new AuthorizationResponse(completeUrl);
 
     String statusMessage = processAuthorizationResponse(authorizationResponse, request.getSession().getId());
-    // response.setContentType("application/json");
-    // response.getWriter().println(statusMessage); 
-    response.sendRedirect("http://localhost:8080");
+    response.setContentType("text/html;");
+    response.getWriter().println("<h1>"+ statusMessage + "</h1>"); 
+    response.getWriter().println("<h3><a href='http://localhost:8080'>Return to website.</a></h3>"); 
+    //response.sendRedirect("http://localhost:8080");
   }
 
   private String processAuthorizationResponse(AuthorizationResponse authorizationResponse, String sessionId) {
@@ -76,8 +77,9 @@ public class CallbackServlet extends HttpServlet {
               .build();
       try {
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
-        DatastoreRetrieval.addSessionCredentialToDatastore("refresh", userCredentials.getRefreshToken(), sessionId);
-        return "Your Refresh Token has been generated. This page may be closed.";
+        DatastoreRetrieval.addRefreshToDatastore(userCredentials.getRefreshToken(), sessionId);
+        System.out.println("refresh token generated");
+        return "Your Refresh Token has been generated";
       } catch (Exception e) {
         return "Failed to generate Refresh Token";
       }

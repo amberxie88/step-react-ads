@@ -67,10 +67,10 @@ public class OAuthServlet extends HttpServlet {
     String clientSecret = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
     String loginEmailAddressHint = null;
     String sessionId = (String) request.getSession().getId();
-    System.out.println(request.getSession());
-    System.out.println(sessionId);
-    System.out.println(clientId);
-    System.out.println(clientSecret);
+    //System.out.println(request.getSession());
+    System.out.println("sessionId: " + sessionId);
+    System.out.println("clientId: " + clientId);
+    System.out.println("clientSecret: " + clientSecret);
 
    
     //response.getWriter().println("http://app-infra-transformer-step.appspot.com/");
@@ -86,7 +86,6 @@ public class OAuthServlet extends HttpServlet {
       response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
       System.out.println(e);
     }
-    
   }
 
   public String runExample(String clientId, String clientSecret, String loginEmailAddressHint, String sessionId)
