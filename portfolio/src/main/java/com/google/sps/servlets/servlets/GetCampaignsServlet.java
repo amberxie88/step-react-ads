@@ -56,6 +56,7 @@ import com.google.api.gax.rpc.PermissionDeniedException;
 @WebServlet("/campaign")
 public class GetCampaignsServlet extends HttpServlet {
 
+
   private static class GetCampaignsWithStatsParams extends CodeSampleParams {
     @Parameter(names = ArgumentNames.CUSTOMER_ID, required = true)
     private Long customerId;
@@ -71,6 +72,9 @@ public class GetCampaignsServlet extends HttpServlet {
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
     params.customerId = Long.parseLong("4498877497"); //Amber
     //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
+
+    System.out.println("testing mock");
+    System.out.println(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"));
 
     GoogleAdsClient googleAdsClient;
     try {
@@ -98,6 +102,8 @@ public class GetCampaignsServlet extends HttpServlet {
       }
       writeServletResponse(response, processErrorJSON(errorString, "500"));
       return;
+    } catch (Exception e) {
+      System.err.println(e);
     }
     writeServletResponse(response, returnJSON);
     return;
