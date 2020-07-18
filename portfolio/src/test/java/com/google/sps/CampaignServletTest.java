@@ -47,9 +47,10 @@ public final class CampaignServletTest {
     HttpServletResponse response = mock(HttpServletResponse.class);  
     when (request.getParameter("query")).thenReturn("SELECT campaign.id FROM campaign");
 
-    PowerMockito.mockStatic(DatastoreRetrieval.class);
-    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
-    	.thenReturn("developrrr");
+    setDatastoreMocks();
+
+    setServiceClientMocks();
+
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -65,8 +66,25 @@ public final class CampaignServletTest {
     writer.flush();
     System.out.println(stringWriter.toString());
 
-    System.out.println("testtt");
     //assertTrue(stringWriter.toString().contains("My expected string"));
     Assert.assertEquals("Hello Ada", "Hello Ada");
+  }
+
+  private void setDatastoreMocks() {
+  	PowerMockito.mockStatic(DatastoreRetrieval.class);
+    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
+    	.thenReturn(System.getenv("DEVELOPER_TOKEN"));
+    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID"))
+    	.thenReturn(System.getenv("CLIENT_ID"));
+    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET"))
+    	.thenReturn(System.getenv("CLIENT_SECRET"));
+    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("refresh"))
+    	.thenReturn(System.getenv("REFRESH"));
+  }
+
+  private void setServiceClientMocks() {
+  	//HttpServletResponse response = mock(HttpServletResponse.class);  
+    //when (request.getParameter("query")).thenReturn("SELECT campaign.id FROM campaign");
+  	return;
   }
 }

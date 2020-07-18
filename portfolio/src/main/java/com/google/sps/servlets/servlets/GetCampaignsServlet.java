@@ -66,6 +66,7 @@ public class GetCampaignsServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // GET QUERY STRING
     String query = request.getParameter("query");
+    query = "SELECT campaign.id FROM campaign";
     System.out.println(query);
 
     // customer ID of interest
@@ -73,14 +74,12 @@ public class GetCampaignsServlet extends HttpServlet {
     params.customerId = Long.parseLong("4498877497"); //Amber
     //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
 
-    System.out.println("testing mock");
-    System.out.println(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"));
-
     GoogleAdsClient googleAdsClient;
     try {
       googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
         .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
         .setLoginCustomerId(Long.parseLong("9797005693")).build();
+      System.out.println(googleAdsClient);
     } catch (Exception ioe) {
       writeServletResponse(response, processErrorJSON(ioe.toString(), "503"));
       return;
@@ -117,7 +116,6 @@ public class GetCampaignsServlet extends HttpServlet {
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
   private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
-    System.out.println("runExample called");
     String returnJSON = "";
     System.out.println(query);
     System.out.println(customerId);
@@ -133,7 +131,6 @@ public class GetCampaignsServlet extends HttpServlet {
       // Creates and issues a search Google Ads stream request that will retrieve all campaigns.
       ServerStream<SearchGoogleAdsStreamResponse> stream =
           googleAdsServiceClient.searchStreamCallable().call(request);
-
       // Iterates through and prints all of the results in the stream response.
       for (SearchGoogleAdsStreamResponse response : stream) {
         try {
@@ -147,7 +144,12 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (PermissionDeniedException e) {
       return processErrorJSON(e.getMessage(), "403");
     } catch (Exception e) {
-      return processErrorJSON(e.toString(), "500");
+      System.out.println("Errrrr");
+      System.out.println(googleAdsClient.getLatestVersion());
+      System.out.println(e.getMessage());
+      //System.out.println(e);
+      //System.out.println(googleAdsClient.getLatestVersion().createGoogleAdsServiceClient());
+      return processErrorJSON(e.toString(), "500"); // 500
     }
     return returnJSON;
   }
