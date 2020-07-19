@@ -75,7 +75,13 @@ public class GetCampaignsServlet extends HttpServlet {
     //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
 
     GoogleAdsClient googleAdsClient;
+    //System.out.println("Does not work");
+    //File propertiesFile = new File(this.getClass().getClassLoader().getResource("ads.properties").getFile());
+    //File propertiesFile = new File(getClass().getResource("ads.properties").getFile());
+    System.out.println("OK");
     try {
+      //googleAdsClient = GoogleAdsClient.newBuilder()
+      //  .fromPropertiesFile(propertiesFile).build();
       googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
         .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
         .setLoginCustomerId(Long.parseLong("9797005693")).build();

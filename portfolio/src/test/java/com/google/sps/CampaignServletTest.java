@@ -51,7 +51,6 @@ public final class CampaignServletTest {
 
     setServiceClientMocks();
 
-
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
 
