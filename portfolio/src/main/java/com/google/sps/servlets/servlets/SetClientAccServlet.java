@@ -45,12 +45,20 @@ public class SetClientAccServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+<<<<<<< HEAD
     System.out.println("getting account");
     
 
     String sessionId = (String) request.getSession().getId();
     String customerId = DatastoreRetrieval.getClientFromDatastore("customerId", sessionId);
     String loginId = DatastoreRetrieval.getClientFromDatastore("loginId", sessionId);
+=======
+
+    System.out.println("getting account");
+    String sessionId = (String) request.getSession().getId();
+    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
+    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+>>>>>>> 9814b222... hm
 
     Client client = new Client(loginId, customerId);
 
@@ -70,6 +78,7 @@ public class SetClientAccServlet extends HttpServlet {
 
     String sessionId = (String) request.getSession().getId();
 
+<<<<<<< HEAD
     //remove previously set client account
     Query query = new Query("Client");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -81,6 +90,11 @@ public class SetClientAccServlet extends HttpServlet {
     }
     //add the new selected client
     DatastoreRetrieval.addClientToDatastore(loginId, customerId, sessionId);
+=======
+    
+    DatastoreRetrieval.addEntityToDatastore("LoginId", sessionId, loginId);
+    DatastoreRetrieval.addEntityToDatastore("CustomerId", sessionId, customerId);
+>>>>>>> 9814b222... hm
 
     response.setContentType("text/html;");
     response.getWriter().println("Selected account successfully!");
