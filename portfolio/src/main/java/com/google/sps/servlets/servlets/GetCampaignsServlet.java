@@ -62,6 +62,30 @@ public class GetCampaignsServlet extends HttpServlet {
     private Long customerId;
   }
 
+  public GoogleAdsServiceClient test(Credentials c, String developerToken, long loginCustomerId) {
+    System.out.println("In public test method");
+    GoogleAdsClient a = buildGoogleAdsClient(c, developerToken, loginCustomerId);
+    System.out.println(testSpy(8));
+    return createGoogleAdsServiceClient(a);
+  }
+
+  private String testSpy(int i) {
+    return "testSpy method says hello";
+  }
+
+  private GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) {
+    System.out.println("In buildGoogleAdsClient method");
+    
+    return GoogleAdsClient.newBuilder().setCredentials(c).setDeveloperToken(developerToken)
+      .setLoginCustomerId(loginCustomerId).build();
+  }
+
+  private GoogleAdsServiceClient createGoogleAdsServiceClient(GoogleAdsClient googleAdsClient) {
+    System.out.println("in createGoogleAdsServiceClient");
+    System.out.println(googleAdsClient);
+    return googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
+  }
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // GET QUERY STRING
@@ -73,27 +97,11 @@ public class GetCampaignsServlet extends HttpServlet {
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
     params.customerId = Long.parseLong("4498877497"); //Amber
     //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
-
-    GoogleAdsClient googleAdsClient;
-    //System.out.println("Does not work");
-    //File propertiesFile = new File(this.getClass().getClassLoader().getResource("ads.properties").getFile());
-    //File propertiesFile = new File(getClass().getResource("ads.properties").getFile());
-    System.out.println("OK");
-    try {
-      //googleAdsClient = GoogleAdsClient.newBuilder()
-      //  .fromPropertiesFile(propertiesFile).build();
-      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
-        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
-        .setLoginCustomerId(Long.parseLong("9797005693")).build();
-      System.out.println(googleAdsClient);
-    } catch (Exception ioe) {
-      writeServletResponse(response, processErrorJSON(ioe.toString(), "503"));
-      return;
-    }
     
+    System.out.println(testSpy(88));
     String returnJSON = "";
     try {
-      returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, params.customerId, query);
+      returnJSON = new GetCampaignsServlet().runExample(params.customerId, query);
       returnJSON = processJSON(returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
@@ -121,12 +129,20 @@ public class GetCampaignsServlet extends HttpServlet {
    * @param customerId the client customer ID.
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
-  private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
+  private String runExample(long customerId, String query) {
     String returnJSON = "";
     System.out.println(query);
     System.out.println(customerId);
+    System.out.println(testSpy(88));
+    GoogleAdsClient googleAdsClient;
+    try {
+      googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(), 
+        DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"), Long.parseLong("9797005693"));
+    } catch (Exception ioe) {
+      return processErrorJSON(ioe.toString(), "503");
+    }
     try (GoogleAdsServiceClient googleAdsServiceClient =
-        googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
+        createGoogleAdsServiceClient(googleAdsClient)) {
       // Constructs the SearchGoogleAdsStreamRequest.
       SearchGoogleAdsStreamRequest request =
           SearchGoogleAdsStreamRequest.newBuilder()

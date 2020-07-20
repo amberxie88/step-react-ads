@@ -13,9 +13,9 @@ public class CredentialRetrieval {
 
     Credentials credentials = UserCredentials.newBuilder().setClientId(CLIENT_ID)
       .setClientSecret(CLIENT_SECRET).setRefreshToken(REFRESH_TOKEN).build();
-    System.out.println(credentials);
-    System.out.println("CLIENT_SECRET");
-    System.out.println(CLIENT_SECRET);
+    //System.out.println(credentials);
+    //System.out.println("CLIENT_SECRET");
+    //System.out.println(CLIENT_SECRET);
     return credentials;
   }
 }

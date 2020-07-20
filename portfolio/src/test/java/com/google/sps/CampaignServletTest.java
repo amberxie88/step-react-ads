@@ -35,14 +35,42 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 
+import com.google.ads.googleads.lib.GoogleAdsClient;
+import com.google.ads.googleads.v3.services.GoogleAdsServiceClient;
+import com.google.auth.Credentials;
+
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
+
+
+import org.mockito.Spy;
+import org.mockito.InjectMocks;
 
 @PowerMockIgnore("jdk.internal.reflect.*")
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({DatastoreRetrieval.class})
+@PrepareForTest({DatastoreRetrieval.class, GetCampaignsServlet.class})
 public final class CampaignServletTest {
 
+  private GetCampaignsServlet servlet = PowerMockito.spy(new GetCampaignsServlet());
+
+  @Before
+  public void setUp() {
+  	//servlet = PowerMockito.spy(new GetCampaignsServlet());
+  	return;
+  }
+
+  /*@Test
+  public void tempTest() {
+  	GetCampaignsServlet spy = PowerMockito.spy(new GetCampaignsServlet());
+  	PowerMockito.doReturn("asdf").when(spy, "testSpy");
+  }*/
+
   @Test
-  public void testGreeting() {
+  public void mockTest() {
   	HttpServletRequest request = mock(HttpServletRequest.class);       
     HttpServletResponse response = mock(HttpServletResponse.class);  
     when (request.getParameter("query")).thenReturn("SELECT campaign.id FROM campaign");
@@ -50,13 +78,18 @@ public final class CampaignServletTest {
     setDatastoreMocks();
 
     setServiceClientMocks();
+    //GoogleAdsClient gac = mock(GoogleAdsClient.class);
+	//when(servletSpy, method(GetCampaignsServlet.class, "buildGoogleAdsClient", 
+	//	Credentials.class, String.class, long.class))
+	//	.withArguments(any(Credentials.class), any(String.class), any(long.class))
+	//	.thenReturn(gac); 	
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
 
     try {
     	when(response.getWriter()).thenReturn(writer);
-    	new GetCampaignsServlet().doPost(request, response);
+    	servlet.doPost(request, response);
     } catch (Exception e) { // java.io.IOException ? 
     	System.out.println(e);
     }
@@ -82,8 +115,26 @@ public final class CampaignServletTest {
   }
 
   private void setServiceClientMocks() {
-  	//HttpServletResponse response = mock(HttpServletResponse.class);  
-    //when (request.getParameter("query")).thenReturn("SELECT campaign.id FROM campaign");
+  	GoogleAdsClient gac = mock(GoogleAdsClient.class);
+  	GoogleAdsServiceClient gasc = mock(GoogleAdsServiceClient.class);
+
+  	try {
+  		//PowerMockito.when(servlet.testSpy(88)).thenReturn("you have been spied on");
+  		PowerMockito.doReturn("you have been spied on").when(servlet, "testSpy", anyInt());
+  		PowerMockito.doReturn(gac).when(servlet, "buildGoogleAdsClient", 
+  			any(Credentials.class), any(String.class), any(long.class));
+  		PowerMockito.doReturn(gasc).when(servlet, "createGoogleAdsServiceClient",
+  			Mockito.isA(GoogleAdsClient.class));
+  	} catch (Exception e) {
+  		System.out.println("Didn't work!!");
+  		System.out.println();
+  		System.out.println(e);
+  	}
+  	System.out.println("Testing");
+  	System.out.println(servlet);
+  	System.out.println(servlet.test(mock(Credentials.class), "strrr", Long.parseLong("88808080")));
+  	System.out.println("end testing");
+  	System.out.println();
   	return;
   }
 }
