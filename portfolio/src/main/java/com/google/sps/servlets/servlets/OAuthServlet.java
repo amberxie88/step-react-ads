@@ -52,9 +52,9 @@ public class OAuthServlet extends HttpServlet {
 
     //client id/secret (for dev)
     //add credentials to datastore (just do this once for deployment)
-    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
-    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
-    DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
+    // DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
+    // DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
+    // DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
     
     String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
     String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");

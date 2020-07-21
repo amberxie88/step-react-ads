@@ -99,13 +99,18 @@ public class CallbackServlet extends HttpServlet {
     Query query = new Query("OAuth");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
+    boolean matchState = false;
     for (Entity entity: results.asIterable()) {
-      if (state.equals(entity.getProperty("value")) && sessionId.equals(entity.getProperty("index"))) {
+      System.out.println(entity.getProperty("value"));
+      if (sessionId.equals(entity.getProperty("index"))) {
         datastore.delete((com.google.appengine.api.datastore.Key) entity.getKey());
-        return true; 
+        if (state.equals(entity.getProperty("value"))) {
+          System.out.println("found state match");
+          matchState =  true; 
+        }
       }
     }
-    return false;
+    return matchState;
   }
 
   /** Response object with attributes corresponding to OAuth2 callback parameters. */
