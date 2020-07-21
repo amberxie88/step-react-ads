@@ -83,6 +83,7 @@ public class GetCampaignsServlet extends HttpServlet {
     try {
       returnJSON = runExample(params.customerId, query);
       returnJSON = processJSON(returnJSON);
+      System.out.println("returnJSON = " + returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
@@ -110,6 +111,7 @@ public class GetCampaignsServlet extends HttpServlet {
    * @param customerId the client customer ID.
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
+
   private String runExample(long customerId, String query) {
     String returnJSON = "";
     System.out.println(query);
@@ -139,6 +141,7 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       return processErrorJSON(e.toString(), "500"); // 500
     }
+    System.out.println(returnJSON);
     return returnJSON;
   }
 
@@ -206,7 +209,6 @@ public class GetCampaignsServlet extends HttpServlet {
     String[] fieldMaskArr = fieldMaskStr.split(",");
     Set<String> invalidRequestValues = new HashSet<String>();
 
-
     JSONArray returnArray = new JSONArray();
     for (int i = 0; i < resultsComplete.length(); i++) {
       JSONObject resultObj = new JSONObject();
@@ -255,7 +257,6 @@ public class GetCampaignsServlet extends HttpServlet {
     for (String requestValue: invalidRequestValuesSet) {
       errorMessage = errorMessage + requestValue + " ";
     }
-    //JSONArray invalidRequestValuesJSON = new JSONArray(invalidRequestValuesSet.toArray());
     metaObj.put("message", errorMessage);
     metaObj.put("status", "400");
     return metaObj;
