@@ -49,24 +49,17 @@ public class OAuthServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-<<<<<<< HEAD
+
     //client id/secret (for dev)
-<<<<<<< HEAD
-    //add credentials to datastore
-    //DatastoreRetrieval.addCredentialToDatastore("CLIENT_ID", "686361195889-5n3om5eoth8isjm2sukclrit3b6t8o4p.apps.googleusercontent.com");
-    //DatastoreRetrieval.addCredentialToDatastore("CLIENT_SECRET", "3HCTvQagQtgYTshzdjCPzdsa");
-    //DatastoreRetrieval.addCredentialToDatastore("DEVELOPER_TOKEN", "iTAQj22KlySYRGyuTi5WEw");
-=======
     //add credentials to datastore (just do this once lol)
     // DatastoreRetrieval.addCredentialToDatastore("CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
     // DatastoreRetrieval.addCredentialToDatastore("CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
     // DatastoreRetrieval.addCredentialToDatastore("DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
->>>>>>> dd8f25c8... fetches account children based on loginCustomerID
+
     
 
     String clientId = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
     String clientSecret = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
-=======
     //add credentials to datastore (just do this once for deployment)
     DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
     DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");

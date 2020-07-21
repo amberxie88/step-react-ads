@@ -73,15 +73,8 @@ public class GetCampaignsServlet extends HttpServlet {
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
     //params.customerId = Long.parseLong("4498877497"); //Amber
     //params.customerId = Long.parseLong("8458272058"); //Kaitlyn
-<<<<<<< HEAD
     String customerId = DatastoreRetrieval.getClientFromDatastore("customerId", sessionId);
     String loginId = DatastoreRetrieval.getClientFromDatastore("loginId", sessionId);
-=======
-    // String customerId = DatastoreRetrieval.getClientFromDatastore("customerId", sessionId);
-    // String loginId = DatastoreRetrieval.getClientFromDatastore("loginId", sessionId);
-    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
-    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
->>>>>>> 9814b222... hm
     params.customerId = Long.parseLong(customerId);
     System.out.println(params.customerId.toString());
     System.out.println(loginId);
@@ -89,11 +82,7 @@ public class GetCampaignsServlet extends HttpServlet {
     GoogleAdsClient googleAdsClient;
     try {
       googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
-<<<<<<< HEAD
-        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
-=======
         .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
->>>>>>> 9814b222... hm
         .setLoginCustomerId(Long.parseLong(loginId)).build();
     } catch (Exception ioe) {
       writeServletResponse(response, processErrorJSON(ioe.toString(), "503"));
