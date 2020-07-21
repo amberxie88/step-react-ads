@@ -4,7 +4,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Title from '../../Utilities/Title';
 import Button from '@material-ui/core/Button';
+<<<<<<< HEAD
 import axios from 'axios';
+=======
+>>>>>>> master
 
 function preventDefault(event) {
   event.preventDefault();
@@ -29,6 +32,10 @@ class Login extends React.Component {
 
   handleLogin() {
     alert('login requested');
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
     const request = new Request('/oauth', {
       //accept: 'application/json',
       method: 'GET',
@@ -43,6 +50,16 @@ class Login extends React.Component {
         window.location.href = jsonResult.redirect;
       }
       );
+<<<<<<< HEAD
+=======
+    // .then((jsonResult) => {
+    //   console.log(jsonResult);
+    //   this.setState({
+    //     rows: parseRows(jsonResult.response),
+    //     fields: jsonResult.fieldmask,
+    //   });
+    // });
+>>>>>>> master
   }
 
   render() {
