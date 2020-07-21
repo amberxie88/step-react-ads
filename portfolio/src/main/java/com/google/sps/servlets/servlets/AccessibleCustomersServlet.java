@@ -65,14 +65,20 @@ public class AccessibleCustomersServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    
     GoogleAdsClient googleAdsClient;
     response.setContentType("application/json;");
     String sessionId = (String) request.getSession().getId();
+
+    //remove previously set client account
+    DatastoreRetrieval.removeEntityFromDatastore("LoginId", sessionId);
+    DatastoreRetrieval.removeEntityFromDatastore("CustomerId", sessionId);
+
     String customerJSON = "";
 
     try {
       googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
-        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN")).build();
+        .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN")).build();
     }  catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
       customerJSON = "No accounts are authenticated.";
@@ -80,7 +86,6 @@ public class AccessibleCustomersServlet extends HttpServlet {
       return;
     }
 
-    
     try {
       customerJSON = new AccessibleCustomersServlet().runExample(googleAdsClient, sessionId);
     } catch (GoogleAdsException gae) {
@@ -123,13 +128,13 @@ public class AccessibleCustomersServlet extends HttpServlet {
       for (String customerResourceName : response.getResourceNamesList()) {
         System.out.printf("Customer resource name: %s%n", customerResourceName);
         JSONObject customerObject = new JSONObject();
+
         Customer customer = customerServiceClient.getCustomer(customerResourceName);
         String customerId = Long.toString(customer.getId().getValue());
+        String customerName = customer.getDescriptiveName().getValue();
 
-        System.out.println(customer.getDescriptiveName().getValue());
-        ///String customerId = customerResourceName.substring(10);
         String children = "";
-        customerObject.put("id", customerId);
+        
         try {
           children =  getChildren(customerId, customerId, sessionId).toString();
         }
@@ -137,33 +142,33 @@ public class AccessibleCustomersServlet extends HttpServlet {
           System.err.printf("Request failed. Exception: %s%n", ioe);
         }
         //test account hardcode hierarchy
-        if (children.equals("[]")) {
+        if (children.equals("{}")) {
           children = "8458272058";
         }
+        customerObject.put("id", customerId);
         customerObject.put("children", children);
-        //customerObject.put("id",  customer.getId().getValue());
-        customerObject.put("name", customer.getDescriptiveName().getValue());
+        customerObject.put("name", customerName);
         customerArray.put(customerObject);
         System.out.println(customerObject.toString());
       }
+
       returnObject.put("response", customerArray);
       System.out.println(returnObject.toString());
       return returnObject.toString();
     }
   }
 
-  private List getChildren(String managerIdStr, String loginCustomerIdStr, String sessionId) throws IOException {
+  private Map<Long, Integer> getChildren(String managerIdStr, String loginCustomerIdStr, String sessionId) throws IOException {
+    
     Long managerId = Long.parseLong(managerIdStr);
     Long loginCustomerId = Long.parseLong(loginCustomerIdStr);
 
-    //List<Long> seedCustomerIds = new ArrayList<>();
-    List<Long> accountHierarchies = new ArrayList<>();
-    //seedCustomerIds.add(managerId);
+    Map<Long, Integer> accountHierarchies = new HashMap<>();
 
     Map<CustomerClient, Multimap<Long, CustomerClient>> allHierarchies = new HashMap<>();
     Long accountWithNoInfo = null;
+
     // Constructs a map of account hierarchies.
-    //for (Long seedCustomerId : seedCustomerIds) {
     Map<CustomerClient, Multimap<Long, CustomerClient>> customerClientToHierarchy =
         createCustomerClientToHierarchy(loginCustomerId, managerId, sessionId);
 
@@ -172,9 +177,8 @@ public class AccessibleCustomersServlet extends HttpServlet {
     } else {
       allHierarchies.putAll(customerClientToHierarchy);
     }
-    //}
 
-     // Prints the IDs of any accounts that did not produce hierarchy information.
+    // Prints the IDs of any accounts that did not produce hierarchy information.
     if (accountWithNoInfo != null) {
       System.out.println(
           "Unable to retrieve information for the following account which is likely either a test "
@@ -187,7 +191,6 @@ public class AccessibleCustomersServlet extends HttpServlet {
     int depth = 0;
     // Prints the hierarchy information for all accounts for which there is hierarchy information
     // available.
-
     for (CustomerClient rootCustomerClient : allHierarchies.keySet()) {
       System.out.printf("Hierarchy of customer ID %d:%n", rootCustomerClient.getId().getValue());
       buildAccountHierarchy(rootCustomerClient, allHierarchies.get(rootCustomerClient), depth, accountHierarchies);
@@ -195,7 +198,6 @@ public class AccessibleCustomersServlet extends HttpServlet {
     }
     return accountHierarchies;
   }
-
 
   /**
    * Creates a map between a CustomerClient and each of its managers' mappings.
@@ -217,7 +219,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
     // information.
     GoogleAdsClient googleAdsClient =
         GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
-        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
+        .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
         .setLoginCustomerId(loginCustomerId == null ? seedCustomerId : loginCustomerId).build();
 
     // Creates the Google Ads Service client.
@@ -278,6 +280,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
               boolean alreadyVisited =
                   customerIdsToChildAccounts.containsKey(customerClient.getId().getValue());
               if (!alreadyVisited && customerClient.getLevel().getValue() == 1) {
+                //investigate level-1 child as a manager account during the next iteration
                 managerAccountsToSearch.add(customerClient.getId().getValue());
               }
             }
@@ -315,7 +318,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
   private void buildAccountHierarchy(
       CustomerClient customerClient,
       Multimap<Long, CustomerClient> customerIdsToChildAccounts,
-      int depth, List<Long> accountHierarchies) {
+      int depth, Map<Long, Integer> accountHierarchies) {
     
     String leadingSpace = " ";
     if (depth == 0) {
@@ -333,14 +336,12 @@ public class AccessibleCustomersServlet extends HttpServlet {
         customerClient.getCurrencyCode().getValue(),
         customerClient.getTimeZone().getValue());
     
-    accountHierarchies.add(customerId);
+    accountHierarchies.put(customerId, depth);
 
-    // Recursively calls this function for all child accounts of customerClient if the current
-    // customer is a manager account.
+    //Multimap customerIdsToChildAccounts maps the current customerId to multiple childCustomers (DFS)
     for (CustomerClient childCustomer : customerIdsToChildAccounts.get(customerId)) {
       buildAccountHierarchy(childCustomer, customerIdsToChildAccounts, depth + 1, accountHierarchies);
     }
-    //return accountHierarchies;
   }
 
 

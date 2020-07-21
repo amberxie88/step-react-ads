@@ -1,26 +1,13 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import axios from 'axios';
 import Title from '../../Utilities/Title';
+import Typography from '@material-ui/core/Typography';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
-
-function parseJSON(response) {
-  return response.json();
-}
-
-function preventDefault(event) {
-  event.preventDefault();
-}
-
-const useStyles = makeStyles({
-  depositContext: {
-    flex: 1,
-  },
-});
 
 class Accounts extends React.Component {
   constructor(props) {
@@ -31,69 +18,39 @@ class Accounts extends React.Component {
     this.state = {
       customerIds: [],
       selected: '',
+      status: 'none authenticated',
     };
   }
 
-  fetchCustomers() {
-    console.log('fetching customers');
-    const request = new Request('/customer', {
-      accept: 'application/json',
-      method: 'GET',
-    });
-    fetch(request)
-      .then(parseJSON)
-      .then((customers) => {
-        console.log(customers.response);
-        this.setState({
-          customerIds: customers.response,
-        });
+  async fetchCustomers() {
+    this.setState({ status: 'loading' });
+
+    const { data } = await axios.get('/customer');
+    console.log(data.response);
+    if (data.response) {
+      this.setState({
+        customerIds: data.response,
+        status: 'loaded',
       });
+    } else {
+      this.setState({ status: 'none authenticated' });
+    }
   }
 
-  componentDidMount() {
-    this.fetchCustomers();
-  }
-
-  isSelected(id) {
-    return this.state.selected === id;
-  }
-
-  handleClick = (event, row) => {
-    this.setState({
-      selected: row.id,
-    });
-    const params = new URLSearchParams();
-    params.append('loginId', row.id);
-    params.append('customerId', row.children);
-    console.log(row.id);
-    console.log(row.children);
-    const request = new Request('/client', {
-      accept: 'application/json',
-      method: 'POST',
-      body: params,
-    });
-    fetch(request)
-      .then((request) => request.text())
-      .then((text) => {
-        alert(text);
-      });
-  };
-
-  render() {
+  pickContentToDisplay() {
     const customerIds = this.state.customerIds;
     console.log(customerIds);
-    return (
-      <React.Fragment>
-        <Title>Available Customer IDs</Title>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Select</TableCell>
-              <TableCell>Login ID</TableCell>
-              <TableCell>Client Account ID</TableCell>
-              <TableCell>Client Account Name</TableCell>
-            </TableRow>
-          </TableHead>
+    switch (this.state.status) {
+      case 'none authenticated':
+        return (
+          <Typography variant="overline">
+            Log in to access your accounts.
+          </Typography>
+        );
+      case 'loading':
+        return <Typography variant="overline">Loading . . .</Typography>;
+      case 'loaded':
+        return (
           <TableBody>
             {customerIds.map((row) => (
               <TableRow
@@ -114,6 +71,56 @@ class Accounts extends React.Component {
               </TableRow>
             ))}
           </TableBody>
+        );
+      default:
+        return (
+          <Typography variant="overline">
+            Log in to access your accounts.
+          </Typography>
+        );
+    }
+  }
+
+  componentDidMount() {
+    this.fetchCustomers();
+    this.setState({
+      selected: '',
+    });
+  }
+
+  isSelected(id) {
+    return this.state.selected === id;
+  }
+
+  async handleClick(event, row) {
+    this.setState({
+      selected: row.id,
+    });
+    const loginId = row.id;
+    const customerId = row.children;
+    console.log(row.id);
+    console.log(row.children);
+    const { data } = await axios.post(
+      '/client',
+      new URLSearchParams({ loginId, customerId }),
+    );
+    alert(data);
+  }
+
+  render() {
+    return (
+      <React.Fragment>
+        <Title>Available Customer IDs</Title>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Select</TableCell>
+              <TableCell>Login ID</TableCell>
+              <TableCell>Client Account ID</TableCell>
+              <TableCell>Client Account Name</TableCell>
+            </TableRow>
+          </TableHead>
+          {this.pickContentToDisplay()}
         </Table>
       </React.Fragment>
     );
