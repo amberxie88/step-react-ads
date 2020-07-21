@@ -82,7 +82,7 @@ public class GetCampaignsServlet extends HttpServlet {
     GoogleAdsClient googleAdsClient;
     try {
       googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
-        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
+        .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
         .setLoginCustomerId(Long.parseLong(loginId)).build();
     } catch (Exception ioe) {
       writeServletResponse(response, processErrorJSON(ioe.toString(), "503"));
@@ -228,7 +228,6 @@ public class GetCampaignsServlet extends HttpServlet {
     for (String requestValue: invalidRequestValuesSet) {
       errorMessage = errorMessage + requestValue + " ";
     }
-    //JSONArray invalidRequestValuesJSON = new JSONArray(invalidRequestValuesSet.toArray());
     metaObj.put("message", errorMessage);
     metaObj.put("status", "400");
     return metaObj;

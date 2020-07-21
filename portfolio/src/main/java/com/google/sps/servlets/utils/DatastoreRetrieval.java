@@ -9,70 +9,121 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.PreparedQuery;
 
 public class DatastoreRetrieval {
-  // TOOD: make more efficient, but this works for now.
-  public static String getCredentialFromDatastore(String name) {
+
+  //EntityName: 
+    // index:
+    // value: 
+  //Settings: 
+    // index: CLIENT_ID, CLIENT_SECRET, DEVELOPER_TOKEN
+    // value
+  //OAuth: 
+    // index: sessionId
+    // value = state token
+  //Refresh:
+    // index: sessionId
+    // value = refresh token
+  //LoginId:
+    // index: sessionId
+    // value = LoginID
+  //CustomerId:
+    // index: sessionId
+    // value = CustomerID
+ 
+  public static String getEntityFromDatastore(String entityName, String index) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Query query = new Query("Settings");
+    Query query = new Query(entityName);
     PreparedQuery results = datastore.prepare(query);
     for (Entity entity: results.asIterable()) {
-      if (name.equals(entity.getProperty("name"))) {
-        return entity.getProperty("value").toString();
-      }
-    }
-    return null;
-  }
-  //Client ID and Client Secret and Dev Token
-  public static void addCredentialToDatastore(String name, String value) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Entity oauthEntity = new Entity("Settings");
-    oauthEntity.setProperty("name", name);
-    oauthEntity.setProperty("value", value);
-    datastore.put(oauthEntity);
-  }
-
-  //Refresh Token linked to Session ID
-  public static void addRefreshToDatastore(String value, String sessionId) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Entity refreshEntity = new Entity("Refresh");
-    refreshEntity.setProperty("value", value);
-    refreshEntity.setProperty("sessionId", sessionId);
-    datastore.put(refreshEntity);
-  }
-
-  //Refresh Token linked to Session ID
-  public static String getRefreshFromDatastore(String sessionId) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Query query = new Query("Refresh");
-    PreparedQuery results = datastore.prepare(query);
-    for (Entity entity: results.asIterable()) {
-      if (sessionId.equals(entity.getProperty("sessionId"))) {
+      if (index.equals(entity.getProperty("index"))) {
         return entity.getProperty("value").toString();
       }
     }
     return null;
   }
 
-  //Client linked to Session ID
-  public static void addClientToDatastore(String loginId, String customerId, String sessionId) {
+  public static void addEntityToDatastore(String entityName, String index, String value) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Entity clientEntity = new Entity("Client");
-    clientEntity.setProperty("loginId", loginId);
-    clientEntity.setProperty("customerId", customerId);
-    clientEntity.setProperty("sessionId", sessionId);
-    datastore.put(clientEntity);
+    Entity datastoreEntity = new Entity(entityName);
+    datastoreEntity.setProperty("index", index);
+    datastoreEntity.setProperty("value", value);
+    datastore.put(datastoreEntity);
   }
 
-  //Client linked to Session ID
-  public static String getClientFromDatastore(String name, String sessionId) {
-    System.out.println(sessionId);
+  public static void removeEntityFromDatastore(String entityName, String index) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Query query = new Query("Client");
+    Query query = new Query(entityName);
     PreparedQuery results = datastore.prepare(query);
     for (Entity entity: results.asIterable()) {
-      if (sessionId.equals(entity.getProperty("sessionId"))) {
-        return entity.getProperty(name).toString();
+      if (index.equals(entity.getProperty("index"))) {
+        datastore.delete((com.google.appengine.api.datastore.Key) entity.getKey());
       }
     }
-    return null;
   }
+
+  // // TOOD: make more efficient, but this works for now.
+  // public static String getCredentialFromDatastore(String name) {
+  //   DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  //   Query query = new Query("Settings");
+  //   PreparedQuery results = datastore.prepare(query);
+  //   for (Entity entity: results.asIterable()) {
+  //     if (name.equals(entity.getProperty("name"))) {
+  //       return entity.getProperty("value").toString();
+  //     }
+  //   }
+  //   return null;
+  // }
+  // //Client ID and Client Secret and Dev Token
+  // public static void addCredentialToDatastore(String name, String value) {
+  //   DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  //   Entity oauthEntity = new Entity("Settings");
+  //   oauthEntity.setProperty("name", name);
+  //   oauthEntity.setProperty("value", value);
+  //   datastore.put(oauthEntity);
+  // }
+
+  // //Refresh Token linked to Session ID
+  // public static void addRefreshToDatastore(String value, String sessionId) {
+  //   DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  //   Entity refreshEntity = new Entity("Refresh");
+  //   refreshEntity.setProperty("value", value);
+  //   refreshEntity.setProperty("sessionId", sessionId);
+  //   datastore.put(refreshEntity);
+  // }
+
+  //Refresh Token linked to Session ID
+  // public static String getRefreshFromDatastore(String sessionId) {
+  //   DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  //   Query query = new Query("Refresh");
+  //   PreparedQuery results = datastore.prepare(query);
+  //   for (Entity entity: results.asIterable()) {
+  //     if (sessionId.equals(entity.getProperty("sessionId"))) {
+  //       return entity.getProperty("value").toString();
+  //     }
+  //   }
+  //   return null;
+  // }
+
+  //Client linked to Session ID
+  // public static void addClientToDatastore(String loginId, String customerId, String sessionId) {
+  //   DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  //   Entity clientEntity = new Entity("Client");
+  //   clientEntity.setProperty("loginId", loginId);
+  //   clientEntity.setProperty("customerId", customerId);
+  //   clientEntity.setProperty("sessionId", sessionId);
+  //   datastore.put(clientEntity);
+  // }
+
+  //Client linked to Session ID
+  // public static String getClientFromDatastore(String name, String sessionId) {
+  //   System.out.println(sessionId);
+  //   DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  //   Query query = new Query("Client");
+  //   PreparedQuery results = datastore.prepare(query);
+  //   for (Entity entity: results.asIterable()) {
+  //     if (sessionId.equals(entity.getProperty("sessionId"))) {
+  //       return entity.getProperty(name).toString();
+  //     }
+  //   }
+  //   return null;
+  // }
 }

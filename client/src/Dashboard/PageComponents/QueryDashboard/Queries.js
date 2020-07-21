@@ -108,7 +108,7 @@ class Query extends React.Component {
           label="Enter Query"
           style={{ margin: 8 }}
           placeholder="Placeholder"
-          helperText="helper text"
+          helperText="make sure to select an account!"
           fullWidth
           margin="normal"
           InputLabelProps={{
