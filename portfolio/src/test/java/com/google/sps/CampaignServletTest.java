@@ -95,6 +95,7 @@ public final class CampaignServletTest {
     Assert.assertEquals("Hello Ada", "Hello Ada");
   }
 
+  // TODO: fix this, because developer tokens aren't actually "necessary"
   private void setDatastoreMocks() {
   	PowerMockito.mockStatic(DatastoreRetrieval.class);
     PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
@@ -112,6 +113,7 @@ public final class CampaignServletTest {
   	GoogleAdsServiceClient gasc = PowerMockito.mock(GoogleAdsServiceClient.class);
   	SearchGoogleAdsStreamRequest request = PowerMockito.mock(SearchGoogleAdsStreamRequest.class);
 
+  	// TODO: input the return JSON and the expected processed JSON
   	private TestCampaignsServlet() {
   		super();
   		System.out.println("Constructing");
