@@ -62,30 +62,6 @@ public class GetCampaignsServlet extends HttpServlet {
     private Long customerId;
   }
 
-  public GoogleAdsServiceClient test(Credentials c, String developerToken, long loginCustomerId) {
-    System.out.println("In public test method");
-    GoogleAdsClient a = buildGoogleAdsClient(c, developerToken, loginCustomerId);
-    System.out.println(testSpy(8));
-    return createGoogleAdsServiceClient(a);
-  }
-
-  private String testSpy(int i) {
-    return "testSpy method says hello";
-  }
-
-  private GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) {
-    System.out.println("In buildGoogleAdsClient method");
-    
-    return GoogleAdsClient.newBuilder().setCredentials(c).setDeveloperToken(developerToken)
-      .setLoginCustomerId(loginCustomerId).build();
-  }
-
-  private GoogleAdsServiceClient createGoogleAdsServiceClient(GoogleAdsClient googleAdsClient) {
-    System.out.println("in createGoogleAdsServiceClient");
-    System.out.println(googleAdsClient);
-    return googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
-  }
-
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // GET QUERY STRING
@@ -97,11 +73,10 @@ public class GetCampaignsServlet extends HttpServlet {
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
     params.customerId = Long.parseLong("4498877497"); //Amber
     //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
-    
-    System.out.println(testSpy(88));
+
     String returnJSON = "";
     try {
-      returnJSON = new GetCampaignsServlet().runExample(params.customerId, query);
+      returnJSON = runExample(params.customerId, query);
       returnJSON = processJSON(returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
@@ -117,6 +92,7 @@ public class GetCampaignsServlet extends HttpServlet {
       return;
     } catch (Exception e) {
       System.err.println(e);
+      writeServletResponse(response, processErrorJSON(e.getMessage(), "500"));
     }
     writeServletResponse(response, returnJSON);
     return;
@@ -133,7 +109,6 @@ public class GetCampaignsServlet extends HttpServlet {
     String returnJSON = "";
     System.out.println(query);
     System.out.println(customerId);
-    System.out.println(testSpy(88));
     GoogleAdsClient googleAdsClient;
     try {
       googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(), 
@@ -143,56 +118,70 @@ public class GetCampaignsServlet extends HttpServlet {
     }
     try (GoogleAdsServiceClient googleAdsServiceClient =
         createGoogleAdsServiceClient(googleAdsClient)) {
-      // Constructs the SearchGoogleAdsStreamRequest.
-      SearchGoogleAdsStreamRequest request =
-          SearchGoogleAdsStreamRequest.newBuilder()
-              .setCustomerId(Long.toString(customerId))
-              .setQuery(query)
-              .build();
+      SearchGoogleAdsStreamRequest request = buildSearchGoogleAdsStreamRequest(query, customerId);
+      System.out.println(request);
+      // Creates and issues a search Google Ads stream request that will retrieve query results.
+      Iterable<SearchGoogleAdsStreamResponse> stream = issueSearchGoogleAdsStreamRequest(googleAdsServiceClient, request);
 
-      // Creates and issues a search Google Ads stream request that will retrieve all campaigns.
-      ServerStream<SearchGoogleAdsStreamResponse> stream =
-          googleAdsServiceClient.searchStreamCallable().call(request);
-      // Iterates through and prints all of the results in the stream response.
       for (SearchGoogleAdsStreamResponse response : stream) {
-        try {
-          returnJSON += JsonFormat.printer().print(response); 
-        } catch (Exception e) {
-          System.err.println(e);
-        }
+        returnJSON += searchGoogleAdsStreamResponseToJSON(response);
+        System.out.println(returnJSON);
       }
     } catch (InvalidArgumentException e) {
       return processErrorJSON(e.toString(), "400");
     } catch (PermissionDeniedException e) {
       return processErrorJSON(e.getMessage(), "403");
     } catch (Exception e) {
-      System.out.println("Errrrr");
-      System.out.println(googleAdsClient.getLatestVersion());
-      System.out.println(e.getMessage());
-      //System.out.println(e);
-      //System.out.println(googleAdsClient.getLatestVersion().createGoogleAdsServiceClient());
       return processErrorJSON(e.toString(), "500"); // 500
     }
     return returnJSON;
   }
 
-  private String processErrorJSON(String errorMessage, String errorCode) {
-    JSONObject metaObj = new JSONObject();
-
-    metaObj.put("message", errorMessage);
-    metaObj.put("status", errorCode);
-
-    JSONObject returnObj = new JSONObject();
-    returnObj.put("meta", metaObj);
-    return returnObj.toString();
+    public GoogleAdsServiceClient test(Credentials c, String developerToken, long loginCustomerId) {
+    System.out.println("In public test method");
+    GoogleAdsClient a = buildGoogleAdsClient(c, developerToken, loginCustomerId);
+    System.out.println(testSpy(8));
+    return createGoogleAdsServiceClient(a);
   }
 
-  private void writeServletResponse(HttpServletResponse response, String messageJSON) {
-    response.setContentType("application/json");
+  protected String testSpy(int i) {
+    return "testSpy method says hello";
+  }
+
+  protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) {
+    System.out.println("In buildGoogleAdsClient method");
+    
+    return GoogleAdsClient.newBuilder().setCredentials(c).setDeveloperToken(developerToken)
+      .setLoginCustomerId(loginCustomerId).build();
+  }
+
+  protected GoogleAdsServiceClient createGoogleAdsServiceClient(GoogleAdsClient googleAdsClient) {
+    System.out.println("in createGoogleAdsServiceClient");
+    System.out.println(googleAdsClient);
+    return googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
+  }
+
+  protected Iterable<SearchGoogleAdsStreamResponse> issueSearchGoogleAdsStreamRequest(GoogleAdsServiceClient googleAdsServiceClient, SearchGoogleAdsStreamRequest request) {
+    return googleAdsServiceClient.searchStreamCallable().call(request);
+  }
+
+  protected SearchGoogleAdsStreamRequest buildSearchGoogleAdsStreamRequest(String query, long customerId) {
+    // Constructs the SearchGoogleAdsStreamRequest.
+    SearchGoogleAdsStreamRequest request =
+        SearchGoogleAdsStreamRequest.newBuilder()
+            .setCustomerId(Long.toString(customerId))
+            .setQuery(query)
+            .build();
+    return request;
+  }
+
+  protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
     try {
-      response.getWriter().println(messageJSON);
+      String returnJSON = JsonFormat.printer().print(response);
+      return returnJSON;
     } catch (Exception e) {
       System.err.println(e);
+      return "";
     }
   }
 
@@ -233,8 +222,18 @@ public class GetCampaignsServlet extends HttpServlet {
     finalJSON.put("response", returnArray);
     finalJSON.put("meta", metaObj);
     finalJSON.put("fieldmask", fieldMaskArr);
-
     return finalJSON.toString();
+  }
+
+  private String processErrorJSON(String errorMessage, String errorCode) {
+    JSONObject metaObj = new JSONObject();
+
+    metaObj.put("message", errorMessage);
+    metaObj.put("status", errorCode);
+
+    JSONObject returnObj = new JSONObject();
+    returnObj.put("meta", metaObj);
+    return returnObj.toString();
   }
 
   /**
@@ -268,5 +267,14 @@ public class GetCampaignsServlet extends HttpServlet {
     }
     returnValue = obj.get(path[path.length-1]).toString();
     return returnValue;
+  }
+
+  private void writeServletResponse(HttpServletResponse response, String messageJSON) {
+    response.setContentType("application/json");
+    try {
+      response.getWriter().println(messageJSON);
+    } catch (Exception e) {
+      System.err.println(e);
+    }
   }
 }
