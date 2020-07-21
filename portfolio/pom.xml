@@ -76,8 +76,6 @@
   <version>1.57.1</version>
 </dependency>
 
-<<<<<<< HEAD
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

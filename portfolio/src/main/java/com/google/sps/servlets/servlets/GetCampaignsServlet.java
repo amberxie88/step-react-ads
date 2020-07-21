@@ -67,10 +67,17 @@ public class GetCampaignsServlet extends HttpServlet {
     String query = request.getParameter("query");
     System.out.println(query);
 
+    String sessionId = (String) request.getSession().getId();
+    System.out.println(sessionId);
     // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
     params.customerId = Long.parseLong("4498877497"); //Amber
     //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
+    String customerId = DatastoreRetrieval.getClientFromDatastore("customerId", sessionId);
+    String loginId = DatastoreRetrieval.getClientFromDatastore("loginId", sessionId);
+    params.customerId = Long.parseLong(customerId);
+    System.out.println(params.customerId.toString());
+    System.out.println(loginId);
 
     String returnJSON = "";
     try {
@@ -103,32 +110,27 @@ public class GetCampaignsServlet extends HttpServlet {
    * @param customerId the client customer ID.
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
-
-  private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
-    System.out.println("runExample called");
+  private String runExample(long customerId, String query) {
     String returnJSON = "";
     System.out.println(query);
     System.out.println(customerId);
+    GoogleAdsClient googleAdsClient;
+    try {
+      googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(), 
+        DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"), Long.parseLong("9797005693"));
+    } catch (Exception ioe) {
+      return processErrorJSON(ioe.toString(), "503");
+    }
     try (GoogleAdsServiceClient googleAdsServiceClient =
-        googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
-      // Constructs the SearchGoogleAdsStreamRequest.
-      SearchGoogleAdsStreamRequest request =
-          SearchGoogleAdsStreamRequest.newBuilder()
-              .setCustomerId(Long.toString(customerId))
-              .setQuery(query)
-              .build();
+        createGoogleAdsServiceClient(googleAdsClient)) {
+      SearchGoogleAdsStreamRequest request = buildSearchGoogleAdsStreamRequest(query, customerId);
+      System.out.println(request);
+      // Creates and issues a search Google Ads stream request that will retrieve query results.
+      Iterable<SearchGoogleAdsStreamResponse> stream = issueSearchGoogleAdsStreamRequest(googleAdsServiceClient, request);
 
-      // Creates and issues a search Google Ads stream request that will retrieve all campaigns.
-      ServerStream<SearchGoogleAdsStreamResponse> stream =
-          googleAdsServiceClient.searchStreamCallable().call(request);
-
-      // Iterates through and prints all of the results in the stream response.
       for (SearchGoogleAdsStreamResponse response : stream) {
-        try {
-          returnJSON += JsonFormat.printer().print(response); 
-        } catch (Exception e) {
-          System.err.println(e);
-        }
+        returnJSON += searchGoogleAdsStreamResponseToJSON(response);
+        System.out.println(returnJSON);
       }
     } catch (InvalidArgumentException e) {
       return processErrorJSON(e.toString(), "400");
@@ -185,13 +187,6 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       System.err.println(e);
       return "";
-
-  private void writeServletResponse(HttpServletResponse response, String messageJSON) {
-    response.setContentType("application/json");
-    try {
-      response.getWriter().println(messageJSON);
-    } catch (Exception e) {
-      System.err.println(e);
     }
   }
 
