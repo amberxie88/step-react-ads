@@ -59,12 +59,9 @@ public class GetChart2Servlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-<<<<<<< HEAD
-=======
 
     String sessionId = (String) request.getSession().getId();
 
->>>>>>> 9814b222... hm
     // GET QUERY STRING
     String query = "SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions FROM campaign ORDER BY campaign.id";
 
@@ -73,24 +70,14 @@ public class GetChart2Servlet extends HttpServlet {
     params.customerId = Long.parseLong("4498877497"); //Amber
     //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
     System.out.println(params.customerId);
-<<<<<<< HEAD
-    System.out.println(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"));
-    System.out.println(CredentialRetrieval.getCredentials());
-=======
     System.out.println(DatastoreRetrieval.getEntityFromDatastore("Settings","DEVELOPER_TOKEN"));
     System.out.println(CredentialRetrieval.getCredentials(sessionId));
->>>>>>> 9814b222... hm
 
     GoogleAdsClient googleAdsClient;
     try {
       //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().build();
-<<<<<<< HEAD
-      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
-        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
-=======
       googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
         .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
->>>>>>> 9814b222... hm
         .setLoginCustomerId(Long.parseLong("9797005693")).build();
     } catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
