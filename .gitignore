@@ -11,6 +11,7 @@ client/node_modules/
 # production
 /client/build/
 /portfolio/target/
+/portfolio/src/main/webapp/config.properties
 
 # misc
 .DS_Store
