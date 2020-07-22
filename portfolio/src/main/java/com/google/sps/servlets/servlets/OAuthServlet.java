@@ -57,18 +57,14 @@ public class OAuthServlet extends HttpServlet {
     // DatastoreRetrieval.addCredentialToDatastore("DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
 
     
-
-    String clientId = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID");
-    String clientSecret = DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET");
     //add credentials to datastore (just do this once for deployment)
-    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
-    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
-    DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
+    //DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
+    //DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
+    //DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
     
     String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
     String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
 
->>>>>>> 9814b222... hm
     String loginEmailAddressHint = null;
     String sessionId = (String) request.getSession().getId();
     //System.out.println(request.getSession());
@@ -76,13 +72,6 @@ public class OAuthServlet extends HttpServlet {
     System.out.println("clientId: " + clientId);
     System.out.println("clientSecret: " + clientSecret);
 
-<<<<<<< HEAD
-   
-    //response.getWriter().println("http://app-infra-transformer-step.appspot.com/");
-    // response.sendRedirect("http://app-infra-transformer-step.appspot.com/");
-    // return;
-=======
->>>>>>> 9814b222... hm
     response.setContentType("text/html;");
     try {
       String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
@@ -102,20 +91,12 @@ public class OAuthServlet extends HttpServlet {
     String state = new BigInteger(130, new SecureRandom()).toString(32);
 
     // Saves state in datastore
-<<<<<<< HEAD
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Entity oauthEntity = new Entity("OAuth");
-    oauthEntity.setProperty("state", state);
-    oauthEntity.setProperty("sessionId", sessionId);
-    datastore.put(oauthEntity);
-=======
     DatastoreRetrieval.addEntityToDatastore("OAuth", sessionId, state);
     // DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     // Entity oauthEntity = new Entity("OAuth");
     // oauthEntity.setProperty("state", state);
     // oauthEntity.setProperty("sessionId", sessionId);
     // datastore.put(oauthEntity);
->>>>>>> 9814b222... hm
     System.out.println("Putting a new state");
 
 
@@ -131,12 +112,9 @@ public class OAuthServlet extends HttpServlet {
               .setCallbackUri(URI.create(OAUTH2_CALLBACK))
               .build();
       baseUri = URI.create("http://localhost:8080/");
-<<<<<<< HEAD
-=======
       //deploy
       //baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
       
->>>>>>> 9814b222... hm
       System.out.printf(
           "Paste this url in your browser:%n%s%n",
           userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri));

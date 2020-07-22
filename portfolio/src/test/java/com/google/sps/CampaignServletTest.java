@@ -28,6 +28,7 @@ import com.google.sps.data.DatastoreRetrieval;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.mockito.Mockito;
@@ -72,10 +73,11 @@ public final class CampaignServletTest {
   @Test
   public void mockTest() {
   	HttpServletRequest request = mock(HttpServletRequest.class);       
-    HttpServletResponse response = mock(HttpServletResponse.class);  
-    when (request.getParameter("query")).thenReturn("SELECT campaign.id FROM campaign");
+    HttpServletResponse response = mock(HttpServletResponse.class);
+    HttpSession session = mock(HttpSession.class);  
 
-    setDatastoreMocks();
+    setCredentialMocks("developerToken", "clientId", "clientSecret");
+    setSessionDependentMocks("sessionId", "1111", "0000", "refresh", "wrongrefresh");
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
@@ -95,17 +97,31 @@ public final class CampaignServletTest {
     Assert.assertEquals("Hello Ada", "Hello Ada");
   }
 
-  // TODO: fix this, because developer tokens aren't actually "necessary"
-  private void setDatastoreMocks() {
+  private void setHTTPMocks(HttpServletRequest request, HttpServletResponse response) {
+    when (request.getParameter("query")).thenReturn("SELECT campaign.id FROM campaign");
+    //when (request.getSession()).thenReturn(session);
+    //when (session.getId()).thenReturn("sessionId");
+  }
+
+  private void setCredentialMocks(String developerToken, String clientId, String clientSecret) {
   	PowerMockito.mockStatic(DatastoreRetrieval.class);
-    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
-    	.thenReturn(System.getenv("DEVELOPER_TOKEN"));
-    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("CLIENT_ID"))
-    	.thenReturn(System.getenv("CLIENT_ID"));
-    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("CLIENT_SECRET"))
-    	.thenReturn(System.getenv("CLIENT_SECRET"));
-    PowerMockito.when(DatastoreRetrieval.getCredentialFromDatastore("refresh"))
-    	.thenReturn(System.getenv("REFRESH"));
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
+    	.thenReturn(developerToken);
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID"))
+    	.thenReturn(clientId);
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET"))
+    	.thenReturn(clientSecret);
+  }
+  private void setSessionDependentMocks(String sessionId, String customerId, String loginId, String refreshToken, String wrongRefreshToken) {
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("customerId", sessionId))
+    	.thenReturn(customerId);
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("loginId", sessionId))
+    	.thenReturn(loginId);
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore(eq("Refresh"), anyString()))
+    	.thenReturn(wrongRefreshToken);
+    // if you have the correct token, it works.
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Refresh", sessionId))
+    	.thenReturn(refreshToken);
   }
 
   class TestCampaignsServlet extends GetCampaignsServlet {

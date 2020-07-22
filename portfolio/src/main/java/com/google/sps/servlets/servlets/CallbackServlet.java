@@ -50,17 +50,17 @@ public class CallbackServlet extends HttpServlet {
     String state = request.getParameter("state");
     String code = request.getParameter("code");
     String scope = request.getParameter("scope");
-    String completeUrl = "http://localhost:8080/oauth2callback?" + request.getQueryString(); 
+    //String completeUrl = "http://localhost:8080/oauth2callback?" + request.getQueryString(); 
     //deploy
-    //String completeUrl = "http://app-infra-transformer-step.appspot.com/oauth2callback?" + request.getQueryString();
+    String completeUrl = "http://app-infra-transformer-step.appspot.com/oauth2callback?" + request.getQueryString();
     AuthorizationResponse authorizationResponse = new AuthorizationResponse(completeUrl);
 
     String statusMessage = processAuthorizationResponse(authorizationResponse, request.getSession().getId());
     response.setContentType("text/html;");
     response.getWriter().println("<h1>"+ statusMessage + "</h1>"); 
-    response.getWriter().println("<h3><a href='http://localhost:8080'>Return to website.</a></h3>"); 
+    //response.getWriter().println("<h3><a href='http://localhost:8080'>Return to website.</a></h3>"); 
     //deploy
-    //response.getWriter().println("<h3><a href='http://app-infra-transformer-step.appspot.com'>Return to website.</a></h3>"); 
+    response.getWriter().println("<h3><a href='http://app-infra-transformer-step.appspot.com'>Return to website.</a></h3>"); 
   }
 
   private String processAuthorizationResponse(AuthorizationResponse authorizationResponse, String sessionId) {
@@ -70,9 +70,9 @@ public class CallbackServlet extends HttpServlet {
     }
     if (sessionStateExists(authorizationResponse.state.toString(), sessionId)) {
 
-      URI baseUri = URI.create("http://localhost:8080/");
+      //URI baseUri = URI.create("http://localhost:8080/");
       //deploy
-      //URI baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
+      URI baseUri = URI.create("http://localhost:8080/");
       String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
       String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
       UserAuthorizer userAuthorizer =
@@ -82,12 +82,14 @@ public class CallbackServlet extends HttpServlet {
               .setCallbackUri(URI.create(OAUTH2_CALLBACK))
               .build();
       try {
+        System.out.println("OK");
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
+        System.out.println("Here");
         DatastoreRetrieval.addEntityToDatastore("Refresh", sessionId, userCredentials.getRefreshToken());
-        //DatastoreRetrieval.addRefreshToDatastore(userCredentials.getRefreshToken(), sessionId);
         System.out.println("refresh token generated");
         return "Your Refresh Token has been generated";
       } catch (Exception e) {
+        System.out.println(e);
         return "Failed to generate Refresh Token";
       }
     } else {
