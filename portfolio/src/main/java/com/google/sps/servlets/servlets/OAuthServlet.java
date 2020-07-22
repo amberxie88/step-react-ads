@@ -36,7 +36,9 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.PreparedQuery;
+
 import com.google.sps.data.DatastoreRetrieval;
+import com.google.sps.data.ReadProperties;
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
 @WebServlet("/oauth")
@@ -50,17 +52,17 @@ public class OAuthServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 
-    //client id/secret (for dev)
     //add credentials to datastore (just do this once for deployment)
-    // DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", "142848730576-uog0d63i39k3j70srtood666nbir7n2q.apps.googleusercontent.com");
-    // DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", "QzSkcgeycOr97jN7G5VXv3sL");
-    // DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", "88tjUiP6A11wwfJDltVL4w");
-    
+    ReadProperties properties = new ReadProperties("config.properties");
+    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", properties.getProp("clientId"));
+    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", properties.getProp("clientSecret"));
+    DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", properties.getProp("refreshToken"));
+
     String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
     String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
-
     String loginEmailAddressHint = null;
     String sessionId = (String) request.getSession().getId();
+
     System.out.println("sessionId: " + sessionId);
     System.out.println("clientId: " + clientId);
     System.out.println("clientSecret: " + clientSecret);
@@ -87,7 +89,6 @@ public class OAuthServlet extends HttpServlet {
     DatastoreRetrieval.addEntityToDatastore("OAuth", sessionId, state);
     System.out.println("Putting a new state");
 
-
     // Creates an HTTP server that will listen for the OAuth2 callback request.
     URI baseUri;
     UserAuthorizer userAuthorizer;
@@ -99,9 +100,9 @@ public class OAuthServlet extends HttpServlet {
               .setScopes(SCOPES)
               .setCallbackUri(URI.create(OAUTH2_CALLBACK))
               .build();
-      //baseUri = URI.create("http://localhost:8080/");
+      baseUri = URI.create("http://localhost:8080/");
       //deploy
-      baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
+      //baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
       
       System.out.printf(
           "Paste this url in your browser:%n%s%n",
