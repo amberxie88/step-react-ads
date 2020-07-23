@@ -54,4 +54,21 @@ describe('ClicksPerCampaignChart Unit Testing', () => {
     const chartHTML = component.html();
     expect(chartHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });
+
+  it('ClicksPerCampaignChart correctly displays unexpected error', async () => {
+    //In this test, the API will return something unexpected
+    const mockedAPICall = {
+      data: {},
+    };
+    axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
+    const component = mount(<ClicksPerCampaignChart />);
+    await act(async () => {
+      //this code waits for the component to render fully after the asynchronous API call
+      await Promise.resolve(component);
+      await new Promise((resolve) => setImmediate(resolve));
+      component.update();
+    });
+    const chartHTML = component.html();
+    expect(chartHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+  });
 });
