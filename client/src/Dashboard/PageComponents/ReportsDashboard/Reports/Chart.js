@@ -22,7 +22,7 @@ export default function Chart() {
       try {
         // const {data} = await axios.get('/data');
         const data = {
-          meta: { status: '200' },
+          meta: { status: HttpStatus.OK.toString() },
           response: {
             data: [
               {
