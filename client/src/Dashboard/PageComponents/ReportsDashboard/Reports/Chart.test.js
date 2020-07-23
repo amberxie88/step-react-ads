@@ -1,5 +1,5 @@
 import React from 'react';
-import CampaignData from './CampaignData';
+import Chart from './Chart';
 import { configure, mount } from 'enzyme';
 import { waitForElement } from 'enzyme-async-helpers';
 import { act } from 'react-dom/test-utils';
@@ -9,8 +9,8 @@ import axios from 'axios';
 configure({ adapter: new Adapter() });
 jest.mock('axios');
 
-describe('CampaignData Unit Testing', () => {
-  it('CampaignData correctly displays data with correct API call', async () => {
+describe('Chart Unit Testing', () => {
+  it('Chart correctly displays data with correct API call', async () => {
     const mockedAPICall = {
       data: {
         response: [
@@ -25,30 +25,30 @@ describe('CampaignData Unit Testing', () => {
       },
     };
     axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
-    const component = mount(<CampaignData />);
+    const component = mount(<Chart />);
     await act(async () => {
       await Promise.resolve(component);
       await new Promise((resolve) => setImmediate(resolve));
       component.update();
     });
-    const CampaignDataHTML = component.html();
-    expect(CampaignDataHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+    const chartHTML = component.html();
+    expect(chartHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });
 
-  it('CampaignData correctly displays error when API call returns error', async () => {
+  it('Chart correctly displays error when API call returns error', async () => {
     const mockedAPICall = {
       data: {
         meta: { status: '400', message: 'Some kind of Error' },
       },
     };
     axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
-    const component = mount(<CampaignData />);
+    const component = mount(<Chart />);
     await act(async () => {
       await Promise.resolve(component);
       await new Promise((resolve) => setImmediate(resolve));
       component.update();
     });
-    const CampaignDataHTML = component.html();
-    expect(CampaignDataHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+    const chartHTML = component.html();
+    expect(chartHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });
 });
