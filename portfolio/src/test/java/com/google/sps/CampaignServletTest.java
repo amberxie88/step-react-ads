@@ -24,6 +24,8 @@ import java.io.*;
 import java.util.ArrayList;
 import com.google.sps.servlets.GetCampaignsServlet;
 import com.google.sps.data.DatastoreRetrieval;
+import com.google.sps.data.CredentialRetrieval;
+import com.google.sps.MockCampaignsServlet;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -50,39 +52,39 @@ import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 
-
-import org.mockito.Spy;
-import org.mockito.InjectMocks;
+import org.json.JSONObject;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
+import java.lang.ClassLoader;
 
 @PowerMockIgnore("jdk.internal.reflect.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DatastoreRetrieval.class, GetCampaignsServlet.class, SearchGoogleAdsStreamRequest.class,
-	SearchGoogleAdsStreamResponse.class, GoogleAdsServiceClient.class})
+	SearchGoogleAdsStreamResponse.class, GoogleAdsServiceClient.class, CredentialRetrieval.class})
 public final class CampaignServletTest {
 
   private GetCampaignsServlet servlet = PowerMockito.spy(new GetCampaignsServlet());
-  private TestCampaignsServlet testServlet;
-
-  @Before
-  public void setUp() {
-  	//servlet = PowerMockito.spy(new GetCampaignsServlet());
-  	testServlet = new TestCampaignsServlet();
-  	return;
-  }
 
   @Test
-  public void mockTest() {
-  	HttpServletRequest request = mock(HttpServletRequest.class);       
+  public void simpleQuery() {
+  	System.out.println("simple query");
+ 	HttpServletRequest request = mock(HttpServletRequest.class);       
     HttpServletResponse response = mock(HttpServletResponse.class);
-    HttpSession session = mock(HttpSession.class);  
+  
+    String sessionId = "sessionId";
+    String customerId = "1111";
+    String loginId = "0000";
+    String refreshToken = "0000"; 
+    String query = "valid";
 
+    prepStaticMocks();
+    setHTTPMocks(request, response, sessionId, query);
     setCredentialMocks("developerToken", "clientId", "clientSecret");
-    setSessionDependentMocks("sessionId", "1111", "0000", "refresh", "wrongrefresh");
+    setSessionDependentMocks(sessionId, customerId, loginId, refreshToken);
+    MockCampaignsServlet testServlet = new MockCampaignsServlet(sessionId, refreshToken);
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
-
-    System.out.println(testServlet);
     try {
     	when(response.getWriter()).thenReturn(writer);
     	testServlet.doPost(request, response);
@@ -90,21 +92,102 @@ public final class CampaignServletTest {
     	System.out.println(e);
     }
     
-    verify(request, atLeast(1)).getParameter("query"); // make sure method is called
     writer.flush();
-    System.out.println(stringWriter.toString());
-    //assertTrue(stringWriter.toString().contains("My expected string"));
-    Assert.assertEquals("Hello Ada", "Hello Ada");
+
+
+    String expectedJSON = getStringFromFile("expectedJSON/simpleQuery1.txt");
+    Assert.assertTrue(equivalentJSON(expectedJSON, stringWriter.toString()));  	 
   }
 
-  private void setHTTPMocks(HttpServletRequest request, HttpServletResponse response) {
-    when (request.getParameter("query")).thenReturn("SELECT campaign.id FROM campaign");
-    //when (request.getSession()).thenReturn(session);
-    //when (session.getId()).thenReturn("sessionId");
+  private String getStringFromFile(String filePath) {
+  	try {
+  		File file = new File(this.getClass().getClassLoader().getResource(filePath).getFile());
+  		String fileString = FileUtils.readFileToString(file);
+  		return fileString;
+  	} catch (Exception e) {
+  		System.out.println("File not found");
+  		return null;
+  	}
+  }
+
+  @Test 
+  public void invalidQuery() {
+  	HttpServletRequest request = mock(HttpServletRequest.class);       
+    HttpServletResponse response = mock(HttpServletResponse.class);
+  
+    String sessionId = "sessionId";
+    String customerId = "1111";
+    String loginId = "0000";
+    String refreshToken = "0000"; 
+    String query = "invalid";
+
+    prepStaticMocks();
+    setHTTPMocks(request, response, sessionId, query);
+    setCredentialMocks("developerToken", "clientId", "clientSecret");
+    setSessionDependentMocks(sessionId, customerId, loginId, refreshToken);
+    MockCampaignsServlet testServlet = new MockCampaignsServlet(sessionId, refreshToken);
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    try {
+    	when(response.getWriter()).thenReturn(writer);
+    	testServlet.doPost(request, response);
+    } catch (Exception e) {
+    	System.out.println(e);
+    }
+    
+    writer.flush();
+
+    String expectedJSON = testServlet.createErrorJSON("Query is not valid", "400");
+    Assert.assertTrue(equivalentJSON(expectedJSON, stringWriter.toString()));  	
+  }
+
+  @Test
+  public void invalidRefreshToken() {
+  	HttpServletRequest request = mock(HttpServletRequest.class);       
+    HttpServletResponse response = mock(HttpServletResponse.class);
+  
+    String sessionId = "sessionId";
+    String customerId = "1111";
+    String loginId = "0000";
+    String refreshToken = "8888"; // refresh token should be equal to either customer or login id
+    String query = "valid";
+
+    prepStaticMocks();
+    setHTTPMocks(request, response, sessionId, query);
+    setCredentialMocks("developerToken", "clientId", "clientSecret");
+    setSessionDependentMocks(sessionId, customerId, loginId, refreshToken);
+    MockCampaignsServlet testServlet = new MockCampaignsServlet(sessionId, refreshToken);
+
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter writer = new PrintWriter(stringWriter);
+    try {
+    	when(response.getWriter()).thenReturn(writer);
+    	testServlet.doPost(request, response);
+    } catch (Exception e) {
+    	System.out.println(e);
+    }
+    
+    writer.flush();
+
+    String expectedJSON = testServlet.createErrorJSON("Refresh token is not valid", "403");
+    Assert.assertTrue(equivalentJSON(expectedJSON, stringWriter.toString()));
+  }
+
+  private void setHTTPMocks(HttpServletRequest request, HttpServletResponse response, String sessionId, String query) {
+    when (request.getParameter("query")).thenReturn(query);
+    HttpSession session = mock(HttpSession.class);
+    when (request.getSession()).thenReturn(session);
+    when (session.getId()).thenReturn(sessionId);
+  }
+
+  // PowerMockito can mock static methods from classes; denote them here.
+  private void prepStaticMocks() {
+  	PowerMockito.mockStatic(DatastoreRetrieval.class);
+    PowerMockito.mockStatic(CredentialRetrieval.class);
   }
 
   private void setCredentialMocks(String developerToken, String clientId, String clientSecret) {
-  	PowerMockito.mockStatic(DatastoreRetrieval.class);
     PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
     	.thenReturn(developerToken);
     PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID"))
@@ -112,69 +195,24 @@ public final class CampaignServletTest {
     PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET"))
     	.thenReturn(clientSecret);
   }
-  private void setSessionDependentMocks(String sessionId, String customerId, String loginId, String refreshToken, String wrongRefreshToken) {
-    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("customerId", sessionId))
+
+  private void setSessionDependentMocks(String sessionId, String customerId, String loginId, String refreshToken) {
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId))
     	.thenReturn(customerId);
-    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("loginId", sessionId))
+    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId))
     	.thenReturn(loginId);
-    PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore(eq("Refresh"), anyString()))
-    	.thenReturn(wrongRefreshToken);
-    // if you have the correct token, it works.
     PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Refresh", sessionId))
     	.thenReturn(refreshToken);
+
+    Credentials cred = mock(Credentials.class);
+    PowerMockito.when(CredentialRetrieval.getCredentials(sessionId))
+    	.thenReturn(cred);
+  }
+  
+  private boolean equivalentJSON(String jsonA, String jsonB) {
+  	JSONObject jsonObjectA = new JSONObject(jsonA);
+  	JSONObject jsonObjectB = new JSONObject(jsonB);
+  	return jsonObjectA.similar(jsonObjectB);
   }
 
-  class TestCampaignsServlet extends GetCampaignsServlet {
-  	GoogleAdsClient gac = mock(GoogleAdsClient.class);
-  	GoogleAdsServiceClient gasc = PowerMockito.mock(GoogleAdsServiceClient.class);
-  	SearchGoogleAdsStreamRequest request = PowerMockito.mock(SearchGoogleAdsStreamRequest.class);
-
-  	// TODO: input the return JSON and the expected processed JSON
-  	private TestCampaignsServlet() {
-  		super();
-  		System.out.println("Constructing");
-  	}
-
-  	@Override
-  	protected String testSpy(int i) {
-  		return "child class says hello";
-  	}
-
-  	@Override
-	protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) {
-		return gac;
-  	}
-
-  	@Override
-  	protected GoogleAdsServiceClient createGoogleAdsServiceClient(GoogleAdsClient googleAdsClient) {
-	    PowerMockito.doNothing().when(gasc).close();
-	    //PowerMockito.when(gasc.close()).doNothing();
-  		return gasc;
-  	}
-
-  	@Override
-  	protected SearchGoogleAdsStreamRequest buildSearchGoogleAdsStreamRequest(String query, long customerId) {
-  		return request;
-  	}
-
-  	@Override
-  	protected Iterable<SearchGoogleAdsStreamResponse> issueSearchGoogleAdsStreamRequest(GoogleAdsServiceClient googleAdsServiceClient, SearchGoogleAdsStreamRequest request) {
-  		// change to allow for flexible test cases (in constructor)
-  		ArrayList<SearchGoogleAdsStreamResponse> lst = new ArrayList<>();
-  		SearchGoogleAdsStreamResponse rsp = PowerMockito.mock(SearchGoogleAdsStreamResponse.class);
-	    when (rsp.toString()).thenReturn("{results {campaign { resource_name\"adsf\"} id { value: 1010}}}");
-
-  		lst.add(rsp);
-  		return (Iterable<SearchGoogleAdsStreamResponse>) lst;
-  	}
-
-  	@Override
-  	 protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
-  	 	String json = "{\"results\": [{ \"campaign\": {\"resourceName\": \"customers/4498877497/campaigns/10314647934\",";
-  	 	json += "\"id\": \"10314647934\"}}, {\"campaign\": {\"resourceName\": ";
-  	 	json += "\"customers/4498877497/campaigns/10371310206\",\"id\": \"10371310206\"}}],";
-  	 	json += "\"fieldMask\": \"campaign.id\"}";
-  	 	return json;
-  	 }
-  }
 }
