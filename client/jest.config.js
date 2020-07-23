@@ -7,5 +7,7 @@ module.exports = {
     '!**/coverage/**',
     '!**/serviceWorker.js',
     '!**/index.js',
+    '!**/*.config.js',
+    '!**/build/**',
   ],
 };

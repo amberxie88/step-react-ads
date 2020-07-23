@@ -21,7 +21,7 @@
     "local": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest",
-    "coverage": "http-server ./coverage/lcov-report",
+    "coverage": "jest --coverage && http-server ./coverage/lcov-report",
     "eject": "react-scripts eject"
   },
   "browserslist": {
