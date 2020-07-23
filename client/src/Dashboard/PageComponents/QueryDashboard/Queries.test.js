@@ -65,4 +65,21 @@ describe('Queries Unit Testing', () => {
     const ErrorHTML = component.find('Title').at(1).html();
     expect(ErrorHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });
+
+  it('Queries correctly displays unexpected error', async () => {
+    //In this test, the API will return something unexpected
+    const mockedAPICall = {
+      data: {},
+    };
+    axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
+    const component = shallow(<Queries />);
+    component.find('SubmitButton').simulate('click'); //click the submit button. This should trigger the api call
+    await waitForState(component, (state) => state.rows !== []); //wait for rows state variable to change from initial state
+    expect(component.state('status')).toEqual('error');
+    expect(component.state('errorMessage')).toEqual(
+      "Cannot read property 'status' of undefined",
+    );
+    const ErrorHTML = component.find('Title').at(1).html();
+    expect(ErrorHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+  });
 });
