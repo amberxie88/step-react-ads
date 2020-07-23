@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import Title from '../../Utilities/Title';
 import Button from '@material-ui/core/Button';
@@ -16,19 +17,13 @@ class Login extends React.Component {
     this.state = { redirect: '' };
   }
 
-  handleLogin() {
-    const request = new Request('/oauth', {
-      accept: 'application/json',
-      method: 'GET',
+  async handleLogin() {
+    const { data } = await axios.get('/oauth');
+    console.log(data);
+
+    this.setState({
+      redirect: data,
     });
-    fetch(request)
-      .then((request) => request.text())
-      .then((text) => {
-        console.log(text);
-        this.setState({
-          redirect: text,
-        });
-      });
   }
 
   componentDidMount() {
@@ -54,11 +49,7 @@ function LoginButton(props) {
   return (
     <div className={classes.root}>
       <Button variant="outlined">
-        <a
-          style={{ textDecoration: 'none' }}
-          href={props.onClick}
-          //target="_blank"
-        >
+        <a style={{ textDecoration: 'none' }} href={props.onClick}>
           Add Account
         </a>
       </Button>

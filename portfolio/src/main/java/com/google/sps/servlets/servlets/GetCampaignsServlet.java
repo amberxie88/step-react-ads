@@ -161,6 +161,13 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       System.err.println(e);
       return "";
+
+  private void writeServletResponse(HttpServletResponse response, String messageJSON) {
+    response.setContentType("application/json");
+    try {
+      response.getWriter().println(messageJSON);
+    } catch (Exception e) {
+      System.err.println(e);
     }
   }
 
