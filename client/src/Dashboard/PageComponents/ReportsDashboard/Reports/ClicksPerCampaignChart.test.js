@@ -1,10 +1,10 @@
 import React from 'react';
 import ClicksPerCampaignChart from './ClicksPerCampaignChart';
 import { configure, mount } from 'enzyme';
-import { waitForElement } from 'enzyme-async-helpers';
 import { act } from 'react-dom/test-utils';
 import Adapter from 'enzyme-adapter-react-16';
 import axios from 'axios';
+import * as HttpStatus from 'http-status-codes';
 
 configure({ adapter: new Adapter() });
 jest.mock('axios');
@@ -21,7 +21,7 @@ describe('ClicksPerCampaignChart Unit Testing', () => {
           },
         ],
         fieldmask: ['campaign.id', 'campaign.name', 'metrics.clicks'],
-        meta: { status: '200' },
+        meta: { status: HttpStatus.OK.toString() },
       },
     };
     axios.get.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
@@ -38,7 +38,10 @@ describe('ClicksPerCampaignChart Unit Testing', () => {
   it('ClicksPerCampaignChart correctly displays error when API call returns error', async () => {
     const mockedAPICall = {
       data: {
-        meta: { status: '400', message: 'Some kind of Error' },
+        meta: {
+          status: HttpStatus.BAD_REQUEST.toString(),
+          message: 'Some kind of Error',
+        },
       },
     };
     axios.get.mockImplementationOnce(() => Promise.resolve(mockedAPICall));

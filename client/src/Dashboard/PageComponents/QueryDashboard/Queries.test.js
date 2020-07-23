@@ -5,6 +5,7 @@ import { configure, shallow } from 'enzyme';
 import { waitForState } from 'enzyme-async-helpers';
 import Adapter from 'enzyme-adapter-react-16';
 import axios from 'axios';
+import * as HttpStatus from 'http-status-codes';
 
 configure({ adapter: new Adapter() });
 jest.mock('axios');
@@ -21,7 +22,7 @@ describe('Queries Unit Testing', () => {
           },
         ],
         fieldmask: ['campaign.id', 'campaign.name', 'metrics.clicks'],
-        meta: { status: '200' },
+        meta: { status: HttpStatus.OK.toString() },
       },
     };
     axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
@@ -49,7 +50,10 @@ describe('Queries Unit Testing', () => {
   it('Queries correctly displays error with incorrectly formatted input', async () => {
     const mockedAPICall = {
       data: {
-        meta: { status: '400', message: 'Some Kind of Error' },
+        meta: {
+          status: HttpStatus.BAD_REQUEST.toString(),
+          message: 'Some Kind of Error',
+        },
       },
     };
     axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
