@@ -10,7 +10,9 @@ client/node_modules/
 
 # production
 /client/build/
+/client/public/ads.properties
 /portfolio/target/
+/portfolio/src/main/webapp/config.properties
 
 # misc
 .DS_Store
