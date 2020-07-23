@@ -1,5 +1,5 @@
 import React from 'react';
-import CampaignData from './CampaignData';
+import ClicksPerCampaignChart from './ClicksPerCampaignChart';
 import { configure, mount } from 'enzyme';
 import { waitForElement } from 'enzyme-async-helpers';
 import { act } from 'react-dom/test-utils';
@@ -9,8 +9,8 @@ import axios from 'axios';
 configure({ adapter: new Adapter() });
 jest.mock('axios');
 
-describe('CampaignData Unit Testing', () => {
-  it('CampaignData correctly displays data with correct API call', async () => {
+describe('ClicksPerCampaignChart Unit Testing', () => {
+  it('ClicksPerCampaignChart correctly displays data with correct API call', async () => {
     const mockedAPICall = {
       data: {
         response: [
@@ -24,31 +24,31 @@ describe('CampaignData Unit Testing', () => {
         meta: { status: '200' },
       },
     };
-    axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
-    const component = mount(<CampaignData />);
+    axios.get.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
+    const component = mount(<ClicksPerCampaignChart />);
     await act(async () => {
       await Promise.resolve(component);
       await new Promise((resolve) => setImmediate(resolve));
       component.update();
     });
-    const CampaignDataHTML = component.html();
-    expect(CampaignDataHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+    const chartHTML = component.html();
+    expect(chartHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });
 
-  it('CampaignData correctly displays error when API call returns error', async () => {
+  it('ClicksPerCampaignChart correctly displays error when API call returns error', async () => {
     const mockedAPICall = {
       data: {
         meta: { status: '400', message: 'Some kind of Error' },
       },
     };
-    axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
-    const component = mount(<CampaignData />);
+    axios.get.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
+    const component = mount(<ClicksPerCampaignChart />);
     await act(async () => {
       await Promise.resolve(component);
       await new Promise((resolve) => setImmediate(resolve));
       component.update();
     });
-    const CampaignDataHTML = component.html();
-    expect(CampaignDataHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+    const chartHTML = component.html();
+    expect(chartHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });
 });
