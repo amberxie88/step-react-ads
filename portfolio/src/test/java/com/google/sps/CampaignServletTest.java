@@ -63,8 +63,6 @@ import java.lang.ClassLoader;
 	SearchGoogleAdsStreamResponse.class, GoogleAdsServiceClient.class, CredentialRetrieval.class})
 public final class CampaignServletTest {
 
-  private GetCampaignsServlet servlet = PowerMockito.spy(new GetCampaignsServlet());
-
   @Test
   public void simpleQuery() {
   	System.out.println("simple query");

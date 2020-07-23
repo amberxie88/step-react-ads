@@ -13,6 +13,6 @@ public class CredentialRetrieval {
 
 	Credentials credentials = UserCredentials.newBuilder().setClientId(CLIENT_ID)
 	  .setClientSecret(CLIENT_SECRET).setRefreshToken(REFRESH_TOKEN).build();
-	return credentials;=
+	return credentials;
   }
 }
