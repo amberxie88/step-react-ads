@@ -25,21 +25,25 @@ class MockCampaignsServlet extends GetCampaignsServlet {
   SearchGoogleAdsStreamRequest request = PowerMockito.mock(SearchGoogleAdsStreamRequest.class);
   String sessionId;
   String refreshToken;
+  String queryResponse;
   long loginCustomerId;
 
   public MockCampaignsServlet() {
     super();
   }
 
-  // TODO: input the return JSON (compare with the expected processed JSON)
-  public MockCampaignsServlet(String sessionId, String refreshToken) {
+  public MockCampaignsServlet(String sessionId, String refreshToken, String queryResponse) {
   	super();
   	this.sessionId = sessionId;
   	this.refreshToken = refreshToken;
+    this.queryResponse = queryResponse;
   }
 
   @Override
-	protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) {
+	protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) throws Exception {
+    if (c == null || developerToken == null) {
+      throw new Exception("Cannot build GoogleAdsClient");
+    }
     this.loginCustomerId = loginCustomerId;
 	  return gac;
   }
@@ -78,15 +82,15 @@ class MockCampaignsServlet extends GetCampaignsServlet {
  	}
 
   // streamresponse is mocked, so how can we override the json printer stuff without truly overriding it?
-  /*
+  
   @Override
   protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
 	 	String json = "{\"results\": [{ \"campaign\": {\"resourceName\": \"customers/4498877497/campaigns/10314647934\",";
    	json += "\"id\": \"10314647934\"}}, {\"campaign\": {\"resourceName\": ";
    	json += "\"customers/4498877497/campaigns/10371310206\",\"id\": \"10371310206\"}}],";
    	json += "\"fieldMask\": \"campaign.id\"}";
-   	return json;
-  }*/
+   	return queryResponse;
+  }
   @Override
   public String processErrorJSON(String errorMessage, String errorCode) {
     // the method is protected in GetCampaignsServlet
@@ -101,5 +105,10 @@ class MockCampaignsServlet extends GetCampaignsServlet {
   @Override 
   public String processJSON(String json) {
     return super.processJSON(json);
+  }
+
+  @Override
+  public String runExample(long loginId, long customerId, String query, String sessionId) {
+    return super.runExample(loginId, customerId, query, sessionId);
   }
 }

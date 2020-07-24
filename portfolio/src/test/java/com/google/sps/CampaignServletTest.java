@@ -63,18 +63,32 @@ import java.lang.ClassLoader;
 	SearchGoogleAdsStreamResponse.class, GoogleAdsServiceClient.class, CredentialRetrieval.class})
 public final class CampaignServletTest {
 
+	private static final String SESSION_ID = "sessionId";
+	private static final String CUSTOMER_ID = "1111";
+	private static final String CUSTOMER_ID_NULL = null;
+	private static final String LOGIN_ID = "0000";
+	private static final String REFRESH_TOKEN_VALID_0 = "0000";
+	private static final String REFRESH_TOKEN_VALID_1 = "1111";
+	private static final String REFRESH_TOKEN_INVALID = "8888";
+	private static final String QUERY_VALID = "valid";
+	private static final String QUERY_INVALID = "invalid";
+	private static final String CLIENT_ID = "clientId";
+	private static final String CLIENT_SECRET = "clientSecret";
+	private static final String CLIENT_SECRET_NULL = null;
+	private static final String DEVELOPER_TOKEN = "developerToken";
+	private static final String DEVELOPER_TOKEN_NULL = null;
+
 	@Test
-	public void processErrorJSONTest() {
+	public void processErrorJSON() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String errorJSON = testServlet.processErrorJSON("My error message is here", "300");
 		String expectedJSON = getStringFromFile("expectedJSON/processErrorJSON1.txt");
-		System.out.println(errorJSON);
-		System.out.println(expectedJSON);
 		Assert.assertTrue(equivalentJSON(expectedJSON, errorJSON));  
 	}
 
+	/* The path leads to a String */
 	@Test
-	public void getValueFromJSONTest1() {
+	public void getValueFromJSON1_validFullPath() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/getValueJSON1.txt");
 		JSONObject inputObject = new JSONObject(inputString);
@@ -82,17 +96,17 @@ public final class CampaignServletTest {
 		Assert.assertEquals("300", value);
 	}
 
-	/* Test to see if an invalid path will throw an error */
 	@Test(expected = Exception.class)
-	public void getValueFromJSONTest2() {
+	public void getValueFromJSON2_invalidPath() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/getValueJSON1.txt");
 		JSONObject inputObject = new JSONObject(inputString);
 		String value = testServlet.getValueFromJSON(inputObject, "meta.invalid.path");
 	}
 
+	/* The path leads to a JSON Object */
 	@Test
-	public void getValueFromJSONTest3() {
+	public void getValueFromJSON3_validIncompletePath() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/getValueJSON1.txt");
 		JSONObject inputObject = new JSONObject(inputString);
@@ -102,7 +116,7 @@ public final class CampaignServletTest {
 	}
 
 	@Test
-	public void processJSONTest1() {
+	public void processJSON1_simple() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/processJSON1.txt");
 		String result = testServlet.processJSON(inputString);
@@ -111,7 +125,7 @@ public final class CampaignServletTest {
 	}
 
 	@Test
-	public void processJSONTest2() {
+	public void processJSON2_ignoreExtraValues() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/processJSON2.txt");
 		String result = testServlet.processJSON(inputString);
@@ -121,7 +135,7 @@ public final class CampaignServletTest {
 
 	/* Return error message with field mask values that were not found in "result" */
 	@Test
-	public void processJSONTest3() {
+	public void processJSON3_processMissingValues() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/processJSON3.txt");
 		String result = testServlet.processJSON(inputString);
@@ -129,9 +143,9 @@ public final class CampaignServletTest {
 		Assert.assertTrue(equivalentJSON(expectedString, result));
 	}
 
-	/* Return error JSON if there is no "results" array */
+	/* Return error JSON if there is no "result" array */
 	@Test
-	public void processJSONTest4() {
+	public void processJSON4_noResult() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/processJSON4.txt");
 		String result = testServlet.processJSON(inputString);
@@ -141,7 +155,7 @@ public final class CampaignServletTest {
 
 	/* Return current JSON if there is a meta with a status other than 200 */
 	@Test
-	public void processJSONTest5() {
+	public void processJSON5_processInvalidMeta() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/processJSON5.txt");
 		String result = testServlet.processJSON(inputString);
@@ -149,9 +163,9 @@ public final class CampaignServletTest {
 		Assert.assertTrue(equivalentJSON(expectedString, result));
 	}
 
-	/* Process as usual if there is a meta with a statuuus 200 */
+	/* Process as usual if there is a meta with a status 200 */
 	@Test
-	public void processJSONTest6() {
+	public void processJSON6_ignoreValidMeta() {
 		MockCampaignsServlet testServlet = new MockCampaignsServlet();
 		String inputString = getStringFromFile("input/processJSON6.txt");
 		String result = testServlet.processJSON(inputString);
@@ -159,100 +173,78 @@ public final class CampaignServletTest {
 		Assert.assertTrue(equivalentJSON(expectedString, result));
 	}
 
-	@Test
-	public void simpleQuery() {
-		/* setup begins */
-		System.out.println("simple query");
-		HttpServletRequest request = mock(HttpServletRequest.class);       
-		HttpServletResponse response = mock(HttpServletResponse.class);
-
-		String sessionId = "sessionId";
-		String customerId = "1111";
-		String loginId = "0000";
-		String refreshToken = "0000"; 
-		String query = "valid";
-		if (1 == 1) {
-			return;
-		}
-
+	@Test 
+	public void runExample_validInputs() {
 		prepStaticMocks();
-		setHTTPMocks(request, response, sessionId, query);
-		setCredentialMocks("developerToken", "clientId", "clientSecret");
-		setSessionDependentMocks(sessionId, customerId, loginId, refreshToken);
-		MockCampaignsServlet testServlet = new MockCampaignsServlet(sessionId, refreshToken);
+		setCredentialMocks(DEVELOPER_TOKEN, CLIENT_ID, CLIENT_SECRET, SESSION_ID);
+		setSessionDependentMocks(SESSION_ID, CUSTOMER_ID, LOGIN_ID, REFRESH_TOKEN_VALID_0);
+		String queryResponse = "query response";
+		MockCampaignsServlet testServlet = new MockCampaignsServlet(SESSION_ID, REFRESH_TOKEN_VALID_0, queryResponse);
 
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter writer = new PrintWriter(stringWriter);
-		/* setup ends */
-		try {
-			when(response.getWriter()).thenReturn(writer);
-			testServlet.doPost(request, response);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-
-		writer.flush();
-
-		// things you need: 
-		// request, response
-		// I don't think you actually need sessionId, customerId, etc. nor do you need client ID
-		// writer (because you need to flush and get it toString -> but the when part can be done in setup??)
-		// what is the cleanest way to do this? you can read from a file, but seems like too much. Passing in that many parameters is a lot.
-
-		String expectedJSON = getStringFromFile("expectedJSON/simpleQuery1.txt");
-		System.out.println(stringWriter.toString());
-		Assert.assertTrue(equivalentJSON(expectedJSON, stringWriter.toString()));  	 
+		String returnResponse = testServlet.runExample(Long.parseLong(LOGIN_ID), Long.parseLong(CUSTOMER_ID), QUERY_VALID, SESSION_ID);
+		Assert.assertEquals(queryResponse, returnResponse);
 	}
 
 	@Test 
-	public void invalidQuery() {
-		HttpServletRequest request = mock(HttpServletRequest.class);       
-		HttpServletResponse response = mock(HttpServletResponse.class);
-
-		String sessionId = "sessionId";
-		String customerId = "1111";
-		String loginId = "0000";
-		String refreshToken = "0000"; 
-		String query = "invalid";
-
+	public void runExample_invalidQuery() {
 		prepStaticMocks();
-		setHTTPMocks(request, response, sessionId, query);
-		setCredentialMocks("developerToken", "clientId", "clientSecret");
-		setSessionDependentMocks(sessionId, customerId, loginId, refreshToken);
-		MockCampaignsServlet testServlet = new MockCampaignsServlet(sessionId, refreshToken);
+		setCredentialMocks(DEVELOPER_TOKEN, CLIENT_ID, CLIENT_SECRET, SESSION_ID);
+		setSessionDependentMocks(SESSION_ID, CUSTOMER_ID, LOGIN_ID, REFRESH_TOKEN_VALID_0);
+		MockCampaignsServlet testServlet = new MockCampaignsServlet(SESSION_ID, REFRESH_TOKEN_VALID_0, "");
 
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter writer = new PrintWriter(stringWriter);
-		try {
-			when(response.getWriter()).thenReturn(writer);
-			testServlet.doPost(request, response);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-
-		writer.flush();
-
+		String returnJSON = testServlet.runExample(Long.parseLong(LOGIN_ID), Long.parseLong(CUSTOMER_ID), QUERY_INVALID, SESSION_ID);
 		String expectedJSON = testServlet.processErrorJSON("Query is not valid", "400");
-		Assert.assertTrue(equivalentJSON(expectedJSON, stringWriter.toString()));  	
+		Assert.assertTrue(equivalentJSON(expectedJSON, returnJSON));  	
 	}
 
 	@Test
-	public void invalidRefreshToken() {
-		// Class variable or put in set-up / before
+	public void runExample_invalidRefreshToken() {
+		prepStaticMocks();
+		setCredentialMocks(DEVELOPER_TOKEN, CLIENT_ID, CLIENT_SECRET, SESSION_ID);
+		setSessionDependentMocks(SESSION_ID, CUSTOMER_ID, LOGIN_ID, REFRESH_TOKEN_INVALID);
+		MockCampaignsServlet testServlet = new MockCampaignsServlet(SESSION_ID, REFRESH_TOKEN_INVALID, "");
+
+		String returnJSON = testServlet.runExample(Long.parseLong(LOGIN_ID), Long.parseLong(CUSTOMER_ID), QUERY_VALID, SESSION_ID);
+		String expectedJSON = testServlet.processErrorJSON("Refresh token is not valid", "403");
+		Assert.assertTrue(equivalentJSON(expectedJSON, returnJSON));
+	}
+
+	@Test
+	public void runExample_invalidCredentialRetrieval() {
+		prepStaticMocks();
+		setCredentialMocks(DEVELOPER_TOKEN, CLIENT_ID, CLIENT_SECRET_NULL, SESSION_ID);
+		setSessionDependentMocks(SESSION_ID, CUSTOMER_ID, LOGIN_ID, REFRESH_TOKEN_VALID_0);
+		MockCampaignsServlet testServlet = new MockCampaignsServlet(SESSION_ID, REFRESH_TOKEN_VALID_0, "");
+
+		String returnJSON = testServlet.runExample(Long.parseLong(LOGIN_ID), Long.parseLong(CUSTOMER_ID), QUERY_VALID, SESSION_ID);
+		String expectedJSON = testServlet.processErrorJSON("java.lang.Exception: Cannot build GoogleAdsClient", "503");
+		Assert.assertTrue(equivalentJSON(expectedJSON, returnJSON));
+	}
+
+	@Test
+	public void runExample_invalidDatastoreRetrieval() {
+		prepStaticMocks();
+		setCredentialMocks(DEVELOPER_TOKEN_NULL, CLIENT_ID, CLIENT_SECRET, SESSION_ID);
+		setSessionDependentMocks(SESSION_ID, CUSTOMER_ID, LOGIN_ID, REFRESH_TOKEN_VALID_0);
+		MockCampaignsServlet testServlet = new MockCampaignsServlet(SESSION_ID, REFRESH_TOKEN_VALID_0, "");
+
+		String returnJSON = testServlet.runExample(Long.parseLong(LOGIN_ID), Long.parseLong(CUSTOMER_ID), QUERY_VALID, SESSION_ID);
+		String expectedJSON = testServlet.processErrorJSON("java.lang.Exception: Cannot build GoogleAdsClient", "503");
+		Assert.assertTrue(equivalentJSON(expectedJSON, returnJSON));
+	}
+
+
+	@Test
+	public void doPost1_simpleQuery() {
 		HttpServletRequest request = mock(HttpServletRequest.class);       
 		HttpServletResponse response = mock(HttpServletResponse.class);
 
-		String sessionId = "sessionId";
-		String customerId = "1111";
-		String loginId = "0000";
-		String refreshToken = "8888"; // refresh token should be equal to either customer or login id
-		String query = "valid";
-
 		prepStaticMocks();
-		setHTTPMocks(request, response, sessionId, query);
-		setCredentialMocks("developerToken", "clientId", "clientSecret");
-		setSessionDependentMocks(sessionId, customerId, loginId, refreshToken);
-		MockCampaignsServlet testServlet = new MockCampaignsServlet(sessionId, refreshToken);
+		setHTTPMocks(request, response, SESSION_ID, QUERY_VALID);
+		setCredentialMocks(DEVELOPER_TOKEN, CLIENT_ID, CLIENT_SECRET, SESSION_ID);
+		setSessionDependentMocks(SESSION_ID, CUSTOMER_ID, LOGIN_ID, REFRESH_TOKEN_VALID_0);
+		String queryResponse = getStringFromFile("input/doPost1.txt");
+		MockCampaignsServlet testServlet = new MockCampaignsServlet(SESSION_ID, REFRESH_TOKEN_VALID_0, queryResponse);
 
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter writer = new PrintWriter(stringWriter);
@@ -265,8 +257,35 @@ public final class CampaignServletTest {
 
 		writer.flush();
 
-		String expectedJSON = testServlet.processErrorJSON("Refresh token is not valid", "403");
-		Assert.assertTrue(equivalentJSON(expectedJSON, stringWriter.toString()));
+		String expectedJSON = getStringFromFile("expectedJSON/doPost1.txt");
+		Assert.assertTrue(equivalentJSON(expectedJSON, stringWriter.toString()));  
+	}
+
+	@Test
+	public void doPost2_nullCustomerId() {
+		HttpServletRequest request = mock(HttpServletRequest.class);       
+		HttpServletResponse response = mock(HttpServletResponse.class);
+
+		prepStaticMocks();
+		setHTTPMocks(request, response, SESSION_ID, QUERY_VALID);
+		setCredentialMocks(DEVELOPER_TOKEN, CLIENT_ID, CLIENT_SECRET, SESSION_ID);
+		setSessionDependentMocks(SESSION_ID, CUSTOMER_ID_NULL, LOGIN_ID, REFRESH_TOKEN_VALID_0);
+		String queryResponse = "";
+		MockCampaignsServlet testServlet = new MockCampaignsServlet(SESSION_ID, REFRESH_TOKEN_VALID_0, queryResponse);
+
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter writer = new PrintWriter(stringWriter);
+		try {
+			when(response.getWriter()).thenReturn(writer);
+			testServlet.doPost(request, response);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+		writer.flush();
+
+		String expectedJSON = testServlet.processErrorJSON("Null Login ID or Customer ID", "500");
+		Assert.assertTrue(equivalentJSON(expectedJSON, stringWriter.toString()));  
 	}
 
 	// TODO: take out response, not used
@@ -284,13 +303,19 @@ public final class CampaignServletTest {
 		PowerMockito.mockStatic(CredentialRetrieval.class);
 	}
 
-	private void setCredentialMocks(String developerToken, String clientId, String clientSecret) {
+	private void setCredentialMocks(String developerToken, String clientId, String clientSecret, String sessionId) {
 		PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
 			.thenReturn(developerToken);
 		PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID"))
 			.thenReturn(clientId);
 		PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET"))
 			.thenReturn(clientSecret);
+		Credentials cred = mock(Credentials.class);
+		if (developerToken != null && clientId != null && clientSecret != null) {
+			PowerMockito.when(CredentialRetrieval.getCredentials(sessionId))
+				.thenReturn(cred);
+		} 
+
 	}
 
 	private void setSessionDependentMocks(String sessionId, String customerId, String loginId, String refreshToken) {
@@ -300,10 +325,6 @@ public final class CampaignServletTest {
 			.thenReturn(loginId);
 		PowerMockito.when(DatastoreRetrieval.getEntityFromDatastore("Refresh", sessionId))
 			.thenReturn(refreshToken);
-
-		Credentials cred = mock(Credentials.class);
-		PowerMockito.when(CredentialRetrieval.getCredentials(sessionId))
-			.thenReturn(cred);
 	 }
 	  
 	private boolean equivalentJSON(String jsonA, String jsonB) {
