@@ -87,7 +87,7 @@ public class CallbackServlet extends HttpServlet {
         System.out.println("refresh token generated");
         return "Your Refresh Token has been generated";
       } catch (Exception e) {
-        return "Failed to generate Refresh Token";
+        return "Failed to generate Refresh Token"; // Change these to final (static) messages
       }
     } else {
       return "Invalid Request: State does not exist"; 

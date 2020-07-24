@@ -1,0 +1,1 @@
+{"fieldmask":["campaign.id"],"response":[{"campaign.id":"10314647934"},{"campaign.id":"10371310206"}],"meta":{"status":"200"}}
