@@ -6,7 +6,7 @@ import com.google.auth.Credentials;
 
 public class CredentialRetrieval {
 	// TODO: clean up code -- turn "Settings" into a variable in another Java file
-	// create Constants.java or something for a list of all the constants. 
+	// create Constants.java or for a list of all the constants. 
   
   public static Credentials getCredentials(String sessionId) {
 	String CLIENT_ID = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
