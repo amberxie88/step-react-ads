@@ -27,6 +27,10 @@ class MockCampaignsServlet extends GetCampaignsServlet {
   String refreshToken;
   long loginCustomerId;
 
+  public MockCampaignsServlet() {
+    super();
+  }
+
   // TODO: input the return JSON (compare with the expected processed JSON)
   public MockCampaignsServlet(String sessionId, String refreshToken) {
   	super();
@@ -73,6 +77,8 @@ class MockCampaignsServlet extends GetCampaignsServlet {
  		return (Iterable<SearchGoogleAdsStreamResponse>) lst;
  	}
 
+  // streamresponse is mocked, so how can we override the json printer stuff without truly overriding it?
+  /*
   @Override
   protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
 	 	String json = "{\"results\": [{ \"campaign\": {\"resourceName\": \"customers/4498877497/campaigns/10314647934\",";
@@ -80,10 +86,20 @@ class MockCampaignsServlet extends GetCampaignsServlet {
    	json += "\"customers/4498877497/campaigns/10371310206\",\"id\": \"10371310206\"}}],";
    	json += "\"fieldMask\": \"campaign.id\"}";
    	return json;
+  }*/
+  @Override
+  public String processErrorJSON(String errorMessage, String errorCode) {
+    // the method is protected in GetCampaignsServlet
+    return super.processErrorJSON(errorMessage, errorCode); 
   }
 
-  public String createErrorJSON(String errorMessage, String errorCode) {
-    // the method is protected in GetCampaignsServlet
-    return processErrorJSON(errorMessage, errorCode); 
+  @Override
+  public String getValueFromJSON(JSONObject object, String requestedValue) {
+    return super.getValueFromJSON(object, requestedValue);
+  }
+
+  @Override 
+  public String processJSON(String json) {
+    return super.processJSON(json);
   }
 }

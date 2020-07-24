@@ -61,11 +61,14 @@ public class GetCampaignsServlet extends HttpServlet {
     // GET QUERY STRING
     String query = request.getParameter("query");
     String sessionId = (String) request.getSession().getId();
+    System.out.println(query);
+    //sessionId = "sRUDHQkKI-d3VYiMtEcvDg";
 
-    //params.customerId = Long.parseLong("4498877497"); //Amber
-
-    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
-    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    String customerId = "4498877497"; //Amber
+    String loginId = "9797005693";
+    //test
+    //String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
+    //String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
 
     String returnJSON = "";
     try {
@@ -105,9 +108,12 @@ public class GetCampaignsServlet extends HttpServlet {
     System.out.println(customerId);
     GoogleAdsClient googleAdsClient;
 
+    File propertiesFile = new File("ads.properties");
     try {
-      googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
-        DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"), loginId);
+      googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).build();
+      // test
+      //googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
+       // DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"), loginId);
     } catch (Exception e) {
       return processErrorJSON(e.toString(), "503");
     }
@@ -117,7 +123,14 @@ public class GetCampaignsServlet extends HttpServlet {
       // Creates and issues a search Google Ads stream request that will retrieve query results.
       Iterable<SearchGoogleAdsStreamResponse> stream = issueSearchGoogleAdsStreamRequest(googleAdsServiceClient, request);
 
+      System.out.println("Here!");
+      System.out.println(customerId);
       for (SearchGoogleAdsStreamResponse response : stream) {
+        //google.ads.googleads.v3.services.SearchGoogleAdsStreamResponse
+        System.out.println(response.getDescriptorForType());
+        System.out.println(response.getDescriptorForType().getClass());
+        System.out.println(response.getDescriptorForType().getFullName());
+        System.out.println(response.getDescriptorForType().getFullName().getClass());
         returnJSON += searchGoogleAdsStreamResponseToJSON(response);
       }
     } catch (InvalidArgumentException e) {
@@ -127,7 +140,7 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       return processErrorJSON(e.toString(), "500"); // 500
     }
-    System.out.println(returnJSON);
+    //System.out.println(returnJSON);
     return returnJSON;
   }
 
@@ -167,7 +180,7 @@ public class GetCampaignsServlet extends HttpServlet {
   protected String processJSON(String jsonString) {
     JSONObject jsonObject = new JSONObject(jsonString);
 
-    if (jsonObject.has("meta") && !jsonObject.getJSONObject("meta").get("status").equals("200")) {
+    if (jsonObject.has("meta") && jsonObject.getJSONObject("meta").has("status") && !jsonObject.getJSONObject("meta").get("status").equals("200")) {
       return jsonString;
     }
 
@@ -194,7 +207,7 @@ public class GetCampaignsServlet extends HttpServlet {
       returnArray.put(resultObj);
     }
 
-    JSONObject metaObj = processMetaJSON(invalidRequestValues);
+    JSONObject metaObj = processInvalidRequestsMetaJSON(invalidRequestValues);
 
     JSONObject finalJSON = new JSONObject();
     finalJSON.put("response", returnArray);
@@ -217,7 +230,7 @@ public class GetCampaignsServlet extends HttpServlet {
   /**
    * Returns error message in meta JSON if there are invalid requests.
   */
-  protected JSONObject processMetaJSON(Set<String> invalidRequestValuesSet) {
+  protected JSONObject processInvalidRequestsMetaJSON(Set<String> invalidRequestValuesSet) {
     JSONObject metaObj = new JSONObject();
     if (invalidRequestValuesSet.size() == 0) {
       metaObj.put("status", "200");

@@ -1,0 +1,13 @@
+{"results": [{
+	"campaign": {
+	  "name":"name1",
+	  "extra": "random"
+	}
+}, {
+	"campaign": {
+	  "name":"name2",
+	  "extra": "random"
+	}
+}],
+"fieldMask": "campaign.name,campaign.id"
+}
