@@ -100,11 +100,16 @@ public class CallbackServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
     boolean matchState = false;
+    String entityState;
+    String entitySession;
     for (Entity entity: results.asIterable()) {
-      System.out.println(entity.getProperty("value"));
-      if (sessionId.equals(entity.getProperty("index"))) {
+      entitySession = entity.getProperty("index");
+      entityState = entity.getProperty("value");
+      System.out.println("entitySession: " + entitySession);
+      System.out.println("entityState: " + entityState);
+      if (sessionId.equals(entitySession)) {
         datastore.delete((com.google.appengine.api.datastore.Key) entity.getKey());
-        if (state.equals(entity.getProperty("value"))) {
+        if (state.equals(entityState)) {
           System.out.println("found state match");
           matchState =  true; 
         }
