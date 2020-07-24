@@ -24,17 +24,10 @@ public class DatastoreRetrieval {
     // value = refresh token
   //LoginId:
     // index: sessionId
-<<<<<<< HEAD
     // value = LoginID
   //CustomerId:
     // index: sessionId
     // value = CustomerID
-=======
-    // value = LoginId
-  //CustomerId:
-    // index: sessionId
-    // value = CustomerId
->>>>>>> master
  
   public static String getEntityFromDatastore(String entityName, String index) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
