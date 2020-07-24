@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import * as HttpStatus from 'http-status-codes';
 import { makeStyles } from '@material-ui/core/styles';
 import QueryResults from './QueryResults';
 import TextField from '@material-ui/core/TextField';
@@ -50,7 +51,7 @@ class Query extends React.Component {
         '/campaign',
         new URLSearchParams({ query }),
       );
-      if (data.meta.status !== '200') {
+      if (data.meta.status !== HttpStatus.OK.toString()) {
         throw new Error(data.meta.message);
       } else {
         this.setState({

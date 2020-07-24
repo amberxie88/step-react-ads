@@ -18,7 +18,7 @@ export default function QueryResults(props) {
 
   const handleChangeRowsPerPage = (event) => {
     // If the selection is [A]ll the rows.
-    if (event.target.value.toString().charAt(0) == 'A') {
+    if (event.target.value.toString().charAt(0) === 'A') {
       event.target.value = rows.length;
     }
     setRowsPerPage(+event.target.value);
