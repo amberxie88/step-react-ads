@@ -114,9 +114,11 @@ public class AccessibleCustomersServlet extends HttpServlet {
   private String runExample(GoogleAdsClient client, String sessionId) {
     JSONObject returnObject = new JSONObject();
     JSONArray customerArray = new JSONArray();
+    System.out.println("RUNNING EXAMPLE");
 
     try (CustomerServiceClient customerService =
         client.getLatestVersion().createCustomerServiceClient()) {
+      System.out.println("created customer service");
       ListAccessibleCustomersResponse response =
           customerService.listAccessibleCustomers(
               ListAccessibleCustomersRequest.newBuilder().build());

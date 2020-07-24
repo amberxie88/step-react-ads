@@ -1,0 +1,1 @@
+{"fieldmask":["campaign.name", "campaign.id"],"response":[{"campaign.id":"001", "campaign.name": "name1"},{"campaign.id":"002", "campaign.name": "name2"}],"meta":{"status":"200"}}
