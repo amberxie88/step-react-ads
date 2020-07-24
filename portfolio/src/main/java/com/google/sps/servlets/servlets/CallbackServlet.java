@@ -103,8 +103,8 @@ public class CallbackServlet extends HttpServlet {
     String entityState;
     String entitySession;
     for (Entity entity: results.asIterable()) {
-      entitySession = entity.getProperty("index");
-      entityState = entity.getProperty("value");
+      entitySession = (String) entity.getProperty("index");
+      entityState = (String) entity.getProperty("value");
       System.out.println("entitySession: " + entitySession);
       System.out.println("entityState: " + entityState);
       if (sessionId.equals(entitySession)) {
