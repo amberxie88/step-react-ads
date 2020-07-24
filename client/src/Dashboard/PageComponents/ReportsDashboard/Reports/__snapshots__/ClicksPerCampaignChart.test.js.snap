@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ClicksPerCampaignChart Unit Testing ClicksPerCampaignChart correctly displays data with correct API call 1`] = `"<h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Clicks Per Campaign</h2><div class=\\"recharts-responsive-container\\" style=\\"width: 100%; height: 100%;\\"><div style=\\"position: absolute; width: 0px; height: 0px; visibility: hidden; display: none;\\"></div></div>"`;
+
+exports[`ClicksPerCampaignChart Unit Testing ClicksPerCampaignChart correctly displays error when API call returns error 1`] = `"<h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Clicks Per Campaign</h2><h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Something Went Wrong. Here's the Error Message: Some kind of Error</h2>"`;
+
+exports[`ClicksPerCampaignChart Unit Testing ClicksPerCampaignChart correctly displays unexpected error 1`] = `"<h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Clicks Per Campaign</h2><h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Something Went Wrong. Here's the Error Message: Cannot read property 'data' of undefined</h2>"`;
