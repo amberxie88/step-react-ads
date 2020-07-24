@@ -71,10 +71,8 @@ public class GetCampaignsServlet extends HttpServlet {
     System.out.println(sessionId);
     // customer ID of interest
     GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
-    //params.customerId = Long.parseLong("4498877497"); //Amber
-    //params.customerId = Long.parseLong("8458272058"); //Kaitlyn
-    String customerId = DatastoreRetrieval.getClientFromDatastore("customerId", sessionId);
-    String loginId = DatastoreRetrieval.getClientFromDatastore("loginId", sessionId);
+    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
+    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
     params.customerId = Long.parseLong(customerId);
     System.out.println(params.customerId.toString());
     System.out.println(loginId);
@@ -93,7 +91,6 @@ public class GetCampaignsServlet extends HttpServlet {
     try {
       returnJSON = new GetCampaignsServlet().runExample(googleAdsClient, customerId, query);
       returnJSON = processJSON(returnJSON);
-      System.out.println("returnJSON = " + returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
@@ -119,10 +116,8 @@ public class GetCampaignsServlet extends HttpServlet {
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
   private String runExample(GoogleAdsClient googleAdsClient, String customerId, String query) {
-    System.out.println("runExample called");
     String returnJSON = "";
     System.out.println(query);
-    System.out.println(customerId);
     try (GoogleAdsServiceClient googleAdsServiceClient =
         googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
       // Constructs the SearchGoogleAdsStreamRequest.
@@ -151,7 +146,6 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       return processErrorJSON(e.toString(), "500");
     }
-    System.out.println(returnJSON);
     return returnJSON;
   }
 

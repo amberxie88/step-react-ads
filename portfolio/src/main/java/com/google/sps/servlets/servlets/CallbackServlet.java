@@ -84,7 +84,6 @@ public class CallbackServlet extends HttpServlet {
       try {
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
         DatastoreRetrieval.addEntityToDatastore("Refresh", sessionId, userCredentials.getRefreshToken());
-        //DatastoreRetrieval.addRefreshToDatastore(userCredentials.getRefreshToken(), sessionId);
         System.out.println("refresh token generated");
         return "Your Refresh Token has been generated";
       } catch (Exception e) {
@@ -100,13 +99,23 @@ public class CallbackServlet extends HttpServlet {
     Query query = new Query("OAuth");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
+    boolean matchState = false;
+    String entityState;
+    String entitySession;
     for (Entity entity: results.asIterable()) {
-      if (state.equals(entity.getProperty("value")) && sessionId.equals(entity.getProperty("index"))) {
+      entitySession = entity.getProperty("index");
+      entityState = entity.getProperty("value");
+      System.out.println("entitySession: " + entitySession);
+      System.out.println("entityState: " + entityState);
+      if (sessionId.equals(entitySession)) {
         datastore.delete((com.google.appengine.api.datastore.Key) entity.getKey());
-        return true; 
+        if (state.equals(entityState)) {
+          System.out.println("found state match");
+          matchState =  true; 
+        }
       }
     }
-    return false;
+    return matchState;
   }
 
   /** Response object with attributes corresponding to OAuth2 callback parameters. */
