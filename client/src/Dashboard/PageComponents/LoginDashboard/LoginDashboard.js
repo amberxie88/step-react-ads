@@ -19,7 +19,6 @@ export default function LoginDash(props) {
             <Login />
           </Paper>
         </Grid>
-
         {/* Available Accounts */}
         <Grid item xs={12}>
           <Paper className={classes.paper}>

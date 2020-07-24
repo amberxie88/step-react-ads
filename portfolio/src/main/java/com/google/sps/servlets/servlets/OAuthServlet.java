@@ -51,7 +51,6 @@ public class OAuthServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-
     //add credentials to datastore (just do this once for deployment)
     ReadProperties properties = new ReadProperties("config.properties");
     DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", properties.getProp("clientId"));
