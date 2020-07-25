@@ -40,6 +40,8 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.sps.data.DatastoreRetrieval;
 import com.google.sps.data.ReadProperties;
 
+import com.google.sps.utils.Constants;
+
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
 @WebServlet("/oauth")
 public class OAuthServlet extends HttpServlet {
@@ -52,13 +54,10 @@ public class OAuthServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     //add credentials to datastore (just do this once for deployment)
-    ReadProperties properties = new ReadProperties("config.properties");
-    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", properties.getProp("clientId"));
-    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", properties.getProp("clientSecret"));
-    DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", properties.getProp("refreshToken"));
+    //addCredentialsToDatastore();
 
-    String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
-    String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
+    String clientId = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_ID);
+    String clientSecret = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET);
     String loginEmailAddressHint = null;
     String sessionId = (String) request.getSession().getId();
 
@@ -68,9 +67,7 @@ public class OAuthServlet extends HttpServlet {
 
     response.setContentType("text/html;");
     try {
-      String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
-      System.out.println("redirecting");
-      System.out.println(authorizationLink);
+      String authorizationLink = runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
       response.getWriter().println(authorizationLink);
     } catch (Exception e) {
       response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
@@ -85,7 +82,7 @@ public class OAuthServlet extends HttpServlet {
     String state = new BigInteger(130, new SecureRandom()).toString(32);
 
     // Saves state in datastore
-    DatastoreRetrieval.addEntityToDatastore("OAuth", sessionId, state);
+    DatastoreRetrieval.addEntityToDatastore(Constants.OAUTH, sessionId, state);
     System.out.println("Putting a new state");
 
     // Creates an HTTP server that will listen for the OAuth2 callback request.
@@ -138,6 +135,17 @@ public class OAuthServlet extends HttpServlet {
           .add("error", error)
           .add("state", state)
           .toString();
+    }
+  }
+
+  private void addCredentialsToDatastore() {
+    try {
+      ReadProperties properties = new ReadProperties("config.properties");
+      DatastoreRetrieval.addEntityToDatastore(Constants.SETTINGS, Constants.CLIENT_ID, properties.getProp("clientId"));
+      DatastoreRetrieval.addEntityToDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET, properties.getProp("clientSecret"));
+      DatastoreRetrieval.addEntityToDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN, properties.getProp("refreshToken"));      
+    } catch (Exception e) {
+      System.err.println(e);
     }
   }
 }
