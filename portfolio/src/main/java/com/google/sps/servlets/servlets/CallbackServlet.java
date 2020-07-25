@@ -36,6 +36,8 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.sps.data.DatastoreRetrieval;
 
+import com.google.sps.utils.Constants;
+
 
 @WebServlet("/oauth2callback")
 public class CallbackServlet extends HttpServlet {
@@ -43,6 +45,9 @@ public class CallbackServlet extends HttpServlet {
   private static final ImmutableList<String> SCOPES =
     ImmutableList.<String>builder().add("https://www.googleapis.com/auth/adwords").build();
   private static final String OAUTH2_CALLBACK = "/oauth2callback";
+  private static final String INVALID_CODE = "Invalid Request: Code not provided";
+  private static final String TOKEN_GRANTED = "Your Refresh Token has been generated";
+  private static final String TOKEN_FAILED = "Failed to generate Refresh Token";
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -66,15 +71,15 @@ public class CallbackServlet extends HttpServlet {
   private String processAuthorizationResponse(AuthorizationResponse authorizationResponse, String sessionId) {
     System.out.println("Processing");
     if (authorizationResponse.code == null) {
-      return "Invalid Request: Code not provided";
+      return INVALID_CODE;
     }
     if (sessionStateExists(authorizationResponse.state.toString(), sessionId)) {
 
       URI baseUri = URI.create("http://localhost:8080/");
       //deploy
       //URI baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
-      String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
-      String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
+      String clientId = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_ID);
+      String clientSecret = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET);
       UserAuthorizer userAuthorizer =
           UserAuthorizer.newBuilder()
               .setClientId(ClientId.of(clientId, clientSecret))
@@ -83,11 +88,11 @@ public class CallbackServlet extends HttpServlet {
               .build();
       try {
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
-        DatastoreRetrieval.addEntityToDatastore("Refresh", sessionId, userCredentials.getRefreshToken());
+        DatastoreRetrieval.addEntityToDatastore(Constants.REFRESH, sessionId, userCredentials.getRefreshToken());
         System.out.println("refresh token generated");
-        return "Your Refresh Token has been generated";
+        return TOKEN_GRANTED;
       } catch (Exception e) {
-        return "Failed to generate Refresh Token"; // Change these to final (static) messages
+        return TOKEN_FAILED;
       }
     } else {
       return "Invalid Request: State does not exist"; 
