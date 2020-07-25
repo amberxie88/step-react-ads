@@ -49,10 +49,10 @@ public class OAuthServlet extends HttpServlet {
   private static final ImmutableList<String> SCOPES =
       ImmutableList.<String>builder().add("https://www.googleapis.com/auth/adwords").build();
   private static final String OAUTH2_CALLBACK = "/oauth2callback";
+  private static final String RETRIEVAL_ERROR = "<h1>Error with retrieving the authorizationLink</h1>";
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
     //add credentials to datastore (just do this once for deployment)
     //addCredentialsToDatastore();
 
@@ -61,21 +61,17 @@ public class OAuthServlet extends HttpServlet {
     String loginEmailAddressHint = null;
     String sessionId = (String) request.getSession().getId();
 
-    System.out.println("sessionId: " + sessionId);
-    System.out.println("clientId: " + clientId);
-    System.out.println("clientSecret: " + clientSecret);
-
     response.setContentType("text/html;");
     try {
-      String authorizationLink = runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
+      String authorizationLink = getAuthorizationUrl(clientId, clientSecret, loginEmailAddressHint, sessionId);
       response.getWriter().println(authorizationLink);
     } catch (Exception e) {
-      response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
+      response.getWriter().println(RETRIEVAL_ERROR);
       System.out.println(e);
     }
   }
 
-  public String runExample(String clientId, String clientSecret, String loginEmailAddressHint, String sessionId)
+  public String getAuthorizationUrl(String clientId, String clientSecret, String loginEmailAddressHint, String sessionId)
       throws Exception {
     // Creates an anti-forgery state token as described here:
     // https://developers.google.com/identity/protocols/OpenIDConnect#createxsrftoken
@@ -83,60 +79,19 @@ public class OAuthServlet extends HttpServlet {
 
     // Saves state in datastore
     DatastoreRetrieval.addEntityToDatastore(Constants.OAUTH, sessionId, state);
-    System.out.println("Putting a new state");
-
-    // Creates an HTTP server that will listen for the OAuth2 callback request.
-    URI baseUri;
-    UserAuthorizer userAuthorizer;
-    AuthorizationResponse authorizationResponse = null;
     
-    userAuthorizer =
+    UserAuthorizer userAuthorizer =
           UserAuthorizer.newBuilder()
               .setClientId(ClientId.of(clientId, clientSecret))
               .setScopes(SCOPES)
               .setCallbackUri(URI.create(OAUTH2_CALLBACK))
               .build();
-      baseUri = URI.create("http://localhost:8080/");
+      URI baseUri = URI.create("http://localhost:8080/");
       //deploy
       //baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
-      
-      System.out.printf(
-          "Paste this url in your browser:%n%s%n",
-          userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri));
       return userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri).toString();
-}
-  
-  /** Response object with attributes corresponding to OAuth2 callback parameters. */
-  static class AuthorizationResponse extends GenericUrl {
-
-    /** The authorization code to exchange for an access token and (optionally) a refresh token. */
-    @Key String code;
-
-    /** Error from the request or from the processing of the request. */
-    @Key String error;
-
-    /** State parameter from the callback request. */
-    @Key String state;
-
-    /**
-     * Constructs a new instance based on an absolute URL. All fields annotated with the {@link Key}
-     * annotation will be set if they are present in the URL.
-     *
-     * @param encodedUrl absolute URL with query parameters.
-     */
-    public AuthorizationResponse(String encodedUrl) {
-      super(encodedUrl);
-    }
-
-    @Override
-    public String toString() {
-      return MoreObjects.toStringHelper(getClass())
-          .add("code", code)
-          .add("error", error)
-          .add("state", state)
-          .toString();
-    }
   }
+  
 
   private void addCredentialsToDatastore() {
     try {
