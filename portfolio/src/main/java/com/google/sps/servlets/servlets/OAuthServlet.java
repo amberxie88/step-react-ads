@@ -56,7 +56,7 @@ public class OAuthServlet extends HttpServlet {
     ReadProperties properties = new ReadProperties("config.properties");
     DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", properties.getProp("clientId"));
     DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", properties.getProp("clientSecret"));
-    DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", properties.getProp("refreshToken"));
+    DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", properties.getProp("devToken"));
 
     String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
     String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
@@ -70,8 +70,6 @@ public class OAuthServlet extends HttpServlet {
     response.setContentType("text/html;");
     try {
       String authorizationLink = new OAuthServlet().runExample(clientId, clientSecret, loginEmailAddressHint, sessionId);
-      System.out.println("redirecting");
-      System.out.println(authorizationLink);
       response.getWriter().println(authorizationLink);
     } catch (Exception e) {
       response.getWriter().println("<h1>Error with retrieving the authorizationLink</h1>");
