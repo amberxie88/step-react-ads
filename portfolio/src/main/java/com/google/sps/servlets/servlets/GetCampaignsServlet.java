@@ -51,6 +51,8 @@ import io.grpc.StatusRuntimeException;
 import com.google.api.gax.rpc.InvalidArgumentException;
 import com.google.api.gax.rpc.PermissionDeniedException;
 
+import com.google.sps.utils.Constants;
+
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
 @WebServlet("/campaign")
@@ -67,8 +69,8 @@ public class GetCampaignsServlet extends HttpServlet {
     //String customerId = "4498877497"; //Amber
     //String loginId = "9797005693";
     //test
-    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
-    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    String customerId = DatastoreRetrieval.getEntityFromDatastore(Constants.CUSTOMER_ID, sessionId);
+    String loginId = DatastoreRetrieval.getEntityFromDatastore(Constants.LOGIN_ID, sessionId);
 
     String returnJSON = "";
     try {
@@ -84,11 +86,11 @@ public class GetCampaignsServlet extends HttpServlet {
       for (GoogleAdsError googleAdsError : gae.getGoogleAdsFailure().getErrorsList()) {
         errorString += googleAdsError.toString() + ". ";
       }
-      writeServletResponse(response, processErrorJSON(errorString, "500"));
+      writeServletResponse(response, processErrorJSON(errorString, Constants.ERROR_500));
       return;
     } catch (Exception e) {
       System.err.println(e);
-      writeServletResponse(response, processErrorJSON(e.getMessage(), "500"));
+      writeServletResponse(response, processErrorJSON(e.getMessage(), Constants.ERROR_500));
     }
     writeServletResponse(response, returnJSON);
     return;
@@ -113,9 +115,9 @@ public class GetCampaignsServlet extends HttpServlet {
       //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).build();
       // test
       googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
-        DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"), loginId);
+        DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN), loginId);
     } catch (Exception e) {
-      return processErrorJSON(e.toString(), "503");
+      return processErrorJSON(e.toString(), Constants.ERROR_503);
     }
     try (GoogleAdsServiceClient googleAdsServiceClient =
         createGoogleAdsServiceClient(googleAdsClient)) {
@@ -134,11 +136,11 @@ public class GetCampaignsServlet extends HttpServlet {
         returnJSON += searchGoogleAdsStreamResponseToJSON(response);
       }
     } catch (InvalidArgumentException e) {
-      return processErrorJSON(e.toString(), "400");
+      return processErrorJSON(e.toString(), Constants.ERROR_400);
     } catch (PermissionDeniedException e) {
-      return processErrorJSON(e.getMessage(), "403");
+      return processErrorJSON(e.getMessage(), Constants.ERROR_403);
     } catch (Exception e) {
-      return processErrorJSON(e.toString(), "500"); // 500
+      return processErrorJSON(e.toString(), Constants.ERROR_500); // 500
     }
     //System.out.println(returnJSON);
     return returnJSON;
@@ -233,7 +235,7 @@ public class GetCampaignsServlet extends HttpServlet {
   protected JSONObject processInvalidRequestsMetaJSON(Set<String> invalidRequestValuesSet) {
     JSONObject metaObj = new JSONObject();
     if (invalidRequestValuesSet.size() == 0) {
-      metaObj.put("status", "200");
+      metaObj.put("status", Constants.STATUS_200);
       return metaObj;
     }
 
@@ -242,7 +244,7 @@ public class GetCampaignsServlet extends HttpServlet {
       errorMessage = errorMessage + requestValue + " ";
     }
     metaObj.put("message", errorMessage);
-    metaObj.put("status", "400");
+    metaObj.put("status", Constants.ERROR_400);
     return metaObj;
   }
 
