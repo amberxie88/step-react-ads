@@ -45,13 +45,12 @@ public class SetClientAccServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-    System.out.println("getting account");
     String sessionId = (String) request.getSession().getId();
     String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
     String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    String name = DatastoreRetrieval.getEntityFromDatastore("AccountName", sessionId);
 
-    Client client = new Client(loginId, customerId);
+    Client client = new Client(loginId, customerId, name);
 
     response.setContentType("application/json;");
     response.getWriter().println(new Gson().toJson(client));
@@ -59,23 +58,21 @@ public class SetClientAccServlet extends HttpServlet {
 
 
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    System.out.println("setting account");
-    
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {    
     String loginId = request.getParameter("loginId");
     String customerId = request.getParameter("customerId");
-    System.out.println(loginId);
-    System.out.println(customerId);
+    String name = request.getParameter("name");
 
     String sessionId = (String) request.getSession().getId();
-
     
     DatastoreRetrieval.addEntityToDatastore("LoginId", sessionId, loginId);
     DatastoreRetrieval.addEntityToDatastore("CustomerId", sessionId, customerId);
+    DatastoreRetrieval.addEntityToDatastore("AccountName", sessionId, name);
 
     response.setContentType("text/html;");
     response.getWriter().println("Selected account successfully!");
     response.getWriter().println("LoginID: " + loginId); 
     response.getWriter().println("CustomerID: " + customerId); 
+    response.getWriter().println("Account Name: " + name); 
   }
 } 

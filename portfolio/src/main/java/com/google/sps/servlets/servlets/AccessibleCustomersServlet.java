@@ -39,8 +39,6 @@ import com.google.ads.googleads.v3.services.GoogleAdsServiceClient.SearchPagedRe
 import com.google.ads.googleads.v3.services.ListAccessibleCustomersRequest;
 import com.google.ads.googleads.v3.services.ListAccessibleCustomersResponse;
 import com.google.ads.googleads.v3.services.SearchGoogleAdsRequest;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import com.google.common.base.Strings;
 import com.google.ads.googleads.v3.resources.Customer;
@@ -81,8 +79,9 @@ public class AccessibleCustomersServlet extends HttpServlet {
         .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN")).build();
     }  catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
-      customerJSON = "No accounts are authenticated.";
-      response.getWriter().println(customerJSON);
+      writeServletResponse(response, processErrorJSON(ioe.toString(), "503"));
+      //customerJSON = "No accounts are authenticated.";
+      //response.getWriter().println(customerJSON);
       return;
     }
 
@@ -98,10 +97,11 @@ public class AccessibleCustomersServlet extends HttpServlet {
           "Request ID %s failed due to GoogleAdsException. Underlying errors:%n",
           gae.getRequestId());
       int i = 0;
+      String errMessage = "";
       for (GoogleAdsError googleAdsError : gae.getGoogleAdsFailure().getErrorsList()) {
         System.err.printf("  Error %d: %s%n", i++, googleAdsError);
+        errMessage += googleAdsError.toString() + "\n";
       }
-      customerJSON = "Error occured.";
     }
     response.getWriter().println(customerJSON);
   }
@@ -113,6 +113,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
    */
   private String runExample(GoogleAdsClient client, String sessionId) {
     JSONObject returnObject = new JSONObject();
+    JSONObject metaObject = new JSONObject();
     JSONArray customerArray = new JSONArray();
 
     try (CustomerServiceClient customerService =
@@ -131,35 +132,33 @@ public class AccessibleCustomersServlet extends HttpServlet {
 
         ArrayList<CustomerClient> children = new ArrayList<>();
         
-        try 
+        try {
           children =  createCustomerClientToHierarchy(customerId, customerId, sessionId);
         }
         catch (IOException ioe) {
           System.err.printf("Request failed. Exception: %s%n", ioe);
         }
         //API cannot build account hierarchy on test accounts (simply return root)
-        //if (children.equals("{}")) {
         if (children.toString().equals("[]")) {
           JSONObject customerObject = new JSONObject();
           customerObject.put("id", customerId);
-          customerObject.put("children", customerId);
+          customerObject.put("child", customerId);
           customerObject.put("name", customerName);
           customerArray.put(customerObject);
-          System.out.println("Customer Object: " + customerObject.toString());
         } else {
             //build out customerObject per child
             for (CustomerClient child : children) {
               JSONObject customerObject = new JSONObject();
               customerObject.put("id", customerId);
-              //customerObject.put("children", child);
-              customerObject.put("children", child.getId().getValue());
+              customerObject.put("child", child.getId().getValue());
               customerObject.put("name", child.getDescriptiveName().getValue());
               customerArray.put(customerObject);
             }
         }
       }
-
+      metaObject.put("status", "200");
       returnObject.put("response", customerArray);
+      returnObject.put("meta", metaObject);
       System.out.println(returnObject.toString());
       return returnObject.toString();
     }
@@ -326,4 +325,24 @@ public class AccessibleCustomersServlet extends HttpServlet {
       buildAccountHierarchy(childCustomer, customerIdsToChildAccounts, depth + 1, accountHierarchies);
     }
   } 
+
+  private String processErrorJSON(String errorMessage, String errorCode) {
+    JSONObject metaObj = new JSONObject();
+
+    metaObj.put("message", errorMessage);
+    metaObj.put("status", errorCode);
+
+    JSONObject returnObj = new JSONObject();
+    returnObj.put("meta", metaObj);
+    return returnObj.toString();
+  }
+
+  private void writeServletResponse(HttpServletResponse response, String messageJSON) {
+    response.setContentType("application/json");
+    try {
+      response.getWriter().println(messageJSON);
+    } catch (Exception e) {
+      System.err.println(e);
+    }
+  }
 }
