@@ -1,18 +1,17 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-client/node_modules/
+/client/node_modules/
 /.pnp
 .pnp.js
 
 # testing
-/coverage
+/client/coverage
 
 # production
 /client/build/
-/client/public/ads.properties
 /portfolio/target/
-/portfolio/src/main/webapp/config.properties
+/portfolio/src/main/webapp/
 
 # misc
 .DS_Store
