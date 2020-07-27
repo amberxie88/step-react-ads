@@ -1,4 +1,4 @@
-// Copyright 2018 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,18 +58,13 @@ public class GetCampaignsServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // GET QUERY STRING
     String query = request.getParameter("query");
     String sessionId = (String) request.getSession().getId();
-    System.out.println(query);
-
-    //String customerId = "4498877497"; //Amber
-    //String loginId = "9797005693";
-    //test
     String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
     String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
     long customerIdLong;
     long loginIdLong;
+
     try {
       loginIdLong = Long.parseLong(loginId);
       customerIdLong = Long.parseLong(customerId);
@@ -111,14 +106,9 @@ public class GetCampaignsServlet extends HttpServlet {
 
   protected String runExample(long loginId, long customerId, String query, String sessionId) {
     String returnJSON = "";
-    System.out.println(query);
-    System.out.println(customerId);
     GoogleAdsClient googleAdsClient;
 
-    File propertiesFile = new File("ads.properties");
     try {
-      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).build();
-      // test
       googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
         DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"), loginId);
     } catch (Exception e) {
@@ -137,7 +127,7 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (PermissionDeniedException e) {
       return processErrorJSON(e.getMessage(), "403");
     } catch (Exception e) {
-      return processErrorJSON(e.toString(), "500"); // 500
+      return processErrorJSON(e.toString(), "500"); 
     }
     return returnJSON;
   }
