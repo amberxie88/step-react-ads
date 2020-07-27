@@ -114,21 +114,17 @@ public class AccessibleCustomersServlet extends HttpServlet {
   private String runExample(GoogleAdsClient client, String sessionId) {
     JSONObject returnObject = new JSONObject();
     JSONArray customerArray = new JSONArray();
-    System.out.println("RUNNING EXAMPLE");
 
     try (CustomerServiceClient customerService =
         client.getLatestVersion().createCustomerServiceClient()) {
-      System.out.println("created customer service");
       ListAccessibleCustomersResponse response =
           customerService.listAccessibleCustomers(
               ListAccessibleCustomersRequest.newBuilder().build());
-      System.out.printf("Total results: %d%n", response.getResourceNamesCount());
 
       CustomerServiceClient customerServiceClient =
         client.getLatestVersion().createCustomerServiceClient();
 
       for (String customerResourceName : response.getResourceNamesList()) {
-        System.out.printf("Customer resource name: %s%n", customerResourceName);
         JSONObject customerObject = new JSONObject();
 
         Customer customer = customerServiceClient.getCustomer(customerResourceName);
@@ -151,11 +147,9 @@ public class AccessibleCustomersServlet extends HttpServlet {
         customerObject.put("children", children);
         customerObject.put("name", customerName);
         customerArray.put(customerObject);
-        System.out.println(customerObject.toString());
       }
 
       returnObject.put("response", customerArray);
-      System.out.println(returnObject.toString());
       return returnObject.toString();
     }
   }
