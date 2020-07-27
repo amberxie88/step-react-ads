@@ -1,0 +1,14 @@
+{"results": [{
+	"campaign": {
+	  "name":"name1",
+	  "id": "001"
+	}
+}, {
+	"campaign": {
+	  "name":"name2",
+	  "id": "002"
+	}
+}],
+"fieldMask": "campaign.name,campaign.id",
+"meta": {"status": "200"}
+}

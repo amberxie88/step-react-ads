@@ -1,9 +1,25 @@
+/**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React from 'react';
 import CampaignData from './CampaignData';
-import { configure, shallow } from 'enzyme';
-import { waitForState } from 'enzyme-async-helpers';
+import { configure, mount } from 'enzyme';
+import { act } from 'react-dom/test-utils';
 import Adapter from 'enzyme-adapter-react-16';
 import axios from 'axios';
+import * as HttpStatus from 'http-status-codes';
 
 configure({ adapter: new Adapter() });
 jest.mock('axios');
@@ -20,11 +36,55 @@ describe('CampaignData Unit Testing', () => {
           },
         ],
         fieldmask: ['campaign.id', 'campaign.name', 'metrics.clicks'],
-        meta: { status: '200' },
+        meta: { status: HttpStatus.OK.toString() },
       },
     };
     axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
-    const component = shallow(<CampaignData />);
+    const component = mount(<CampaignData />);
+    await act(async () => {
+      //this code waits for the component to render fully after the asynchronous API call
+      await Promise.resolve(component);
+      await new Promise((resolve) => setImmediate(resolve));
+      component.update();
+    });
+    const CampaignDataHTML = component.html();
+    expect(CampaignDataHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+  });
+
+  it('CampaignData correctly displays error when API call returns error', async () => {
+    const mockedAPICall = {
+      data: {
+        meta: {
+          status: HttpStatus.BAD_REQUEST.toString(),
+          message: 'Some kind of Error',
+        },
+      },
+    };
+    axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
+    const component = mount(<CampaignData />);
+    await act(async () => {
+      //this code waits for the component to render fully after the asynchronous API call
+      await Promise.resolve(component);
+      await new Promise((resolve) => setImmediate(resolve));
+      component.update();
+    });
+    const CampaignDataHTML = component.html();
+    expect(CampaignDataHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+  });
+
+  it('CampaignData correctly displays unexpected error', async () => {
+    //In this test, the API will return something unexpected
+    const mockedAPICall = {
+      data: {},
+    };
+    axios.post.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
+    const component = mount(<CampaignData />);
+    await act(async () => {
+      //this code waits for the component to render fully after the asynchronous API call
+      await Promise.resolve(component);
+      await new Promise((resolve) => setImmediate(resolve));
+      component.update();
+    });
     const CampaignDataHTML = component.html();
     expect(CampaignDataHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });

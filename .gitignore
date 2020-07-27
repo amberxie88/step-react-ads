@@ -6,13 +6,15 @@
 .pnp.js
 
 # testing
-/coverage
+/client/coverage
 
 # production
 /client/build/
 /client/public/
 /portfolio/target/
 /portfolio/src/main/webapp/
+
+
 # misc
 .DS_Store
 .env.local
