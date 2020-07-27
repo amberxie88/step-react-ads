@@ -53,10 +53,10 @@ public class OAuthServlet extends HttpServlet {
 
 
     //add credentials to datastore (just do this once for deployment)
-    ReadProperties properties = new ReadProperties("config.properties");
-    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", properties.getProp("clientId"));
-    DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", properties.getProp("clientSecret"));
-    DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", properties.getProp("devToken"));
+    // ReadProperties properties = new ReadProperties("config.properties");
+    // DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_ID", properties.getProp("clientId"));
+    // DatastoreRetrieval.addEntityToDatastore("Settings", "CLIENT_SECRET", properties.getProp("clientSecret"));
+    // DatastoreRetrieval.addEntityToDatastore("Settings", "DEVELOPER_TOKEN", properties.getProp("devToken"));
 
     String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
     String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");

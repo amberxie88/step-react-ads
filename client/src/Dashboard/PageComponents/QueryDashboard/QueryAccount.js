@@ -53,6 +53,9 @@ class QueryAccount extends React.Component {
               <TableCell key={selectedClient.customerId}>
                 {selectedClient.customerId}
               </TableCell>
+              <TableCell key={selectedClient.name}>
+                {selectedClient.name}
+              </TableCell>
             </TableRow>
           </TableBody>
         );
@@ -79,7 +82,8 @@ class QueryAccount extends React.Component {
           <TableHead>
             <TableRow>
               <TableCell>Customer ID</TableCell>
-              <TableCell>Client Account</TableCell>
+              <TableCell>Client Account ID</TableCell>
+              <TableCell>Client Account Name</TableCell>
             </TableRow>
           </TableHead>
           {this.pickContentToDisplay()}
