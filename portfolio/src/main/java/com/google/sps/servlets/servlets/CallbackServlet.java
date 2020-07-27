@@ -1,4 +1,4 @@
-// Copyright 2018 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.sps.data.DatastoreRetrieval;
 
+import com.google.sps.utils.Constants;
+
 
 @WebServlet("/oauth2callback")
 public class CallbackServlet extends HttpServlet {
@@ -43,79 +45,27 @@ public class CallbackServlet extends HttpServlet {
   private static final ImmutableList<String> SCOPES =
     ImmutableList.<String>builder().add("https://www.googleapis.com/auth/adwords").build();
   private static final String OAUTH2_CALLBACK = "/oauth2callback";
+  private static final String INVALID_CODE = "Invalid Request: Code not provided";
+  private static final String INVALID_STATE = "Invalid Request: State does not exist";
+  private static final String TOKEN_GRANTED = "Your Refresh Token has been generated";
+  private static final String TOKEN_FAILED = "Failed to generate Refresh Token";
+  private static final String COMPLETE_URL_LOCAL = "http://localhost:8080/oauth2callback?";
+  private static final String COMPLETE_URL_DEPLOY = "http://app-infra-transformer-step.appspot.com/oauth2callback?";
+  private static final String RETURN_LINK_LOCAL = "<h3><a href='http://localhost:8080'>Return to website.</a></h3>";
+  private static final String RETURN_LINK_DEPLOY = "<h3><a href='http://app-infra-transformer-step.appspot.com'>Return to website.</a></h3>";
+  private static final String BASE_URI_LOCAL = "http://localhost:8080/";
+  private static final String BASE_URI_DEPLOY = "http://app-infra-transformer-step.appspot.com/";
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    System.out.println("callback!");
     String state = request.getParameter("state");
     String code = request.getParameter("code");
     String scope = request.getParameter("scope");
-    String completeUrl = "http://localhost:8080/oauth2callback?" + request.getQueryString(); 
-    //deploy
-    //String completeUrl = "http://app-infra-transformer-step.appspot.com/oauth2callback?" + request.getQueryString();
+    String completeUrl = COMPLETE_URL_LOCAL + request.getQueryString(); 
     AuthorizationResponse authorizationResponse = new AuthorizationResponse(completeUrl);
 
     String statusMessage = processAuthorizationResponse(authorizationResponse, request.getSession().getId());
-    response.setContentType("text/html;");
-    response.getWriter().println("<h1>"+ statusMessage + "</h1>"); 
-    response.getWriter().println("<h3><a href='http://localhost:8080'>Return to website.</a></h3>"); 
-    //deploy
-    //response.getWriter().println("<h3><a href='http://app-infra-transformer-step.appspot.com'>Return to website.</a></h3>"); 
-  }
-
-  private String processAuthorizationResponse(AuthorizationResponse authorizationResponse, String sessionId) {
-    System.out.println("Processing");
-    if (authorizationResponse.code == null) {
-      return "Invalid Request: Code not provided";
-    }
-    if (sessionStateExists(authorizationResponse.state.toString(), sessionId)) {
-
-      URI baseUri = URI.create("http://localhost:8080/");
-      //deploy
-      //URI baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
-      String clientId = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
-      String clientSecret = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
-      UserAuthorizer userAuthorizer =
-          UserAuthorizer.newBuilder()
-              .setClientId(ClientId.of(clientId, clientSecret))
-              .setScopes(SCOPES)
-              .setCallbackUri(URI.create(OAUTH2_CALLBACK))
-              .build();
-      try {
-        UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
-        DatastoreRetrieval.addEntityToDatastore("Refresh", sessionId, userCredentials.getRefreshToken());
-        System.out.println("refresh token generated");
-        return "Your Refresh Token has been generated";
-      } catch (Exception e) {
-        return "Failed to generate Refresh Token"; // Change these to final (static) messages
-      }
-    } else {
-      return "Invalid Request: State does not exist"; 
-    }
-  }
-
-  //remove the OAuth Entity (session, state) from Datastore
-  private boolean sessionStateExists(String state, String sessionId) {
-    Query query = new Query("OAuth");
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    PreparedQuery results = datastore.prepare(query);
-    boolean matchState = false;
-    String entityState;
-    String entitySession;
-    for (Entity entity: results.asIterable()) {
-      entitySession = (String) entity.getProperty("index");
-      entityState = (String) entity.getProperty("value");
-      System.out.println("entitySession: " + entitySession);
-      System.out.println("entityState: " + entityState);
-      if (sessionId.equals(entitySession)) {
-        datastore.delete((com.google.appengine.api.datastore.Key) entity.getKey());
-        if (state.equals(entityState)) {
-          System.out.println("found state match");
-          matchState =  true; 
-        }
-      }
-    }
-    return matchState;
+    writeStatusMessage(response, statusMessage);
   }
 
   /** Response object with attributes corresponding to OAuth2 callback parameters. */
@@ -147,6 +97,65 @@ public class CallbackServlet extends HttpServlet {
           .add("error", error)
           .add("state", state)
           .toString();
+    }
+  }
+
+  private String processAuthorizationResponse(AuthorizationResponse authorizationResponse, String sessionId) {
+    System.out.println("Processing");
+    if (authorizationResponse.code == null) {
+      return INVALID_CODE;
+    }
+    if (sessionStateExists(authorizationResponse.state.toString(), sessionId)) {
+      URI baseUri = URI.create(BASE_URI_LOCAL);
+      String clientId = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_ID);
+      String clientSecret = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET);
+      UserAuthorizer userAuthorizer =
+          UserAuthorizer.newBuilder()
+              .setClientId(ClientId.of(clientId, clientSecret))
+              .setScopes(SCOPES)
+              .setCallbackUri(URI.create(OAUTH2_CALLBACK))
+              .build();
+      try {
+        UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
+        DatastoreRetrieval.addEntityToDatastore(Constants.REFRESH, sessionId, userCredentials.getRefreshToken());
+        System.out.println("refresh token generated");
+        return TOKEN_GRANTED;
+      } catch (Exception e) {
+        return TOKEN_FAILED;
+      }
+    } else {
+      return INVALID_STATE; 
+    }
+  }
+
+  //remove the OAuth Entity (session, state) from Datastore
+  private boolean sessionStateExists(String state, String sessionId) {
+    Query query = new Query("OAuth");
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+    boolean matchState = false;
+    String entityState;
+    String entitySession;
+    for (Entity entity: results.asIterable()) {
+      entitySession = (String) entity.getProperty("index");
+      entityState = (String) entity.getProperty("value");
+      if (sessionId.equals(entitySession)) {
+        datastore.delete((com.google.appengine.api.datastore.Key) entity.getKey());
+        if (state.equals(entityState)) {
+          matchState =  true; 
+        }
+      }
+    }
+    return matchState;
+  }
+
+  private void writeStatusMessage(HttpServletResponse response, String statusMessage) {
+    response.setContentType("text/html;");
+    try {
+      response.getWriter().println("<h1>" + statusMessage + "</h1>");
+      response.getWriter().println(RETURN_LINK_LOCAL);     
+    } catch (Exception e) {
+      System.err.println(e);
     }
   }
 }
