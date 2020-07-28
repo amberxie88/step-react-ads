@@ -22,49 +22,17 @@ import QueryAccount from './QueryAccount';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { stylesSettings } from '../../Utilities/Styles';
+import { QueryWalkthrough } from '../../Utilities/Walkthrough';
 import Joyride from 'react-joyride';
 const Styles = makeStyles(stylesSettings);
 
 export default function Queries(props) {
-  const steps = [
-    {
-      target: 'body',
-      content: 
-        <div>
-          <h1>Welcome to the Query Page!</h1> 
-          <p>This page is a sample of how the Ads API can be used to obtain information about an account.
-            The queries follow the Google Ads Query Language 
-            (<a href="https://developers.google.com/google-ads/api/docs/query/interactive-gaql-builder">GAQL</a>),
-            which is then processed by the servlet. The code primarily lies in QueryDashboard.js and GetCampaignsServlet.java
-          </p>
-        </div>,
-      placement: 'center',
-    }, {
-      target: '.selected-account',
-      content:
-       <div>
-          <h2>Select Your Client Account</h2> 
-          <p>After authenticating on the Login page, the user is prompted to select a client account to query.
-            Under every Google Ads account, there can be multiple manager accounts, which may manage separate clients or other
-            managers. To learn more about how we keep track of client accounts of different sessions, revisit our login page!
-          </p>
-        </div>,
-    }, {
-      target: '.query-card',
-      content:        
-        <div>
-          <h2>Query Card</h2> 
-          <p>Here, the user may enter any query that follows the GAQL syntax, and the results will be generated
-            below. Users will be notified if any error occurs during the Ads API call. To build your own GAQL queries
-            or learn more about the GAQL syntax, visit <a href="https://developers.google.com/google-ads/api/docs/query/interactive-gaql-builder">this link</a>.
-          </p>
-        </div>,
-    }];
+  
   const classes = Styles();
   return (
     <React.Fragment>
     <Joyride 
-      steps={steps}
+      steps={QueryWalkthrough}
       continuous={true}
       showProgress={true}
       showSkipButton={true}
