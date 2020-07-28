@@ -88,22 +88,15 @@ class MockCampaignsServlet extends GetCampaignsServlet {
 
   @Override
   protected Iterable<SearchGoogleAdsStreamResponse> issueSearchGoogleAdsStreamRequest(GoogleAdsServiceClient googleAdsServiceClient, SearchGoogleAdsStreamRequest request) {
-  	// change to allow for flexible test cases (in constructor)
+  	// Returns List with one mocked object
   	ArrayList<SearchGoogleAdsStreamResponse> lst = new ArrayList<>();
   	SearchGoogleAdsStreamResponse rsp = PowerMockito.mock(SearchGoogleAdsStreamResponse.class);
-	   when (rsp.toString()).thenReturn("{results {campaign { resource_name\"adsf\"} id { value: 1010}}}");
  		lst.add(rsp);
  		return (Iterable<SearchGoogleAdsStreamResponse>) lst;
  	}
-
-  // streamresponse is mocked, so how can we override the json printer stuff without truly overriding it?
   
   @Override
   protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
-	 	String json = "{\"results\": [{ \"campaign\": {\"resourceName\": \"customers/4498877497/campaigns/10314647934\",";
-   	json += "\"id\": \"10314647934\"}}, {\"campaign\": {\"resourceName\": ";
-   	json += "\"customers/4498877497/campaigns/10371310206\",\"id\": \"10371310206\"}}],";
-   	json += "\"fieldMask\": \"campaign.id\"}";
    	return queryResponse;
   }
   @Override

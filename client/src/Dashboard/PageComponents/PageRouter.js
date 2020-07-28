@@ -18,6 +18,9 @@ import { Switch, Route } from 'react-router-dom';
 import { PagesWithAttributes } from '../Utilities/Constants';
 
 const mapPageToRouteAndComponent = (page) => {
+	console.log(page.component);
+	console.log(page);
+	console.log("Map");
   return (
     <Route exact path={page.route}>
       {page.component}
