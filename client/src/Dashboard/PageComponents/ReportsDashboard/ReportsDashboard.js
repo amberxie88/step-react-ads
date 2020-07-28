@@ -25,58 +25,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import Joyride from 'react-joyride';
 
 import { stylesSettings } from '../../Utilities/Styles';
+import { ReportsWalkthrough } from '../../Utilities/Walkthrough';
 const Styles = makeStyles(stylesSettings);
 
 export default function Reports(props) {
-  const steps = [
-    {
-      target: 'body',
-      content: 
-        <div>
-          <h1>Welcome to the Dashboard Page!</h1> 
-          <p>This page is a sample of how the Ads UI can be replicated and customized using
-            custom calls and charts. The code primarily lies in ReportsDashboard.js and 
-            GetCampaignsServlet.java</p>
-        </div>,
-      placement: 'center',
-    }, {
-      target: '.clicks-per-campaign',
-      content:
-       <div>
-          <h2>Clicks Per Campaign Chart</h2> 
-          <p>This chart uses API data from your Ads Account to visualize how well campaigns are doing.
-            This is an example of a chart that can be directly replicated from the Google Ads UI.</p>
-        </div>,
-    }, {
-      target: '.chart-1',
-      content:        
-        <div>
-          <h2>Sales Chart</h2> 
-          <p>TODO: Details on how this is used.</p>
-        </div>,
-    }, {
-      target: '.recent-deposits',
-      content: 
-        <div>
-          <h2>Total Ad Spend</h2> 
-          <p>TODO: Details on how this is used.</p>
-        </div>,
-    }, {
-      target: '.campaign-data',
-      content: 
-        <div>
-          <h2>Campaign Data</h2> 
-          <p>This list of campaign IDs, names, status, clicks, and impressions is generated from a call
-            to the Ads API.</p>
-        </div>,
-    },];
-
   const classes = Styles();
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   return (
     <React.Fragment>
       <Joyride 
-        steps = {steps}
+        steps = {ReportsWalkthrough}
         continuous = {true}
         showProgress = {true}
         showSkipButton = {true}

@@ -25,7 +25,7 @@ const Styles = makeStyles(stylesSettings);
 
 export default function Dashboard() {
   /*setter, variable, prop in appbarwithdrawer*/
-  const [runTutorial, setRunTutorial] = React.useState(false);
+  const [runTutorial, setRunTutorial] = React.useState(true);
   const classes = Styles();
 
   function handleJoyrideCallback(data) {
