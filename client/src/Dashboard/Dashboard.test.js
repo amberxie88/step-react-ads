@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
-import { PagesWithAttributes } from '../Utilities/Constants';
+import Dashboard from './Dashboard';
+import { configure, shallow } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 
-const mapPageToRouteAndComponent = (page) => {
-  return (
-    <Route exact path={page.route}>
-      {page.component}
-    </Route>
-  );
-};
+configure({ adapter: new Adapter() });
 
-const generateRoutes = () => {
-  return PagesWithAttributes.map(mapPageToRouteAndComponent);
-};
-
-const PageRouter = () => {
-  return <Switch>{generateRoutes()}</Switch>;
-};
-
-export { PageRouter };
+describe('Dashboard Unit Testing', () => {
+  it('Dashboard renders correct components', async () => {
+    const dashboard = shallow(<Dashboard />);
+    const dashboardHTML = dashboard.html();
+    expect(dashboardHTML).toMatchSnapshot();
+  });
+});
