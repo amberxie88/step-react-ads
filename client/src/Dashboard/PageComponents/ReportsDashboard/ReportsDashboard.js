@@ -75,10 +75,14 @@ export default function Reports(props) {
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   return (
     <React.Fragment>
-      <Joyride steps = {steps}
+      <Joyride 
+        steps = {steps}
         continuous = {true}
         showProgress = {true}
-        showSkipButton = {true}/>
+        showSkipButton = {true}
+        run={props.runTutorial}
+        callback={props.handleJoyrideCallback}
+      />
       <Grid container spacing={3}>
         {/* ClicksPerCampaignChart */}
         <Grid item xs={12} md={12} xl={5}>

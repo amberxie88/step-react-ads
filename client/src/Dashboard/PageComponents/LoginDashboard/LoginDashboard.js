@@ -90,10 +90,14 @@ export default function LoginDash(props) {
     }];
   return (
     <React.Fragment>
-      <Joyride steps = {steps}
+      <Joyride 
+        steps = {steps}
         continuous = {true}
         showProgress = {true}
-        showSkipButton = {true}/>
+        showSkipButton = {true}
+        run={props.runTutorial}
+        callback={props.handleJoyrideCallback}
+      />
       <Grid container spacing={3}>
         {/* Login Button */}
         <Grid item xs={12}>
