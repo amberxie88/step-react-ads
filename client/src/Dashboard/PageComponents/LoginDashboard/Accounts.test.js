@@ -32,10 +32,11 @@ describe('Accounts Unit Testing', () => {
         response: [
           {
             id: 'testId',
-            children: 'testChildren',
+            child: 'testChildren',
             name: 'testName',
           },
         ],
+        meta: { status: '200' },
       },
     };
     axios.get.mockImplementationOnce(() => Promise.resolve(mockedAPICall));
@@ -50,7 +51,6 @@ describe('Accounts Unit Testing', () => {
 
     const tableCells = component.find(TableCell);
     const requiredFields = Object.values(mockedAPICall.data.response[0]);
-
     requiredFields.forEach((field) => {
       const foundTableCell = tableCells.findWhere(
         (cell) => cell.key() === field,
