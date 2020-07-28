@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PageRouter Unit Testing returns switch with routes for each page in PagesWithAttributes 1`] = `
+Array [
+  <Route
+    exact={true}
+    path="/"
+  >
+    <UNDEFINED />
+  </Route>,
+  <Route
+    exact={true}
+    path="/test"
+  >
+    <UNDEFINED />
+  </Route>,
+]
+`;
