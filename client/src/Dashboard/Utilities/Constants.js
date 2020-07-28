@@ -27,19 +27,19 @@ const PagesWithAttributes = [
     name: 'Login',
     route: '/',
     icon: <HomeIcon />,
-    component: <Login />,
+    component: Login,
   },
   {
     name: 'Dashboard',
     route: '/Dashboard',
     icon: <DashboardIcon />,
-    component: <Reports />,
+    component: Reports,
   },
   {
     name: 'Queries',
     route: '/Query',
     icon: <BarChartIcon />,
-    component: <Queries />,
+    component: Queries,
   },
 ];
 export { Title, PagesWithAttributes };

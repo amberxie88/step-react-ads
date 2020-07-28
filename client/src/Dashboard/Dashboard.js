@@ -24,16 +24,26 @@ import { stylesSettings } from './Utilities/Styles';
 const Styles = makeStyles(stylesSettings);
 
 export default function Dashboard() {
+  /*setter, variable, prop in appbarwithdrawer*/
+  const [runTutorial, setRunTutorial] = React.useState(false);
   const classes = Styles();
+
+  function handleJoyrideCallback(data) {
+    const {status, type} = data;
+    if (status == "ready") {
+      setRunTutorial(false);
+    }
+  };
+
   return (
     <div className={classes.root}>
       <CssBaseline />
       <BrowserRouter>
-        <AppBarWithDrawer />
+        <AppBarWithDrawer setTutorial={setRunTutorial}/>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
           <Container maxWidth="lg" className={classes.container}>
-            <PageRouter />
+            <PageRouter tutorial={runTutorial} handleJoyrideCallback={handleJoyrideCallback}/>
           </Container>
         </main>
       </BrowserRouter>

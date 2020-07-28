@@ -44,8 +44,7 @@ export default function AppBarWithDrawer(props) {
     setOpen(false);
   };
   const handleQuestion = () => {
-    console.log("qs");
-    console.log(props);
+    props.setTutorial(true);
   }
   return (
     <React.Fragment>
@@ -97,7 +96,7 @@ export default function AppBarWithDrawer(props) {
           </IconButton>
         </div>
         <Divider />
-        <List>{DrawerItems}</List>
+        <List><DrawerItems message={'ok'} /></List>
       </Drawer>
     </React.Fragment>
   );

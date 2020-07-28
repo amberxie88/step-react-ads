@@ -63,10 +63,14 @@ export default function Queries(props) {
   const classes = Styles();
   return (
     <React.Fragment>
-    <Joyride steps = {steps}
-        continuous = {true}
-        showProgress = {true}
-        showSkipButton = {true}/>
+    <Joyride 
+      steps={steps}
+      continuous={true}
+      showProgress={true}
+      showSkipButton={true}
+      run={props.runTutorial}
+      callback={props.handleJoyrideCallback}
+    />
       <Grid container spacing={3}>
         {/* Selected Account */}
         <Grid item xs={12}>
