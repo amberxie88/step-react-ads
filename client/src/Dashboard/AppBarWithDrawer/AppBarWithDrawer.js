@@ -19,7 +19,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import NotificationsIcon from '@material-ui/icons/Notifications';
+import HelpIcon from '@material-ui/icons/Help';
 import Badge from '@material-ui/core/Badge';
 import Typography from '@material-ui/core/Typography';
 import Drawer from '@material-ui/core/Drawer';
@@ -43,6 +43,10 @@ export default function AppBarWithDrawer(props) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  const handleQuestion = () => {
+    console.log("qs");
+    console.log(props);
+  }
   return (
     <React.Fragment>
       <AppBar
@@ -71,10 +75,11 @@ export default function AppBarWithDrawer(props) {
           >
             {Title}
           </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
+          <IconButton 
+            color="inherit"
+            onClick={handleQuestion}
+          >
+              <HelpIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
