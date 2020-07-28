@@ -44,7 +44,7 @@ describe('Queries Unit Testing', () => {
     const component = shallow(<Queries />);
     component.find('SubmitButton').simulate('click'); //click the submit button. This should trigger the api call
     await waitForState(component, (state) => state.rows !== []); //wait for rows state variable to change from initial state
-    expect(component.state('status')).toEqual('loaded'); //TODO change to use actual code instead
+    expect(component.state('status')).toEqual('loaded');
     expect(component.state('rows')).toEqual([
       {
         'campaign.id': '10375582075',

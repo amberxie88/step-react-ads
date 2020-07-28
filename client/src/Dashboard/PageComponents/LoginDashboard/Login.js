@@ -33,20 +33,19 @@ class Login extends React.Component {
   }
 
   async handleLogin() {
-    const { data } = await axios.get('/oauth');
-    console.log(data);
-
-    this.setState({
-      redirect: data,
-    });
+    try {
+      const { data } = await axios.get('/oauth');
+      console.log(data);
+      this.setState({
+        redirect: data,
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
-  componentDidMount() {
-    window.addEventListener('load', this.handleLogin);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('load', this.handleLogin);
+  async componentDidMount() {
+    this.handleLogin();
   }
 
   render() {
