@@ -1,18 +1,23 @@
+/**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React from 'react';
-import Link from '@material-ui/core/Link';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import Title from '../../Utilities/Title';
 import Button from '@material-ui/core/Button';
-import axios from 'axios';
-
-function preventDefault(event) {
-  event.preventDefault();
-}
-
-function parseJSON(response) {
-  return response.json();
-}
 
 const useStyles = makeStyles({
   depositContext: {
@@ -24,32 +29,30 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
     this.handleLogin = this.handleLogin.bind(this);
-    //this.state = { value: '', rows: [], fields: [] };
+    this.state = { redirect: '' };
   }
 
-  handleLogin() {
-    alert('login requested');
-    const request = new Request('/oauth', {
-      //accept: 'application/json',
-      method: 'GET',
-      mode: 'cors', //allow CORS
-    });
-    fetch(request) //.then(console.log('logged in!'));
-      .then(parseJSON)
-      .then((jsonResult) => {
-        console.log(jsonResult);
-        console.log(jsonResult.redirect);
-        //window.open(jsonResult.redirect, '_blank');
-        window.location.href = jsonResult.redirect;
-      }
-      );
+  async handleLogin() {
+    try {
+      const { data } = await axios.get('/oauth');
+      console.log(data);
+      this.setState({
+        redirect: data,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async componentDidMount() {
+    this.handleLogin();
   }
 
   render() {
     return (
       <React.Fragment>
         <Title>Authenticate your Ads Account</Title>
-        <LoginButton onClick={this.handleLogin} />
+        <LoginButton onClick={this.state.redirect} />
       </React.Fragment>
     );
   }
@@ -59,8 +62,10 @@ function LoginButton(props) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <Button variant="outlined" onClick={props.onClick}>
-        Add Account
+      <Button variant="outlined">
+        <a style={{ textDecoration: 'none' }} href={props.onClick}>
+          Add Account
+        </a>
       </Button>
     </div>
   );

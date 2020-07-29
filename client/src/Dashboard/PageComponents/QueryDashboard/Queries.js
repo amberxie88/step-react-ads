@@ -1,10 +1,27 @@
+/**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React from 'react';
 import axios from 'axios';
+import * as HttpStatus from 'http-status-codes';
 import { makeStyles } from '@material-ui/core/styles';
 import QueryResults from './QueryResults';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Title from '../../Utilities/Title';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,7 +67,7 @@ class Query extends React.Component {
         '/campaign',
         new URLSearchParams({ query }),
       );
-      if (data.meta.status !== '200') {
+      if (data.meta.status !== HttpStatus.OK.toString()) {
         throw new Error(data.meta.message);
       } else {
         this.setState({
@@ -107,8 +124,8 @@ class Query extends React.Component {
           id="standard-full-width"
           label="Enter Query"
           style={{ margin: 8 }}
-          placeholder="Placeholder"
-          helperText="helper text"
+          placeholder="SELECT campaign.id, campaign.name FROM campaign"
+          helperText="make sure to select an account!"
           fullWidth
           margin="normal"
           InputLabelProps={{

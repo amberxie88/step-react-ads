@@ -1,4 +1,4 @@
-// Copyright 2018 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,6 +59,9 @@ public class GetChart2Servlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    String sessionId = (String) request.getSession().getId();
+
     // GET QUERY STRING
     String query = "SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions FROM campaign ORDER BY campaign.id";
 
@@ -67,14 +70,14 @@ public class GetChart2Servlet extends HttpServlet {
     params.customerId = Long.parseLong("4498877497"); //Amber
     //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
     System.out.println(params.customerId);
-    System.out.println(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"));
-    System.out.println(CredentialRetrieval.getCredentials());
+    System.out.println(DatastoreRetrieval.getEntityFromDatastore("Settings","DEVELOPER_TOKEN"));
+    System.out.println(CredentialRetrieval.getCredentials(sessionId));
 
     GoogleAdsClient googleAdsClient;
     try {
       //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().build();
-      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials())
-        .setDeveloperToken(DatastoreRetrieval.getCredentialFromDatastore("DEVELOPER_TOKEN"))
+      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
+        .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
         .setLoginCustomerId(Long.parseLong("9797005693")).build();
     } catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
