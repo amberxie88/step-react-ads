@@ -216,10 +216,8 @@
         <!--
           Specify the deploy-plugin version explicitly to avoid
           warnings of the form:
-
             'build.plugins.plugin.version' for org.apache.maven.plugins:maven-deploy-plugin
             is missing.
-
           during execution of the release:perform goal, which internally
           executes the deploy goal.
         -->
