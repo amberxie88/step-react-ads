@@ -33,4 +33,4 @@ const generateListItems = () => {
   return PagesWithAttributes.map(mapPageToListItem);
 };
 
-export const DrawerItems = <div>{generateListItems()}</div>;
+export const DrawerItems = () => <div>{generateListItems()}</div>;

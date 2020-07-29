@@ -22,6 +22,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Title from '../../Utilities/Title';
 
+
 const useStyles = makeStyles((theme) => ({
   root: {
     margin: theme.spacing(1),
@@ -123,7 +124,7 @@ class Query extends React.Component {
           id="standard-full-width"
           label="Enter Query"
           style={{ margin: 8 }}
-          placeholder="Placeholder"
+          placeholder="SELECT campaign.id, campaign.name FROM campaign"
           helperText="make sure to select an account!"
           fullWidth
           margin="normal"
