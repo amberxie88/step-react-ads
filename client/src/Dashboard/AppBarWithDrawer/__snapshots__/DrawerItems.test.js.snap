@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DrawerItems Unit Testing returns list with links for each page in PagesWithAttributes 1`] = `
+Array [
+  <ForwardRef(WithStyles)
+    button={true}
+    component={
+      Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "displayName": "Link",
+        "propTypes": Object {
+          "innerRef": [Function],
+          "onClick": [Function],
+          "replace": [Function],
+          "target": [Function],
+          "to": [Function],
+        },
+        "render": [Function],
+      }
+    }
+    to="/"
+  >
+    <ForwardRef(WithStyles)>
+      <UNDEFINED />
+    </ForwardRef(WithStyles)>
+    <ForwardRef(WithStyles)
+      primary="Login"
+    />
+  </ForwardRef(WithStyles)>,
+  <ForwardRef(WithStyles)
+    button={true}
+    component={
+      Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "displayName": "Link",
+        "propTypes": Object {
+          "innerRef": [Function],
+          "onClick": [Function],
+          "replace": [Function],
+          "target": [Function],
+          "to": [Function],
+        },
+        "render": [Function],
+      }
+    }
+    to="/Dashboard"
+  >
+    <ForwardRef(WithStyles)>
+      <UNDEFINED />
+    </ForwardRef(WithStyles)>
+    <ForwardRef(WithStyles)
+      primary="Dashboard"
+    />
+  </ForwardRef(WithStyles)>,
+  <ForwardRef(WithStyles)
+    button={true}
+    component={
+      Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "displayName": "Link",
+        "propTypes": Object {
+          "innerRef": [Function],
+          "onClick": [Function],
+          "replace": [Function],
+          "target": [Function],
+          "to": [Function],
+        },
+        "render": [Function],
+      }
+    }
+    to="/Query"
+  >
+    <ForwardRef(WithStyles)>
+      <UNDEFINED />
+    </ForwardRef(WithStyles)>
+    <ForwardRef(WithStyles)
+      primary="Queries"
+    />
+  </ForwardRef(WithStyles)>,
+]
+`;

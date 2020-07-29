@@ -29,7 +29,6 @@ const generateRoutes = (tutorial, handleJoyrideCallback) => {
   return PagesWithAttributes.map((page) => mapPageToRouteAndComponent(page, tutorial, handleJoyrideCallback));
 };
 
-
 const PageRouter = (props) => {
   return <Switch>{generateRoutes(props.tutorial, props.handleJoyrideCallback)}</Switch>;
 };

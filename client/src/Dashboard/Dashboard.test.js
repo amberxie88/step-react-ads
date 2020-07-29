@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.sps.data;
+import React from 'react';
+import Dashboard from './Dashboard';
+import { configure, shallow } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 
-/** A Client Object. */
-public final class Client {
+configure({ adapter: new Adapter() });
 
-  private final String  loginId;
-  private final String  customerId;
-  private final String  name;
-
-  public Client(String loginId, String customerId, String name) {
-    this.customerId = customerId;
-    this.loginId = loginId;
-    this.name = name;
-  }
-}
+describe('Dashboard Unit Testing', () => {
+  it('Dashboard renders correct components', async () => {
+    const dashboard = shallow(<Dashboard />);
+    const dashboardHTML = dashboard.html();
+    expect(dashboardHTML).toMatchSnapshot();
+  });
+});

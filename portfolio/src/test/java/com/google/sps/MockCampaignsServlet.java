@@ -48,31 +48,30 @@ class MockCampaignsServlet extends GetCampaignsServlet {
   }
 
   public MockCampaignsServlet(String sessionId, String refreshToken, String queryResponse) {
-  	super();
-  	this.sessionId = sessionId;
-  	this.refreshToken = refreshToken;
+    super();
+    this.sessionId = sessionId;
+    this.refreshToken = refreshToken;
     this.queryResponse = queryResponse;
   }
 
   @Override
-	protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) throws Exception {
+  protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) throws Exception {
     if (c == null || developerToken == null) {
       throw new Exception("Cannot build GoogleAdsClient");
     }
     this.loginCustomerId = loginCustomerId;
-	  return gac;
+    return gac;
   }
 
   @Override
   protected GoogleAdsServiceClient createGoogleAdsServiceClient(GoogleAdsClient googleAdsClient) {
-	   PowerMockito.doNothing().when(gasc).close();
-	   //PowerMockito.when(gasc.close()).doNothing();
-  	return gasc;
+     PowerMockito.doNothing().when(gasc).close();
+    return gasc;
   }
 
   @Override
   protected SearchGoogleAdsStreamRequest buildSearchGoogleAdsStreamRequest(String query, long customerId) {
-  	//if sessionId or if customer Id is wrong?
+    //if sessionId or if customer Id is wrong?
     long refreshUser = Long.parseLong(refreshToken);
     if (!(refreshUser == customerId || refreshUser == loginCustomerId)) {
       PermissionDeniedException pde = mock(PermissionDeniedException.class);
@@ -88,20 +87,20 @@ class MockCampaignsServlet extends GetCampaignsServlet {
 
   @Override
   protected Iterable<SearchGoogleAdsStreamResponse> issueSearchGoogleAdsStreamRequest(GoogleAdsServiceClient googleAdsServiceClient, SearchGoogleAdsStreamRequest request) {
-  	// Returns List with one mocked object
-  	ArrayList<SearchGoogleAdsStreamResponse> lst = new ArrayList<>();
-  	SearchGoogleAdsStreamResponse rsp = PowerMockito.mock(SearchGoogleAdsStreamResponse.class);
- 		lst.add(rsp);
- 		return (Iterable<SearchGoogleAdsStreamResponse>) lst;
- 	}
+    // Returns Iterable with one mocked object
+    ArrayList<SearchGoogleAdsStreamResponse> lst = new ArrayList<>();
+    SearchGoogleAdsStreamResponse rsp = PowerMockito.mock(SearchGoogleAdsStreamResponse.class);
+    lst.add(rsp);
+    return (Iterable<SearchGoogleAdsStreamResponse>) lst;
+  }
   
   @Override
   protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
-   	return queryResponse;
-  }
+    return queryResponse;
+  } 
+  
   @Override
   public String processErrorJSON(String errorMessage, String errorCode) {
-    // the method is protected in GetCampaignsServlet
     return super.processErrorJSON(errorMessage, errorCode); 
   }
 
