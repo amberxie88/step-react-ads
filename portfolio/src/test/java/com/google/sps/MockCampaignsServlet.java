@@ -97,7 +97,8 @@ class MockCampaignsServlet extends GetCampaignsServlet {
   @Override
   protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
     return queryResponse;
-  }
+  } 
+  
   @Override
   public String processErrorJSON(String errorMessage, String errorCode) {
     return super.processErrorJSON(errorMessage, errorCode); 

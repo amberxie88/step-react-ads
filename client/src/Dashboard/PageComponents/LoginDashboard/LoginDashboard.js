@@ -21,29 +21,39 @@ import Logout from './Logout';
 import { makeStyles } from '@material-ui/core/styles';
 import Accounts from './Accounts';
 import { stylesSettings } from '../../Utilities/Styles';
+import { LoginWalkthrough } from '../../Utilities/Walkthrough';
+import Joyride from 'react-joyride';
 const Styles = makeStyles(stylesSettings);
 
 export default function LoginDash(props) {
   const classes = Styles();
   return (
     <React.Fragment>
+      <Joyride 
+        steps = {LoginWalkthrough}
+        continuous = {true}
+        showProgress = {true}
+        showSkipButton = {true}
+        run={props.runTutorial}
+        callback={props.handleJoyrideCallback}
+      />
       <Grid container spacing={3}>
         {/* Login Button */}
         <Grid item xs={12}>
-          <Paper className={classes.paper}>
+          <Paper className={classes.paper + " login-button"}>
             <Login />
           </Paper>
         </Grid>
         {/* Available Accounts */}
         <Grid item xs={12}>
-          <Paper className={classes.paper}>
+          <Paper className={classes.paper + " available-accounts"}>
             <Accounts />
           </Paper>
         </Grid>
 
         {/* Logout Button */}
         <Grid item xs={12}>
-          <Paper className={classes.paper}>
+          <Paper className={classes.paper + " logout-button"}>
             <Logout />
           </Paper>
         </Grid>

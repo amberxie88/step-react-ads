@@ -22,22 +22,33 @@ import QueryAccount from './QueryAccount';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { stylesSettings } from '../../Utilities/Styles';
+import { QueryWalkthrough } from '../../Utilities/Walkthrough';
+import Joyride from 'react-joyride';
 const Styles = makeStyles(stylesSettings);
 
 export default function Queries(props) {
+  
   const classes = Styles();
   return (
     <React.Fragment>
+    <Joyride 
+      steps={QueryWalkthrough}
+      continuous={true}
+      showProgress={true}
+      showSkipButton={true}
+      run={props.runTutorial}
+      callback={props.handleJoyrideCallback}
+    />
       <Grid container spacing={3}>
         {/* Selected Account */}
         <Grid item xs={12}>
-          <Paper className={classes.paper}>
+          <Paper className={classes.paper + " selected-account"}>
             <QueryAccount />
           </Paper>
         </Grid>
         {/* Query Card */}
         <Grid item xs={12}>
-          <Paper className={classes.paper}>
+          <Paper className={classes.paper + " query-card"}>
             <Query />
           </Paper>
         </Grid>
