@@ -121,17 +121,12 @@ public class AccessibleCustomersServlet extends HttpServlet {
       ListAccessibleCustomersResponse response =
           customerService.listAccessibleCustomers(
               ListAccessibleCustomersRequest.newBuilder().build());
+      System.out.printf("Total results: %d%n", response.getResourceNamesCount());
 
       for (String customerResourceName : response.getResourceNamesList()) {
-<<<<<<< HEAD
-        JSONObject customerObject = new JSONObject();
-
-        Customer customer = customerServiceClient.getCustomer(customerResourceName);
-=======
         System.out.printf("Customer resource name: %s%n", customerResourceName);
         
         Customer customer = customerService.getCustomer(customerResourceName);
->>>>>>> 52fca54c3d4ada08a20e759a719ea9eff7bae299
         String customerId = Long.toString(customer.getId().getValue());
         String customerName = customer.getDescriptiveName().getValue();
 
@@ -160,21 +155,11 @@ public class AccessibleCustomersServlet extends HttpServlet {
               customerArray.put(customerObject);
             }
         }
-<<<<<<< HEAD
-        customerObject.put("id", customerId);
-        customerObject.put("children", children);
-        customerObject.put("name", customerName);
-        customerArray.put(customerObject);
-=======
->>>>>>> 52fca54c3d4ada08a20e759a719ea9eff7bae299
       }
       metaObject.put("status", "200");
       returnObject.put("response", customerArray);
-<<<<<<< HEAD
-=======
       returnObject.put("meta", metaObject);
       System.out.println(returnObject.toString());
->>>>>>> 52fca54c3d4ada08a20e759a719ea9eff7bae299
       return returnObject.toString();
     }
   }
