@@ -80,8 +80,6 @@ public class AccessibleCustomersServlet extends HttpServlet {
     try {
       googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
         DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN));
-      // googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
-      //   .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN")).build();
     }  catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
       writeServletResponse(response, processErrorJSON(ioe.toString(), "503"));
@@ -100,25 +98,12 @@ public class AccessibleCustomersServlet extends HttpServlet {
           "Request ID %s failed due to GoogleAdsException. Underlying errors:%n",
           gae.getRequestId());
       int i = 0;
-      String errMessage = "";
       for (GoogleAdsError googleAdsError : gae.getGoogleAdsFailure().getErrorsList()) {
         System.err.printf("  Error %d: %s%n", i++, googleAdsError);
-        errMessage += googleAdsError.toString() + "\n";
+        customerJSON += googleAdsError.toString() + "\n";
       }
     }
     response.getWriter().println(customerJSON);
-  }
-
-  protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken) {
-    return GoogleAdsClient.newBuilder().setCredentials(c).setDeveloperToken(developerToken).build();
-  }
-
-  protected ListAccessibleCustomersResponse listAccessibleCustomers(CustomerServiceClient c) {
-    return c.listAccessibleCustomers(ListAccessibleCustomersRequest.newBuilder().build());
-  }
-
-  protected CustomerServiceClient createCustomerServiceClient(GoogleAdsClient client) {
-    return client.getLatestVersion().createCustomerServiceClient();
   }
 
   /**
@@ -131,21 +116,14 @@ public class AccessibleCustomersServlet extends HttpServlet {
     JSONObject metaObject = new JSONObject();
     JSONArray customerArray = new JSONArray();
 
-    // try (CustomerServiceClient customerService =
-    //     client.getLatestVersion().createCustomerServiceClient()) {
     try (CustomerServiceClient customerService = createCustomerServiceClient(client)) {
-      // ListAccessibleCustomersResponse response =
-      //     customerService.listAccessibleCustomers(
-      //         ListAccessibleCustomersRequest.newBuilder().build());
       ListAccessibleCustomersResponse response = listAccessibleCustomers(customerService);
       System.out.printf("Total results: %d%n", response.getResourceNamesCount());
 
       for (String customerResourceName : response.getResourceNamesList()) {
         System.out.printf("Customer resource name: %s%n", customerResourceName);
-        
         Customer customer = customerService.getCustomer(customerResourceName);
         String customerId = Long.toString(customer.getId().getValue());
-        String customerName = customer.getDescriptiveName().getValue();
 
         ArrayList<CustomerClient> children = new ArrayList<>();
         
@@ -160,7 +138,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
           JSONObject customerObject = new JSONObject();
           customerObject.put("id", customerId);
           customerObject.put("child", customerId);
-          customerObject.put("name", customerName);
+          customerObject.put("name", customer.getDescriptiveName().getValue());
           customerArray.put(customerObject);
         } else {
             //build out customerObject per child
@@ -311,26 +289,30 @@ public class AccessibleCustomersServlet extends HttpServlet {
    * @param customerIdsToChildAccounts a map containing the account hierarchy information.
    * @param depth the current depth we are printing from in the account hierarchy.
    */
-  private void buildAccountHierarchy(
+  protected void buildAccountHierarchy(
       CustomerClient customerClient,
       Multimap<Long, CustomerClient> customerIdsToChildAccounts,
       int depth, ArrayList<CustomerClient> accountHierarchies) {
     
-    String leadingSpace = " ";
-    if (depth == 0) {
-      System.out.println("Customer ID (Descriptive Name, Currency Code, Time Zone");
-      leadingSpace = "";
-    } else {
-      System.out.println("|");
-    }
-    System.out.print(Strings.repeat("-", depth * 2));
     long customerId = customerClient.getId().getValue();
-    System.out.printf(
-        leadingSpace + "%d ('%s', '%s', '%s')%n",
-        customerId,
-        customerClient.getDescriptiveName().getValue(),
-        customerClient.getCurrencyCode().getValue(),
-        customerClient.getTimeZone().getValue());
+
+    //Print hierarchy to terminal for debugging
+
+    // String leadingSpace = " ";
+    // if (depth == 0) {
+    //   System.out.println("Customer ID (Descriptive Name, Currency Code, Time Zone");
+    //   leadingSpace = "";
+    // } else {
+    //   System.out.println("|");
+    // }
+    // System.out.print(Strings.repeat("-", depth * 2));
+    // System.out.printf(
+    //     leadingSpace + "%d ('%s', '%s', '%s')%n",
+    //     customerId,
+    //     customerClient.getDescriptiveName().getValue(),
+    //     customerClient.getCurrencyCode().getValue(),
+    //     customerClient.getTimeZone().getValue()
+    //     );
     
     //do not put rootCustomerClient as its own child
     if (depth != 0) {
@@ -345,10 +327,8 @@ public class AccessibleCustomersServlet extends HttpServlet {
 
   protected String processErrorJSON(String errorMessage, String errorCode) {
     JSONObject metaObj = new JSONObject();
-
     metaObj.put("message", errorMessage);
     metaObj.put("status", errorCode);
-
     JSONObject returnObj = new JSONObject();
     returnObj.put("meta", metaObj);
     return returnObj.toString();
@@ -361,5 +341,17 @@ public class AccessibleCustomersServlet extends HttpServlet {
     } catch (Exception e) {
       System.err.println(e);
     }
+  }
+
+  protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken) {
+    return GoogleAdsClient.newBuilder().setCredentials(c).setDeveloperToken(developerToken).build();
+  }
+
+  protected ListAccessibleCustomersResponse listAccessibleCustomers(CustomerServiceClient c) {
+    return c.listAccessibleCustomers(ListAccessibleCustomersRequest.newBuilder().build());
+  }
+
+  protected CustomerServiceClient createCustomerServiceClient(GoogleAdsClient client) {
+    return client.getLatestVersion().createCustomerServiceClient();
   }
 }
