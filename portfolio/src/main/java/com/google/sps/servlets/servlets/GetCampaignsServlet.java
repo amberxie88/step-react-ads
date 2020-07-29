@@ -16,6 +16,12 @@ package com.google.sps.servlets;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileNotFoundException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +31,6 @@ import com.google.ads.googleads.lib.GoogleAdsClient;
 import com.google.ads.googleads.v3.services.CampaignServiceClient;
 import com.google.ads.googleads.examples.utils.CodeSampleParams;
 import com.google.ads.googleads.examples.utils.ArgumentNames;
-import com.beust.jcommander.Parameter;
 import com.google.ads.googleads.v3.errors.GoogleAdsException;
 import com.google.ads.googleads.v3.errors.GoogleAdsError;
 import com.google.ads.googleads.v3.services.GoogleAdsServiceClient;
@@ -36,7 +41,20 @@ import com.google.ads.googleads.v3.services.GoogleAdsRow;
 
 import com.google.ads.googleads.v3.services.stub.GrpcGoogleAdsServiceStub;
 import com.google.auth.oauth2.UserCredentials;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.auth.Credentials;
+import com.google.api.client.auth.oauth2.Credential;
+
+
+import com.google.common.collect.Lists;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.*;
+
+import com.beust.jcommander.Parameter;
 
 import com.google.protobuf.util.JsonFormat;
 import com.google.gson.Gson;
@@ -131,7 +149,51 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       return processErrorJSON(e.toString(), Constants.ERROR_500);
     }
+    try {
+      createSpreadsheet("demo app spreadsheet", sessionId);
+    } catch (IOException e){
+      System.err.print(e);
+    }
+    
     return returnJSON;
+  }
+
+  private void createSpreadsheet(String title, String sessionId) throws IOException {
+    String clientId = "1046586874654-tgn44f77djmfqupdl955bhu5d9lemglc.apps.googleusercontent.com";
+    String clientSecret = "nm4CjV4qdIcCayjH_V26ay-A";
+    String refreshToken =  DatastoreRetrieval.getEntityFromDatastore("Refresh", sessionId);
+    HttpTransport httpTransport =  null;
+    JsonFactory jsonFactory = null;
+    try {
+      System.out.println("create networks");
+      httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+      jsonFactory = JacksonFactory.getDefaultInstance();
+    } catch (Exception e) {
+      System.err.print(e);
+    }
+     
+    Credential credential = new GoogleCredential.Builder()
+                      .setJsonFactory(jsonFactory)
+                      .setTransport(httpTransport)
+                      .setClientSecrets(clientId, clientSecret).build();
+    System.out.println("create credential");
+    credential.setRefreshToken(refreshToken);
+    //credential.setAccessToken(accessToken);
+
+    Sheets service = new Sheets.Builder(httpTransport, jsonFactory, credential)
+                .setApplicationName("test")
+                .build();
+
+    System.out.println("creating spreadsheet");
+
+    Spreadsheet spreadsheet = new Spreadsheet()
+        .setProperties(new SpreadsheetProperties()
+                .setTitle(title));
+    spreadsheet = service.spreadsheets().create(spreadsheet)
+            .setFields("spreadsheetId")
+            .execute();
+
+    System.out.println("Spreadsheet ID: " + spreadsheet.getSpreadsheetId());
   }
 
   protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) throws Exception {

@@ -47,7 +47,8 @@ import com.google.sps.utils.Constants;
 public class OAuthServlet extends HttpServlet {
 
   private static final ImmutableList<String> SCOPES =
-      ImmutableList.<String>builder().add("https://www.googleapis.com/auth/adwords").build();
+      ImmutableList.<String>builder().add("https://www.googleapis.com/auth/adwords", "https://www.googleapis.com/auth/spreadsheets").build();
+    
   private static final String OAUTH2_CALLBACK = "/oauth2callback";
   private static final String RETRIEVAL_ERROR = "<h1>Error with retrieving the authorizationLink</h1>";
 
