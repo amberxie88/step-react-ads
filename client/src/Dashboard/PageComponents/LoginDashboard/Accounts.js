@@ -34,21 +34,31 @@ class Accounts extends React.Component {
       customerIds: [],
       selected: '',
       status: 'none authenticated',
+      errorMessage: '',
     };
   }
 
   async fetchCustomers() {
     this.setState({ status: 'loading' });
 
-    const { data } = await axios.get('/customer');
-    console.log(data.response);
-    if (data.response) {
+    try {
+      const { data } = await axios.get('/customer');
+
+      if (data.meta.status !== '200') {
+        throw new Error(data.meta.message);
+      } else {
+        console.log(data.response);
+        this.setState({
+          customerIds: data.response,
+          status: 'loaded',
+        });
+      }
+    } catch (err) {
+      console.log(err.message);
       this.setState({
-        customerIds: data.response,
-        status: 'loaded',
+        status: 'none authenticated',
+        errorMessage: err.message,
       });
-    } else {
-      this.setState({ status: 'none authenticated' });
     }
   }
 
@@ -62,6 +72,13 @@ class Accounts extends React.Component {
             Log in to access your accounts.
           </Typography>
         );
+      case 'error':
+        return (
+          <Typography variant="overline">
+            {"Something Went Wrong. Here's the Error Message: " +
+              this.state.errorMessage}
+          </Typography>
+        );
       case 'loading':
         return <Typography variant="overline">Loading . . .</Typography>;
       case 'loaded':
@@ -72,16 +89,16 @@ class Accounts extends React.Component {
                 key={row.id}
                 onClick={(event) => this.handleClick(event, row)}
                 role="checkbox"
-                aria-checked={this.isSelected(row.id)}
+                aria-checked={this.isSelected(row.child)}
                 tabIndex={-1}
-                selected={this.isSelected(row.id)}
+                selected={this.isSelected(row.child)}
                 hover
               >
                 <TableCell padding="checkbox">
-                  <Checkbox checked={this.isSelected(row.id)} />
+                  <Checkbox checked={this.isSelected(row.child)} />
                 </TableCell>
                 <TableCell key={row.id}>{row.id}</TableCell>
-                <TableCell key={row.children}>{row.children}</TableCell>
+                <TableCell key={row.child}>{row.child}</TableCell>
                 <TableCell key={row.name}>{row.name}</TableCell>
               </TableRow>
             ))}
@@ -109,17 +126,15 @@ class Accounts extends React.Component {
 
   async handleClick(event, row) {
     this.setState({
-      selected: row.id,
+      selected: row.child,
     });
     const loginId = row.id;
-    const customerId = row.children;
-    console.log(row.id);
-    console.log(row.children);
+    const customerId = row.child;
+    const name = row.name;
     const { data } = await axios.post(
       '/client',
-      new URLSearchParams({ loginId, customerId }),
+      new URLSearchParams({ loginId, customerId, name }),
     );
-    alert(data);
   }
 
   render() {

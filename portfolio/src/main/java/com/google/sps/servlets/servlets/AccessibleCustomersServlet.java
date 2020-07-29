@@ -39,8 +39,6 @@ import com.google.ads.googleads.v3.services.GoogleAdsServiceClient.SearchPagedRe
 import com.google.ads.googleads.v3.services.ListAccessibleCustomersRequest;
 import com.google.ads.googleads.v3.services.ListAccessibleCustomersResponse;
 import com.google.ads.googleads.v3.services.SearchGoogleAdsRequest;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import com.google.common.base.Strings;
 import com.google.ads.googleads.v3.resources.Customer;
@@ -81,8 +79,9 @@ public class AccessibleCustomersServlet extends HttpServlet {
         .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN")).build();
     }  catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
-      customerJSON = "No accounts are authenticated.";
-      response.getWriter().println(customerJSON);
+      writeServletResponse(response, processErrorJSON(ioe.toString(), "503"));
+      //customerJSON = "No accounts are authenticated.";
+      //response.getWriter().println(customerJSON);
       return;
     }
 
@@ -98,10 +97,11 @@ public class AccessibleCustomersServlet extends HttpServlet {
           "Request ID %s failed due to GoogleAdsException. Underlying errors:%n",
           gae.getRequestId());
       int i = 0;
+      String errMessage = "";
       for (GoogleAdsError googleAdsError : gae.getGoogleAdsFailure().getErrorsList()) {
         System.err.printf("  Error %d: %s%n", i++, googleAdsError);
+        errMessage += googleAdsError.toString() + "\n";
       }
-      customerJSON = "Error occured during authentication.";
     }
     response.getWriter().println(customerJSON);
   }
@@ -113,6 +113,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
    */
   private String runExample(GoogleAdsClient client, String sessionId) {
     JSONObject returnObject = new JSONObject();
+    JSONObject metaObject = new JSONObject();
     JSONArray customerArray = new JSONArray();
 
     try (CustomerServiceClient customerService =
@@ -121,78 +122,61 @@ public class AccessibleCustomersServlet extends HttpServlet {
           customerService.listAccessibleCustomers(
               ListAccessibleCustomersRequest.newBuilder().build());
 
-      CustomerServiceClient customerServiceClient =
-        client.getLatestVersion().createCustomerServiceClient();
-
       for (String customerResourceName : response.getResourceNamesList()) {
+<<<<<<< HEAD
         JSONObject customerObject = new JSONObject();
 
         Customer customer = customerServiceClient.getCustomer(customerResourceName);
+=======
+        System.out.printf("Customer resource name: %s%n", customerResourceName);
+        
+        Customer customer = customerService.getCustomer(customerResourceName);
+>>>>>>> 52fca54c3d4ada08a20e759a719ea9eff7bae299
         String customerId = Long.toString(customer.getId().getValue());
         String customerName = customer.getDescriptiveName().getValue();
 
-        String children = "";
+        ArrayList<CustomerClient> children = new ArrayList<>();
         
         try {
-          children =  getChildren(customerId, customerId, sessionId).toString();
+          children =  createCustomerClientToHierarchy(customerId, customerId, sessionId);
         }
         catch (IOException ioe) {
           System.err.printf("Request failed. Exception: %s%n", ioe);
         }
-        //test account hardcode hierarchy
-        if (children.equals("{}")) {
-          children = "8458272058";
+        //API cannot build account hierarchy on test accounts (simply return root)
+        if (children.toString().equals("[]")) {
+          JSONObject customerObject = new JSONObject();
+          customerObject.put("id", customerId);
+          customerObject.put("child", customerId);
+          customerObject.put("name", customerName);
+          customerArray.put(customerObject);
+        } else {
+            //build out customerObject per child
+            for (CustomerClient child : children) {
+              JSONObject customerObject = new JSONObject();
+              customerObject.put("id", customerId);
+              customerObject.put("child", child.getId().getValue());
+              customerObject.put("name", child.getDescriptiveName().getValue());
+              customerArray.put(customerObject);
+            }
         }
+<<<<<<< HEAD
         customerObject.put("id", customerId);
         customerObject.put("children", children);
         customerObject.put("name", customerName);
         customerArray.put(customerObject);
+=======
+>>>>>>> 52fca54c3d4ada08a20e759a719ea9eff7bae299
       }
-
+      metaObject.put("status", "200");
       returnObject.put("response", customerArray);
+<<<<<<< HEAD
+=======
+      returnObject.put("meta", metaObject);
+      System.out.println(returnObject.toString());
+>>>>>>> 52fca54c3d4ada08a20e759a719ea9eff7bae299
       return returnObject.toString();
     }
-  }
-
-  private Map<Long, Integer> getChildren(String managerIdStr, String loginCustomerIdStr, String sessionId) throws IOException {
-    
-    Long managerId = Long.parseLong(managerIdStr);
-    Long loginCustomerId = Long.parseLong(loginCustomerIdStr);
-
-    Map<Long, Integer> accountHierarchies = new HashMap<>();
-
-    Map<CustomerClient, Multimap<Long, CustomerClient>> allHierarchies = new HashMap<>();
-    Long accountWithNoInfo = null;
-
-    // Constructs a map of account hierarchies.
-    Map<CustomerClient, Multimap<Long, CustomerClient>> customerClientToHierarchy =
-        createCustomerClientToHierarchy(loginCustomerId, managerId, sessionId);
-
-    if (customerClientToHierarchy == null) {
-      accountWithNoInfo = managerId;
-    } else {
-      allHierarchies.putAll(customerClientToHierarchy);
-    }
-
-    // Prints the IDs of any accounts that did not produce hierarchy information.
-    if (accountWithNoInfo != null) {
-      System.out.println(
-          "Unable to retrieve information for the following account which is likely either a test "
-              + "account or account with setup issues. Please check the logs for details.");
-      
-      System.out.println(accountWithNoInfo);
-      System.out.println();
-    }
-
-    int depth = 0;
-    // Prints the hierarchy information for all accounts for which there is hierarchy information
-    // available.
-    for (CustomerClient rootCustomerClient : allHierarchies.keySet()) {
-      System.out.printf("Hierarchy of customer ID %d:%n", rootCustomerClient.getId().getValue());
-      buildAccountHierarchy(rootCustomerClient, allHierarchies.get(rootCustomerClient), depth, accountHierarchies);
-      System.out.println();
-    }
-    return accountHierarchies;
   }
 
   /**
@@ -204,8 +188,13 @@ public class AccessibleCustomersServlet extends HttpServlet {
    *     hierarchy can be retrieved. If the account hierarchy cannot be retrieved, returns null.
    * @throws IOException if a Google Ads Client is not successfully created.
    */
-  private Map<CustomerClient, Multimap<Long, CustomerClient>> createCustomerClientToHierarchy(
-      Long loginCustomerId, long seedCustomerId, String sessionId) throws IOException {
+  private ArrayList<CustomerClient> createCustomerClientToHierarchy(
+      String loginCustomerIdStr, String seedCustomerIdStr, String sessionId) throws IOException {
+    
+    Long seedCustomerId = Long.parseLong(seedCustomerIdStr);
+    Long loginCustomerId = Long.parseLong(loginCustomerIdStr);
+
+    ArrayList<CustomerClient> accountHierarchies = new ArrayList<>();
 
     Queue<Long> managerAccountsToSearch = new LinkedList<>();
     CustomerClient rootCustomerClient = null;
@@ -237,6 +226,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
       // child accounts.
       Multimap<Long, CustomerClient> customerIdsToChildAccounts = ArrayListMultimap.create();
       while (!managerAccountsToSearch.isEmpty()) {
+        //get first ID from queue
         long customerIdToSearchFrom = managerAccountsToSearch.poll();
         SearchPagedResponse response;
         try {
@@ -293,18 +283,26 @@ public class AccessibleCustomersServlet extends HttpServlet {
       // This method returns null in these cases to add the seedCustomerId to the list of
       // customer IDs for which the account hierarchy could not be retrieved.
       if (rootCustomerClient == null) {
+        // Prints the IDs of any accounts that did not produce hierarchy information.
+        System.out.print(
+        "Unable to retrieve information for the following account which is likely either a test "
+            + "account or account with setup issues. Please check the logs for details:  ");
+        System.out.println(seedCustomerId);
         return null;
       }
 
-      Map<CustomerClient, Multimap<Long, CustomerClient>> customerClientToHierarchy =
-          new HashMap<>();
-      customerClientToHierarchy.put(rootCustomerClient, customerIdsToChildAccounts);
-      return customerClientToHierarchy;
+      int depth = 0;
+      // Prints the hierarchy information for all accounts for which there is hierarchy information
+      // available.
+      System.out.printf("Hierarchy of customer ID %d:%n", rootCustomerClient.getId().getValue());
+      buildAccountHierarchy(rootCustomerClient, customerIdsToChildAccounts, depth, accountHierarchies);
+
+      return accountHierarchies;
     }
   }
 
   /**
-   * Prints the specified account's hierarchy using recursion.
+   * Recursively builds the specified account's hierarchy.
    *
    * @param customerClient the customer client whose info will be printed and its child accounts
    *     will be processed if it's a manager.
@@ -314,7 +312,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
   private void buildAccountHierarchy(
       CustomerClient customerClient,
       Multimap<Long, CustomerClient> customerIdsToChildAccounts,
-      int depth, Map<Long, Integer> accountHierarchies) {
+      int depth, ArrayList<CustomerClient> accountHierarchies) {
     
     String leadingSpace = " ";
     if (depth == 0) {
@@ -332,32 +330,34 @@ public class AccessibleCustomersServlet extends HttpServlet {
         customerClient.getCurrencyCode().getValue(),
         customerClient.getTimeZone().getValue());
     
-    accountHierarchies.put(customerId, depth);
+    //do not put rootCustomerClient as its own child
+    if (depth != 0) {
+      accountHierarchies.add(customerClient);
+    }
 
-    //Multimap customerIdsToChildAccounts maps the current customerId to multiple childCustomers (DFS)
+    //Recursive call to any child accounts (Depth First Search)
     for (CustomerClient childCustomer : customerIdsToChildAccounts.get(customerId)) {
       buildAccountHierarchy(childCustomer, customerIdsToChildAccounts, depth + 1, accountHierarchies);
     }
+  } 
+
+  private String processErrorJSON(String errorMessage, String errorCode) {
+    JSONObject metaObj = new JSONObject();
+
+    metaObj.put("message", errorMessage);
+    metaObj.put("status", errorCode);
+
+    JSONObject returnObj = new JSONObject();
+    returnObj.put("meta", metaObj);
+    return returnObj.toString();
   }
 
-
-  private String getName(GoogleAdsClient googleAdsClient, String customerResourceName) {
-    try (CustomerServiceClient customerServiceClient =
-        googleAdsClient.getLatestVersion().createCustomerServiceClient()) {
-      //String customerResourceName = ResourceNames.customer(customerId);
-      Customer customer = customerServiceClient.getCustomer(customerResourceName);
-      // Prints account information. Descriptive Name is useful.
-      //eg Customer with ID 9797005693, descriptive name 'AX Test', currency code 'USD', timezone 'America/Los_Angeles', tracking URL template '' and auto tagging enabled 'false' was retrieved.
-      System.out.printf(
-          "Customer with ID %d, descriptive name '%s', currency code '%s', timezone '%s', "
-              + "tracking URL template '%s' and auto tagging enabled '%s' was retrieved.%n",
-          customer.getId().getValue(),
-          customer.getDescriptiveName().getValue(),
-          customer.getCurrencyCode().getValue(),
-          customer.getTimeZone().getValue(),
-          customer.getTrackingUrlTemplate().getValue(),
-          customer.getAutoTaggingEnabled().getValue());
-      return customer.getDescriptiveName().getValue();
+  private void writeServletResponse(HttpServletResponse response, String messageJSON) {
+    response.setContentType("application/json");
+    try {
+      response.getWriter().println(messageJSON);
+    } catch (Exception e) {
+      System.err.println(e);
     }
   }
 }

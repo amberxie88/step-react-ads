@@ -30,7 +30,6 @@ const generateRoutes = () => {
 };
 
 const PageRouter = () => {
-  console.log(generateRoutes());
   return <Switch>{generateRoutes()}</Switch>;
 };
 

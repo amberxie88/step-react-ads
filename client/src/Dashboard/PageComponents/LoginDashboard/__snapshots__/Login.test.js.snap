@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Login Unit Testing Login displays button with correct link with correct API call 1`] = `"<h2 class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-colorPrimary MuiTypography-gutterBottom\\">Authenticate your Ads Account</h2><div><button class=\\"MuiButtonBase-root MuiButton-root MuiButton-outlined\\" tabindex=\\"0\\" type=\\"button\\"><span class=\\"MuiButton-label\\"><a style=\\"text-decoration: none;\\" href=\\"TEST_URL\\">Add Account</a></span><span class=\\"MuiTouchRipple-root\\"></span></button></div>"`;
