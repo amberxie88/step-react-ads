@@ -88,7 +88,7 @@ public class OAuthServlet extends HttpServlet {
               .build();
       URI baseUri = URI.create("http://localhost:8080/");
       //deploy
-      //baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
+      //URI baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
       return userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri).toString();
   }
   
@@ -98,7 +98,7 @@ public class OAuthServlet extends HttpServlet {
       ReadProperties properties = new ReadProperties("config.properties");
       DatastoreRetrieval.addEntityToDatastore(Constants.SETTINGS, Constants.CLIENT_ID, properties.getProp("clientId"));
       DatastoreRetrieval.addEntityToDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET, properties.getProp("clientSecret"));
-      DatastoreRetrieval.addEntityToDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN, properties.getProp("refreshToken"));      
+      DatastoreRetrieval.addEntityToDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN, properties.getProp("devToken"));      
     } catch (Exception e) {
       System.err.println(e);
     }

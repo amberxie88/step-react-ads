@@ -48,6 +48,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import com.google.ads.googleads.v3.utils.ResourceNames;
+import com.google.auth.Credentials;
 
 import com.google.sps.data.DatastoreRetrieval;
 import com.google.sps.data.CredentialRetrieval;
@@ -55,6 +56,8 @@ import com.google.sps.data.CredentialRetrieval;
 import com.google.protobuf.util.JsonFormat;
 import org.json.JSONObject;
 import org.json.JSONArray;
+
+import com.google.sps.utils.Constants;
 
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
@@ -75,13 +78,13 @@ public class AccessibleCustomersServlet extends HttpServlet {
     String customerJSON = "";
 
     try {
-      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
-        .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN")).build();
+      googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
+        DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN));
+      // googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
+      //   .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN")).build();
     }  catch (Exception ioe) {
       System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
       writeServletResponse(response, processErrorJSON(ioe.toString(), "503"));
-      //customerJSON = "No accounts are authenticated.";
-      //response.getWriter().println(customerJSON);
       return;
     }
 
@@ -106,6 +109,18 @@ public class AccessibleCustomersServlet extends HttpServlet {
     response.getWriter().println(customerJSON);
   }
 
+  protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken) {
+    return GoogleAdsClient.newBuilder().setCredentials(c).setDeveloperToken(developerToken).build();
+  }
+
+  protected ListAccessibleCustomersResponse listAccessibleCustomers(CustomerServiceClient c) {
+    return c.listAccessibleCustomers(ListAccessibleCustomersRequest.newBuilder().build());
+  }
+
+  protected CustomerServiceClient createCustomerServiceClient(GoogleAdsClient client) {
+    return client.getLatestVersion().createCustomerServiceClient();
+  }
+
   /**
    * Runs the example.
    *
@@ -116,11 +131,13 @@ public class AccessibleCustomersServlet extends HttpServlet {
     JSONObject metaObject = new JSONObject();
     JSONArray customerArray = new JSONArray();
 
-    try (CustomerServiceClient customerService =
-        client.getLatestVersion().createCustomerServiceClient()) {
-      ListAccessibleCustomersResponse response =
-          customerService.listAccessibleCustomers(
-              ListAccessibleCustomersRequest.newBuilder().build());
+    // try (CustomerServiceClient customerService =
+    //     client.getLatestVersion().createCustomerServiceClient()) {
+    try (CustomerServiceClient customerService = createCustomerServiceClient(client)) {
+      // ListAccessibleCustomersResponse response =
+      //     customerService.listAccessibleCustomers(
+      //         ListAccessibleCustomersRequest.newBuilder().build());
+      ListAccessibleCustomersResponse response = listAccessibleCustomers(customerService);
       System.out.printf("Total results: %d%n", response.getResourceNamesCount());
 
       for (String customerResourceName : response.getResourceNamesList()) {
@@ -139,7 +156,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
           System.err.printf("Request failed. Exception: %s%n", ioe);
         }
         //API cannot build account hierarchy on test accounts (simply return root)
-        if (children.toString().equals("[]")) {
+        if (children == null || children.toString().equals("[]")) {
           JSONObject customerObject = new JSONObject();
           customerObject.put("id", customerId);
           customerObject.put("child", customerId);
@@ -173,7 +190,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
    *     hierarchy can be retrieved. If the account hierarchy cannot be retrieved, returns null.
    * @throws IOException if a Google Ads Client is not successfully created.
    */
-  private ArrayList<CustomerClient> createCustomerClientToHierarchy(
+  protected ArrayList<CustomerClient> createCustomerClientToHierarchy(
       String loginCustomerIdStr, String seedCustomerIdStr, String sessionId) throws IOException {
     
     Long seedCustomerId = Long.parseLong(seedCustomerIdStr);
@@ -326,7 +343,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
     }
   } 
 
-  private String processErrorJSON(String errorMessage, String errorCode) {
+  protected String processErrorJSON(String errorMessage, String errorCode) {
     JSONObject metaObj = new JSONObject();
 
     metaObj.put("message", errorMessage);
