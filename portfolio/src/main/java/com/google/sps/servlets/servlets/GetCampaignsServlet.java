@@ -60,23 +60,25 @@ public class GetCampaignsServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // GET QUERY STRING
     String query = request.getParameter("query");
     String sessionId = (String) request.getSession().getId();
-    System.out.println(query);
-    //sessionId = "sRUDHQkKI-d3VYiMtEcvDg";
+    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
+    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    long customerIdLong;
+    long loginIdLong;
 
-    //String customerId = "4498877497"; //Amber
-    //String loginId = "9797005693";
-    //test
-    String customerId = DatastoreRetrieval.getEntityFromDatastore(Constants.CUSTOMER_ID, sessionId);
-    String loginId = DatastoreRetrieval.getEntityFromDatastore(Constants.LOGIN_ID, sessionId);
+    try {
+      loginIdLong = Long.parseLong(loginId);
+      customerIdLong = Long.parseLong(customerId);
+    } catch (Exception e) {
+      writeServletResponse(response, processErrorJSON("Null Login ID or Customer ID", Constants.ERROR_500));
+      return;
+    }
 
     String returnJSON = "";
     try {
-      returnJSON = runExample(Long.parseLong(loginId), Long.parseLong(customerId), query, sessionId);
+      returnJSON = runExample(loginIdLong, customerIdLong, query, sessionId);
       returnJSON = processJSON(returnJSON);
-      //System.out.println("returnJSON = " + returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
@@ -104,16 +106,11 @@ public class GetCampaignsServlet extends HttpServlet {
    * @throws GoogleAdsException if an API request failed with one or more service errors.
    */
 
-  private String runExample(long loginId, long customerId, String query, String sessionId) {
+  protected String runExample(long loginId, long customerId, String query, String sessionId) {
     String returnJSON = "";
-    System.out.println(query);
-    System.out.println(customerId);
     GoogleAdsClient googleAdsClient;
 
-    //File propertiesFile = new File("ads.properties");
     try {
-      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).build();
-      // test
       googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
         DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN), loginId);
     } catch (Exception e) {
@@ -122,17 +119,9 @@ public class GetCampaignsServlet extends HttpServlet {
     try (GoogleAdsServiceClient googleAdsServiceClient =
         createGoogleAdsServiceClient(googleAdsClient)) {
       SearchGoogleAdsStreamRequest request = buildSearchGoogleAdsStreamRequest(query, customerId);
-      // Creates and issues a search Google Ads stream request that will retrieve query results.
       Iterable<SearchGoogleAdsStreamResponse> stream = issueSearchGoogleAdsStreamRequest(googleAdsServiceClient, request);
 
-      System.out.println("Here!");
-      System.out.println(customerId);
       for (SearchGoogleAdsStreamResponse response : stream) {
-        //google.ads.googleads.v3.services.SearchGoogleAdsStreamResponse
-        System.out.println(response.getDescriptorForType());
-        System.out.println(response.getDescriptorForType().getClass());
-        System.out.println(response.getDescriptorForType().getFullName());
-        System.out.println(response.getDescriptorForType().getFullName().getClass());
         returnJSON += searchGoogleAdsStreamResponseToJSON(response);
       }
     } catch (InvalidArgumentException e) {
@@ -140,13 +129,12 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (PermissionDeniedException e) {
       return processErrorJSON(e.getMessage(), Constants.ERROR_403);
     } catch (Exception e) {
-      return processErrorJSON(e.toString(), Constants.ERROR_500); // 500
+      return processErrorJSON(e.toString(), Constants.ERROR_500);
     }
-    //System.out.println(returnJSON);
     return returnJSON;
   }
 
-  protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) {
+  protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) throws Exception {
     return GoogleAdsClient.newBuilder().setCredentials(c).setDeveloperToken(developerToken)
       .setLoginCustomerId(loginCustomerId).build();
   }

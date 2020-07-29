@@ -53,9 +53,9 @@ public class OAuthServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    //add credentials to datastore (just do this once for deployment)
+    // Add credentials to datastore (just do this once for deployment)
     //addCredentialsToDatastore();
-
+    
     String clientId = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_ID);
     String clientSecret = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET);
     String loginEmailAddressHint = null;

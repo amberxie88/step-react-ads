@@ -40,35 +40,38 @@ class MockCampaignsServlet extends GetCampaignsServlet {
   SearchGoogleAdsStreamRequest request = PowerMockito.mock(SearchGoogleAdsStreamRequest.class);
   String sessionId;
   String refreshToken;
+  String queryResponse;
   long loginCustomerId;
 
   public MockCampaignsServlet() {
     super();
   }
 
-  // TODO: input the return JSON (compare with the expected processed JSON)
-  public MockCampaignsServlet(String sessionId, String refreshToken) {
-  	super();
-  	this.sessionId = sessionId;
-  	this.refreshToken = refreshToken;
+  public MockCampaignsServlet(String sessionId, String refreshToken, String queryResponse) {
+    super();
+    this.sessionId = sessionId;
+    this.refreshToken = refreshToken;
+    this.queryResponse = queryResponse;
   }
 
   @Override
-	protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) {
+  protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) throws Exception {
+    if (c == null || developerToken == null) {
+      throw new Exception("Cannot build GoogleAdsClient");
+    }
     this.loginCustomerId = loginCustomerId;
-	  return gac;
+    return gac;
   }
 
   @Override
   protected GoogleAdsServiceClient createGoogleAdsServiceClient(GoogleAdsClient googleAdsClient) {
-	   PowerMockito.doNothing().when(gasc).close();
-	   //PowerMockito.when(gasc.close()).doNothing();
-  	return gasc;
+     PowerMockito.doNothing().when(gasc).close();
+    return gasc;
   }
 
   @Override
   protected SearchGoogleAdsStreamRequest buildSearchGoogleAdsStreamRequest(String query, long customerId) {
-  	//if sessionId or if customer Id is wrong?
+    //if sessionId or if customer Id is wrong?
     long refreshUser = Long.parseLong(refreshToken);
     if (!(refreshUser == customerId || refreshUser == loginCustomerId)) {
       PermissionDeniedException pde = mock(PermissionDeniedException.class);
@@ -84,27 +87,19 @@ class MockCampaignsServlet extends GetCampaignsServlet {
 
   @Override
   protected Iterable<SearchGoogleAdsStreamResponse> issueSearchGoogleAdsStreamRequest(GoogleAdsServiceClient googleAdsServiceClient, SearchGoogleAdsStreamRequest request) {
-  	// change to allow for flexible test cases (in constructor)
-  	ArrayList<SearchGoogleAdsStreamResponse> lst = new ArrayList<>();
-  	SearchGoogleAdsStreamResponse rsp = PowerMockito.mock(SearchGoogleAdsStreamResponse.class);
-	   when (rsp.toString()).thenReturn("{results {campaign { resource_name\"adsf\"} id { value: 1010}}}");
- 		lst.add(rsp);
- 		return (Iterable<SearchGoogleAdsStreamResponse>) lst;
- 	}
-
-  // streamresponse is mocked, so how can we override the json printer stuff without truly overriding it?
-  /*
+    // Returns Iterable with one mocked object
+    ArrayList<SearchGoogleAdsStreamResponse> lst = new ArrayList<>();
+    SearchGoogleAdsStreamResponse rsp = PowerMockito.mock(SearchGoogleAdsStreamResponse.class);
+    lst.add(rsp);
+    return (Iterable<SearchGoogleAdsStreamResponse>) lst;
+  }
+  
   @Override
   protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
-	 	String json = "{\"results\": [{ \"campaign\": {\"resourceName\": \"customers/4498877497/campaigns/10314647934\",";
-   	json += "\"id\": \"10314647934\"}}, {\"campaign\": {\"resourceName\": ";
-   	json += "\"customers/4498877497/campaigns/10371310206\",\"id\": \"10371310206\"}}],";
-   	json += "\"fieldMask\": \"campaign.id\"}";
-   	return json;
-  }*/
+    return queryResponse;
+  }
   @Override
   public String processErrorJSON(String errorMessage, String errorCode) {
-    // the method is protected in GetCampaignsServlet
     return super.processErrorJSON(errorMessage, errorCode); 
   }
 
@@ -116,5 +111,10 @@ class MockCampaignsServlet extends GetCampaignsServlet {
   @Override 
   public String processJSON(String json) {
     return super.processJSON(json);
+  }
+
+  @Override
+  public String runExample(long loginId, long customerId, String query, String sessionId) {
+    return super.runExample(loginId, customerId, query, sessionId);
   }
 }

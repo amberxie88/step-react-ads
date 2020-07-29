@@ -11,4 +11,5 @@
 	  "extra": "random"
 	}
 }],
-"fieldMask": "campaign.name,campaign.id"}
+"fieldMask": "campaign.name,campaign.id"
+}

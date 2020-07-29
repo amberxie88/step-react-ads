@@ -1,4 +1,4 @@
-// Copyright 2018 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ public final class Constants {
   public static final String CLIENT_SECRET = "CLIENT_SECRET";
   public static final String CUSTOMER_ID = "CustomerId";
   public static final String DEVELOPER_TOKEN = "DEVELOPER_TOKEN";
+  public static final String ERROR_300 = "300";
   public static final String ERROR_400 = "400";
   public static final String ERROR_403 = "403";
   public static final String ERROR_500 = "500";
@@ -28,6 +29,4 @@ public final class Constants {
   public static final String REFRESH = "Refresh";
   public static final String SETTINGS = "Settings";
   public static final String STATUS_200 = "200";
-  //public static final String
-  //public static final String
 }
