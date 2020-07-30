@@ -18,6 +18,7 @@ import clsx from 'clsx';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Chart from './Reports/Chart';
+import SentimentGraph from './Reports/SentimentGraph';
 import ClicksPerCampaignChart from './Reports/ClicksPerCampaignChart';
 import Deposits from './Reports/Deposits';
 import CampaignData from './Reports/CampaignData';
@@ -43,21 +44,27 @@ export default function Reports(props) {
       />
       <Grid container spacing={3}>
         {/* ClicksPerCampaignChart */}
-        <Grid item xs={12} md={12} xl={5}>
+        <Grid item xs={12} md={12} xl={9}>
           <Paper className={fixedHeightPaper + " clicks-per-campaign"}>
             <ClicksPerCampaignChart />
           </Paper>
         </Grid>
-        {/* Chart */}
-        <Grid item xs={12} md={8} xl={5}>
-          <Paper className={fixedHeightPaper + " chart-1"}>
-            <Chart />
-          </Paper>
-        </Grid>
         {/* Recent Deposits */}
-        <Grid item xs={12} md={4} xl={2}>
+        <Grid item xs={12} md={4} xl={3}>
           <Paper className={fixedHeightPaper + " recent-deposits"}>
             <Deposits />
+          </Paper>
+        </Grid>
+        {/* API-integrated Graph */}
+        <Grid item xs={12} md={1} xl={6}>
+          <Paper className={fixedHeightPaper + " chart-api"}>
+            <SentimentGraph />
+          </Paper>
+        </Grid>
+        {/* Chart */}
+        <Grid item xs={12} md={1} xl={6}>
+          <Paper className={fixedHeightPaper + " chart-1"}>
+            <Chart />
           </Paper>
         </Grid>
         {/* CampaignData */}
