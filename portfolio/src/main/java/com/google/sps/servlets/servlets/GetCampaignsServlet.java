@@ -178,7 +178,6 @@ public class GetCampaignsServlet extends HttpServlet {
                       .setClientSecrets(clientId, clientSecret).build();
     System.out.println("create credential");
     credential.setRefreshToken(refreshToken);
-    //credential.setAccessToken(accessToken);
 
     Sheets service = new Sheets.Builder(httpTransport, jsonFactory, credential)
                 .setApplicationName("test")
