@@ -121,7 +121,8 @@ public class CallbackServlet extends HttpServlet {
         System.out.println("refresh token generated");
         return TOKEN_GRANTED;
       } catch (Exception e) {
-        return TOKEN_FAILED;
+        System.out.println(e.toString());
+        return TOKEN_FAILED + e.toString();
       }
     } else {
       return INVALID_STATE; 
