@@ -92,7 +92,7 @@ class QueryAccount extends React.Component {
     console.log(selectedClient);
     return (
       <React.Fragment>
-        <Title>Selected Client Account to Query</Title>
+        <Title>Select a Client Account to Query</Title>
         <Table size="small">
           <TableHead>
             <TableRow>

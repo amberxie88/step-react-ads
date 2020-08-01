@@ -74,6 +74,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
     //remove previously set client account
     DatastoreRetrieval.removeEntityFromDatastore("LoginId", sessionId);
     DatastoreRetrieval.removeEntityFromDatastore("CustomerId", sessionId);
+    DatastoreRetrieval.removeEntityFromDatastore("AccountName", sessionId);
 
     String customerJSON = "";
 

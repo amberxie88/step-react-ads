@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//JSON data parsing here
+//add key for table rows
 function addKey(index, responseObj) {
   responseObj.id = index;
   return responseObj;
@@ -58,13 +58,21 @@ class Query extends React.Component {
     };
   }
 
-  async handleQuery() {
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
+  async handleQuery(event, exportTable) {
     const query = this.state.value;
+    //const exportTable = event.target.exportTable;
     this.setState({ status: 'loading' });
+    console.log(query);
+    console.log(event);
+    console.log(exportTable);
     try {
       const { data } = await axios.post(
         '/campaign',
-        new URLSearchParams({ query }),
+        new URLSearchParams({ query, exportTable }),
       );
       if (data.meta.status !== HttpStatus.OK.toString()) {
         throw new Error(data.meta.message);
@@ -74,6 +82,9 @@ class Query extends React.Component {
           fields: data.fieldmask,
           status: 'loaded',
         });
+        if (exportTable) {
+          alert('export successful');
+        }
       }
     } catch (err) {
       console.log(err.message);
@@ -107,13 +118,7 @@ class Query extends React.Component {
     }
   }
 
-  handleChange(event) {
-    this.setState({ value: event.target.value });
-  }
-
   render() {
-    // const rows = this.state.rows;
-    // const fields = this.state.fields;
     return (
       <React.Fragment>
         <Title>Query Here</Title>
@@ -131,7 +136,8 @@ class Query extends React.Component {
             shrink: true,
           }}
         />
-        <SubmitButton onClick={this.handleQuery} />
+        <SubmitButton onClick={(e) => this.handleQuery(e, false)} />
+        <ExportButton onClick={(e) => this.handleQuery(e, true)} />
         {this.pickContentToDisplay()}
       </React.Fragment>
     );
@@ -144,6 +150,17 @@ function SubmitButton(props) {
     <div className={classes.root}>
       <Button variant="outlined" onClick={props.onClick}>
         Submit
+      </Button>
+    </div>
+  );
+}
+
+function ExportButton(props) {
+  const classes = useStyles();
+  return (
+    <div className={classes.root}>
+      <Button variant="outlined" onClick={props.onClick}>
+        Export to Google Sheets
       </Button>
     </div>
   );

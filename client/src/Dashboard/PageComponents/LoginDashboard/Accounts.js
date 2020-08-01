@@ -135,6 +135,7 @@ class Accounts extends React.Component {
       '/client',
       new URLSearchParams({ loginId, customerId, name }),
     );
+    alert(data);
   }
 
   render() {

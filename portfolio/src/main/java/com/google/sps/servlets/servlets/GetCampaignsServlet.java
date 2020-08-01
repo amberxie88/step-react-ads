@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -79,6 +81,9 @@ public class GetCampaignsServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String query = request.getParameter("query");
+    Boolean exportTable = Boolean.parseBoolean(request.getParameter("exportTable"));
+    System.out.println("export table: " + exportTable);
+
     String sessionId = (String) request.getSession().getId();
     String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
     String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
@@ -97,6 +102,15 @@ public class GetCampaignsServlet extends HttpServlet {
     try {
       returnJSON = runExample(loginIdLong, customerIdLong, query, sessionId);
       returnJSON = processJSON(returnJSON);
+      
+      if (exportTable) {
+        try {
+          createSpreadsheet(sessionId, returnJSON);
+        } catch (IOException e){
+          System.err.print(e);
+        }
+      }
+
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
@@ -149,21 +163,27 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       return processErrorJSON(e.toString(), Constants.ERROR_500);
     }
-    try {
-      createSpreadsheet("demo app spreadsheet", sessionId);
-    } catch (IOException e){
-      System.err.print(e);
-    }
-    
+
     return returnJSON;
   }
 
-  private void createSpreadsheet(String title, String sessionId) throws IOException {
-    String clientId = "1046586874654-tgn44f77djmfqupdl955bhu5d9lemglc.apps.googleusercontent.com";
-    String clientSecret = "nm4CjV4qdIcCayjH_V26ay-A";
+  private void createSpreadsheet(String sessionId, String returnJSON) throws IOException {
+    JSONObject jsonObject = new JSONObject(returnJSON);
+    JSONArray responseArr = jsonObject.getJSONArray("response");
+    JSONArray fieldMaskArr = jsonObject.getJSONArray("fieldmask");
+    //for now, set title as the date time
+    LocalDateTime now = LocalDateTime.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    String title = now.format(formatter);;
+
+    System.out.println(title);
+
+    String CLIENT_ID = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
+	  String CLIENT_SECRET = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
     String refreshToken =  DatastoreRetrieval.getEntityFromDatastore("Refresh", sessionId);
     HttpTransport httpTransport =  null;
     JsonFactory jsonFactory = null;
+
     try {
       System.out.println("create networks");
       httpTransport = GoogleNetHttpTransport.newTrustedTransport();
@@ -171,20 +191,19 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       System.err.print(e);
     }
-     
+
+    System.out.println("create credential");
     Credential credential = new GoogleCredential.Builder()
                       .setJsonFactory(jsonFactory)
                       .setTransport(httpTransport)
-                      .setClientSecrets(clientId, clientSecret).build();
-    System.out.println("create credential");
+                      .setClientSecrets(CLIENT_ID, CLIENT_SECRET).build();
     credential.setRefreshToken(refreshToken);
 
     Sheets service = new Sheets.Builder(httpTransport, jsonFactory, credential)
-                .setApplicationName("test")
+                .setApplicationName("demoApp")
                 .build();
 
     System.out.println("creating spreadsheet");
-
     Spreadsheet spreadsheet = new Spreadsheet()
         .setProperties(new SpreadsheetProperties()
                 .setTitle(title));
@@ -193,6 +212,33 @@ public class GetCampaignsServlet extends HttpServlet {
             .execute();
 
     System.out.println("Spreadsheet ID: " + spreadsheet.getSpreadsheetId());
+    String spreadsheetId = spreadsheet.getSpreadsheetId();
+
+    List<List<Object>> values = new ArrayList<>();
+
+    //push content to spreadsheet
+    List<Object> header = new ArrayList<>();
+    for (int k = 0; k < fieldMaskArr.length(); k++) {
+        header.add(fieldMaskArr.get(k));
+    }
+    values.add(header);
+
+    for (int i = 0; i < responseArr.length(); i++ ) {
+      JSONObject responseRow = (JSONObject) responseArr.get(i);
+      List<Object> sheetRow = new ArrayList<>();
+      for (int j = 0; j < fieldMaskArr.length(); j++) {
+        sheetRow.add(responseRow.get((String) fieldMaskArr.get(j)));
+      }
+      values.add(sheetRow);
+      System.out.println(sheetRow);
+    }
+
+    ValueRange body = new ValueRange()
+      .setValues(values);
+    UpdateValuesResponse result = service.spreadsheets().values()
+      .update(spreadsheetId, "A1", body)
+      .setValueInputOption("RAW")
+      .execute();
   }
 
   protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) throws Exception {
