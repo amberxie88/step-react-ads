@@ -61,7 +61,7 @@ public class CallbackServlet extends HttpServlet {
     String state = request.getParameter("state");
     String code = request.getParameter("code");
     String scope = request.getParameter("scope");
-    String completeUrl = COMPLETE_URL_LOCAL + request.getQueryString(); 
+    String completeUrl = COMPLETE_URL_DEPLOY + request.getQueryString(); 
     AuthorizationResponse authorizationResponse = new AuthorizationResponse(completeUrl);
 
     String statusMessage = processAuthorizationResponse(authorizationResponse, request.getSession().getId());
@@ -106,7 +106,7 @@ public class CallbackServlet extends HttpServlet {
       return INVALID_CODE;
     }
     if (sessionStateExists(authorizationResponse.state.toString(), sessionId)) {
-      URI baseUri = URI.create(BASE_URI_LOCAL);
+      URI baseUri = URI.create(BASE_URI_DEPLOY);
       String clientId = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_ID);
       String clientSecret = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET);
       UserAuthorizer userAuthorizer =
@@ -154,7 +154,7 @@ public class CallbackServlet extends HttpServlet {
     response.setContentType("text/html;");
     try {
       response.getWriter().println("<h1>" + statusMessage + "</h1>");
-      response.getWriter().println(RETURN_LINK_LOCAL);     
+      response.getWriter().println(RETURN_LINK_DEPLOY);     
     } catch (Exception e) {
       System.err.println(e);
     }

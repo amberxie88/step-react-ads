@@ -47,167 +47,113 @@ import java.util.*;
 import com.google.sps.data.DatastoreRetrieval;
 import com.google.sps.data.CredentialRetrieval;
 
+import io.grpc.StatusRuntimeException;
+import com.google.api.gax.rpc.InvalidArgumentException;
+import com.google.api.gax.rpc.PermissionDeniedException;
+
+import com.google.sps.utils.Constants;
+
+import com.google.cloud.language.v1.Document;
+import com.google.cloud.language.v1.LanguageServiceClient;
+import com.google.cloud.language.v1.Sentiment;
+
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
-@WebServlet("/chart-1")
-public class GetChart1Servlet extends HttpServlet {
+@WebServlet("/chart-api")
+public class GetChart1Servlet extends GetCampaignsServlet {
 
-  private static class GetCampaignsWithStatsParams extends CodeSampleParams {
-    @Parameter(names = ArgumentNames.CUSTOMER_ID, required = true)
-    private Long customerId;
-  }
+  private final static String finalQuery = "SELECT ad_group_ad.ad.expanded_text_ad.headline_part1, "
+    + "ad_group_ad.ad.expanded_text_ad.headline_part2, metrics.clicks FROM ad_group_ad WHERE ad_group_ad.ad.type = EXPANDED_TEXT_AD LIMIT 100";
+  private final static boolean devMode = false;
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+    String query = finalQuery;
     String sessionId = (String) request.getSession().getId();
+    //String customerId = "4498877497";
+    //String loginId = "9797005693";
+    // test
+    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
+    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    long customerIdLong;
+    long loginIdLong;
 
-    // GET QUERY STRING
-    String query = "SELECT campaign.name, metrics.clicks FROM campaign ORDER BY campaign.id";
-
-    // customer ID of interest
-    GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
-    params.customerId = Long.parseLong("4498877497"); //Amber
-    //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
-    System.out.println(params.customerId);
-    System.out.println(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"));
-    System.out.println(CredentialRetrieval.getCredentials(sessionId));
-
-    GoogleAdsClient googleAdsClient;
     try {
-      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().build();
-      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
-        .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
-        .setLoginCustomerId(Long.parseLong("9797005693")).build();
-    } catch (Exception ioe) {
-      System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
+      loginIdLong = Long.parseLong(loginId);
+      customerIdLong = Long.parseLong(customerId);
+    } catch (Exception e) {
+      super.writeServletResponse(response, processErrorJSON("Null Login ID or Customer ID", Constants.ERROR_500));
       return;
     }
 
-    System.out.println("googleadsclient");
-    
     String returnJSON = "";
     try {
-      returnJSON = new GetChart1Servlet().runExample(googleAdsClient, params.customerId, query);
-      returnJSON = processJSON(returnJSON);
+      returnJSON = super.runExample(loginIdLong, customerIdLong, query, sessionId);
+      returnJSON = super.processJSON(returnJSON);
+      returnJSON = addSentimentAnalysis(returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
       // collection of GoogleAdsErrors that indicate the underlying causes of the
       // GoogleAdsException.
-      System.err.printf(
-          "Request ID %s failed due to GoogleAdsException. Underlying errors:%n",
-          gae.getRequestId());
-      int i = 0;
+      String errorString = "";
       for (GoogleAdsError googleAdsError : gae.getGoogleAdsFailure().getErrorsList()) {
-        System.err.printf("  Error %d: %s%n", i++, googleAdsError);
+        errorString += googleAdsError.toString() + ". ";
       }
+      super.writeServletResponse(response, processErrorJSON(errorString, Constants.ERROR_500));
+      return;
+    } catch (Exception e) {
+      System.err.println(e);
+      super.writeServletResponse(response, processErrorJSON(e.getMessage(), Constants.ERROR_500));
     }
-    response.setContentType("application/json");
-    response.getWriter().println(returnJSON);
+    super.writeServletResponse(response, returnJSON);
+    return;
   }
 
-   /**
-   * Runs the example.
-   *
-   * @param googleAdsClient the Google Ads API client.
-   * @param customerId the client customer ID.
-   * @throws GoogleAdsException if an API request failed with one or more service errors.
-   */
-  private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
-    System.out.println("runExample called");
-    String returnJSON = "";
-    
-    try (GoogleAdsServiceClient googleAdsServiceClient =
-        googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
-      //query = "SELECT campaign.id, campaign.name, ad_group.name, ad_group_criterion.keyword.text FROM keyword_view";
-      // Constructs the SearchGoogleAdsStreamRequest.
-      SearchGoogleAdsStreamRequest request =
-          SearchGoogleAdsStreamRequest.newBuilder()
-              .setCustomerId(Long.toString(customerId))
-              .setQuery(query)
-              .build();
-
-      // Creates and issues a search Google Ads stream request that will retrieve all campaigns.
-      ServerStream<SearchGoogleAdsStreamResponse> stream =
-          googleAdsServiceClient.searchStreamCallable().call(request);
-      System.out.println(stream.toString());
-
-      // Iterates through and prints all of the results in the stream response.
-      for (SearchGoogleAdsStreamResponse response : stream) {
-        try {
-          returnJSON += JsonFormat.printer().print(response); 
-        } catch (Exception e) {
-          System.err.println(e);
-        }
-      }
-    }
-    return returnJSON;
-  }
-
-  private String processJSON(String jsonString) {
+  protected String addSentimentAnalysis(String jsonString) {
     JSONObject jsonObject = new JSONObject(jsonString);
-    JSONArray resultsComplete = jsonObject.getJSONArray("results");
-    String fieldMaskStr = (String) jsonObject.get("fieldMask");
-    String[] fieldMaskArr = fieldMaskStr.split(",");
-    System.out.println(Arrays.toString(fieldMaskArr)); 
-    Set<String> invalidRequestValues = new HashSet<String>();
 
-
-    JSONArray returnArray = new JSONArray();
-    for (int i = 0; i < resultsComplete.length(); i++) {
-      JSONObject resultObj = new JSONObject();
-      for (String requestedValue: fieldMaskArr) {
-        try {
-          String value = getValueFromJSON((JSONObject) resultsComplete.get(i), requestedValue);
-          resultObj.put(requestedValue, value);
-        } catch (Exception e) {
-          invalidRequestValues.add(requestedValue);
-        }
+    if (jsonObject.has("meta") && jsonObject.getJSONObject("meta").has("status") && !jsonObject.getJSONObject("meta").get("status").equals("200")) {
+      return jsonString;
+    }
+    JSONArray results = jsonObject.getJSONArray("response");
+    for (int i = 0; i < results.length(); i++) {
+      JSONObject objInUse = (JSONObject) results.get(i);
+      String headline_part1 = objInUse.get("adGroupAd.ad.expandedTextAd.headlinePart1").toString();
+      String headline_part2 = objInUse.get("adGroupAd.ad.expandedTextAd.headlinePart2").toString();
+      String headline = headline_part1 + " " + headline_part2;
+      String sentiment = getSentimentValue(headline);
+      objInUse.put("sentiment", sentiment);
+      objInUse.put("headline", headline);
+      objInUse.remove("adGroupAd.ad.expandedTextAd.headlinePart1");
+      objInUse.remove("adGroupAd.ad.expandedTextAd.headlinePart2");
+      // giving metrics.clicks some real data
+      if (devMode && !devMode) {
+        objInUse.remove("metrics.clicks");
+        objInUse.put("clicks", String.valueOf(i));
       }
-      returnArray.put(resultObj);
     }
-
-    System.out.println(Arrays.toString(invalidRequestValues.toArray()));
-    System.out.println(jsonObject.get("fieldMask"));
-    JSONObject metaObj = processMetaJSON(invalidRequestValues);
-
-    JSONObject finalJSON = new JSONObject();
-    finalJSON.put("response", returnArray);
-    finalJSON.put("meta", metaObj);
-    finalJSON.put("fieldmask", fieldMaskArr);
-
-    System.out.println(finalJSON.toString());
-
-    return finalJSON.toString();
+    return jsonObject.toString();
   }
 
-  private JSONObject processMetaJSON(Set<String> invalidRequestValuesSet) {
-    JSONObject metaObj = new JSONObject();
-    if (invalidRequestValuesSet.size() == 0) {
-      metaObj.put("status", "200");
-      return metaObj;
+  private String getSentimentValue(String input) {
+    Document doc;
+    LanguageServiceClient languageService;
+    // the API doesn't work locally, so this may return a filler String
+    if (devMode) {
+      return "0.5";
+    }
+    try {
+      doc = Document.newBuilder().setContent(input).setType(Document.Type.PLAIN_TEXT).build();      
+      languageService = LanguageServiceClient.create();
+    } catch (Exception e) {
+      System.out.println(e);
+      return "";
     }
 
-    String errorMessage = "Values not found: ";
-    for (String requestValue: invalidRequestValuesSet) {
-      errorMessage = errorMessage + requestValue + " ";
-    }
-    //JSONArray invalidRequestValuesJSON = new JSONArray(invalidRequestValuesSet.toArray());
-    metaObj.put("message", errorMessage);
-    metaObj.put("status", "400");
-    return metaObj;
-  }
-
-  private String getValueFromJSON(JSONObject obj, String requestedValue) {
-    String returnValue = "";
-    String[] path = requestedValue.split("\\.");
-    JSONObject objInUse = obj;
-    for (int i = 0; i < path.length - 1; i++) {
-      String stepInPath = path[i];
-      obj = (JSONObject) obj.get(stepInPath);
-    }
-    returnValue = obj.get(path[path.length-1]).toString();
-    return returnValue;
+    Sentiment sentiment = languageService.analyzeSentiment(doc).getDocumentSentiment();
+    float score = sentiment.getScore();
+    languageService.close();
+    return String.valueOf(score);
   }
 }

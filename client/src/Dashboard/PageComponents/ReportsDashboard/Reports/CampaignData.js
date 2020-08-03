@@ -20,6 +20,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import TablePagination from '@material-ui/core/TablePagination';
 import Title from '../../../Utilities/Title';
 import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
@@ -33,6 +34,20 @@ export default function CampaignData() {
   const classes = useStyles();
   const [data, setData] = useState([]);
   const [state, setState] = useState('loading');
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [page, setPage] = React.useState(0);
+
+  const handleChangeRowsPerPage = (event) => {
+    // If the selection is [A]ll the rows.
+    if (event.target.value.toString().charAt(0) === 'A') {
+      event.target.value = data.length;
+    }
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
   useEffect(() => {
     (async () => {
@@ -43,7 +58,6 @@ export default function CampaignData() {
             query: `SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions FROM campaign ORDER BY campaign.id          `,
           }),
         );
-
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
@@ -64,28 +78,46 @@ export default function CampaignData() {
         return <Title> Loading ... </Title>;
       case 'loaded':
         return (
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Id</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Clicks</TableCell>
-                <TableCell>Impressions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((row) => (
-                <TableRow key={row['campaign.id']}>
-                  <TableCell>{row['campaign.id']}</TableCell>
-                  <TableCell>{row['campaign.name']}</TableCell>
-                  <TableCell>{row['campaign.status']}</TableCell>
-                  <TableCell>{row['metrics.clicks']}</TableCell>
-                  <TableCell>{row['metrics.impressions']}</TableCell>
+          <div>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Id</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Clicks</TableCell>
+                  <TableCell>Impressions</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHead>
+              <TableBody>
+                {data
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => (
+                  <TableRow key={row['campaign.id']}>
+                    <TableCell>{row['campaign.id']}</TableCell>
+                    <TableCell>{row['campaign.name']}</TableCell>
+                    <TableCell>{row['campaign.status']}</TableCell>
+                    <TableCell>{row['metrics.clicks']}</TableCell>
+                    <TableCell>{row['metrics.impressions']}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              rowsPerPageOptions={[
+                5,
+                10,
+                25,
+                'All ' + data.length.toString() + ' Rows',
+              ]}
+              component="div"
+              count={data.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </div>
         );
       case 'error':
         return (

@@ -124,7 +124,7 @@ const ReportsWalkthrough = [
           GetCampaignsServlet.java</p>
       </div>,
     placement: 'center',
-  }, {
+  },  {
     target: '.clicks-per-campaign',
     content:
      <div>
@@ -133,18 +133,29 @@ const ReportsWalkthrough = [
           This is an example of a chart that can be directly replicated from the Google Ads UI.</p>
       </div>,
   }, {
-    target: '.chart-1',
-    content:        
-      <div>
-        <h2>Sales Chart</h2> 
-        <p>TODO: Details on how this is used.</p>
-      </div>,
-  }, {
     target: '.recent-deposits',
     content: 
       <div>
         <h2>Total Ad Spend</h2> 
-        <p>TODO: Details on how this is used.</p>
+        <p>This calculates the total ad spend for the user.</p>
+      </div>,
+  }, {
+    target: '.chart-api',
+    content: 
+      <div>
+        <h1>Sentiment Analysis vs. Number of Clicks</h1> 
+        <p>To demonstrate how we can use external APIs to analyze the Ads data, we have implemented
+          the Sentiment Analysis API, which calculates a sentiment score (0 for negative, 1 for positive).
+          This chart graphs the sentiment of ads headlines for extended text ads vs. the number of clicks
+          to see if there is any correlation.
+        </p>
+      </div>,
+  }, {
+    target: '.chart-1',
+    content:        
+      <div>
+        <h2>Sales Chart</h2> 
+        <p>This chart graphs ad impressions over clicks.</p>
       </div>,
   }, {
     target: '.campaign-data',

@@ -47,167 +47,63 @@ import java.util.*;
 import com.google.sps.data.DatastoreRetrieval;
 import com.google.sps.data.CredentialRetrieval;
 
+import io.grpc.StatusRuntimeException;
+import com.google.api.gax.rpc.InvalidArgumentException;
+import com.google.api.gax.rpc.PermissionDeniedException;
+
+import com.google.sps.utils.Constants;
+
+import com.google.cloud.language.v1.Document;
+import com.google.cloud.language.v1.LanguageServiceClient;
+import com.google.cloud.language.v1.Sentiment;
+
 
 /** Gets all campaigns. To add campaigns, run AddCampaigns.java. */
 @WebServlet("/chart-2")
-public class GetChart2Servlet extends HttpServlet {
+public class GetChart2Servlet extends GetCampaignsServlet {
 
-  private static class GetCampaignsWithStatsParams extends CodeSampleParams {
-    @Parameter(names = ArgumentNames.CUSTOMER_ID, required = true)
-    private Long customerId;
-  }
+  //SELECT campaign.name, campaign.status, segments.device, metrics.impressions,        metrics.clicks, metrics.ctr FROM campaign WHERE segments.date DURING LAST_30_DAYS ORDER BY metrics.clicks DESC
+  private final static String finalQuery = "SELECT campaign.name, metrics.impressions, metrics.clicks, segments.device FROM campaign"
+    + " WHERE segments.date DURING LAST_30_DAYS AND metrics.impressions > 0"
+    + " ORDER BY metrics.clicks DESC LIMIT 100";
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+    String query = finalQuery;
     String sessionId = (String) request.getSession().getId();
+    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
+    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    long customerIdLong;
+    long loginIdLong;
 
-    // GET QUERY STRING
-    String query = "SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions FROM campaign ORDER BY campaign.id";
-
-    // customer ID of interest
-    GetCampaignsWithStatsParams params = new GetCampaignsWithStatsParams();
-    params.customerId = Long.parseLong("4498877497"); //Amber
-    //params.customerId = Long.parseLong("3827095360"); //Kaitlyn
-    System.out.println(params.customerId);
-    System.out.println(DatastoreRetrieval.getEntityFromDatastore("Settings","DEVELOPER_TOKEN"));
-    System.out.println(CredentialRetrieval.getCredentials(sessionId));
-
-    GoogleAdsClient googleAdsClient;
     try {
-      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile().build();
-      googleAdsClient = GoogleAdsClient.newBuilder().setCredentials(CredentialRetrieval.getCredentials(sessionId))
-        .setDeveloperToken(DatastoreRetrieval.getEntityFromDatastore("Settings", "DEVELOPER_TOKEN"))
-        .setLoginCustomerId(Long.parseLong("9797005693")).build();
-    } catch (Exception ioe) {
-      System.err.printf("Failed to create GoogleAdsClient. Exception: %s%n", ioe);
+      loginIdLong = Long.parseLong(loginId);
+      customerIdLong = Long.parseLong(customerId);
+    } catch (Exception e) {
+      super.writeServletResponse(response, processErrorJSON("Null Login ID or Customer ID", Constants.ERROR_500));
       return;
     }
 
-    System.out.println("googleadsclient");
-    
     String returnJSON = "";
     try {
-      returnJSON = new GetChart2Servlet().runExample(googleAdsClient, params.customerId, query);
-      returnJSON = processJSON(returnJSON);
+      returnJSON = super.runExample(loginIdLong, customerIdLong, query, sessionId);
+      returnJSON = super.processJSON(returnJSON);
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
       // collection of GoogleAdsErrors that indicate the underlying causes of the
       // GoogleAdsException.
-      System.err.printf(
-          "Request ID %s failed due to GoogleAdsException. Underlying errors:%n",
-          gae.getRequestId());
-      int i = 0;
+      String errorString = "";
       for (GoogleAdsError googleAdsError : gae.getGoogleAdsFailure().getErrorsList()) {
-        System.err.printf("  Error %d: %s%n", i++, googleAdsError);
+        errorString += googleAdsError.toString() + ". ";
       }
+      super.writeServletResponse(response, processErrorJSON(errorString, Constants.ERROR_500));
+      return;
+    } catch (Exception e) {
+      System.err.println(e);
+      super.writeServletResponse(response, processErrorJSON(e.getMessage(), Constants.ERROR_500));
     }
-    response.setContentType("application/json");
-    response.getWriter().println(returnJSON);
-  }
-
-   /**
-   * Runs the example.
-   *
-   * @param googleAdsClient the Google Ads API client.
-   * @param customerId the client customer ID.
-   * @throws GoogleAdsException if an API request failed with one or more service errors.
-   */
-  private String runExample(GoogleAdsClient googleAdsClient, long customerId, String query) {
-    System.out.println("runExample called");
-    String returnJSON = "";
-    
-    try (GoogleAdsServiceClient googleAdsServiceClient =
-        googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
-      //query = "SELECT campaign.id, campaign.name, ad_group.name, ad_group_criterion.keyword.text FROM keyword_view";
-      // Constructs the SearchGoogleAdsStreamRequest.
-      SearchGoogleAdsStreamRequest request =
-          SearchGoogleAdsStreamRequest.newBuilder()
-              .setCustomerId(Long.toString(customerId))
-              .setQuery(query)
-              .build();
-
-      // Creates and issues a search Google Ads stream request that will retrieve all campaigns.
-      ServerStream<SearchGoogleAdsStreamResponse> stream =
-          googleAdsServiceClient.searchStreamCallable().call(request);
-      System.out.println(stream.toString());
-
-      // Iterates through and prints all of the results in the stream response.
-      for (SearchGoogleAdsStreamResponse response : stream) {
-        try {
-          returnJSON += JsonFormat.printer().print(response); 
-        } catch (Exception e) {
-          System.err.println(e);
-        }
-      }
-    }
-    return returnJSON;
-  }
-
-  private String processJSON(String jsonString) {
-    JSONObject jsonObject = new JSONObject(jsonString);
-    JSONArray resultsComplete = jsonObject.getJSONArray("results");
-    String fieldMaskStr = (String) jsonObject.get("fieldMask");
-    String[] fieldMaskArr = fieldMaskStr.split(",");
-    System.out.println(Arrays.toString(fieldMaskArr)); 
-    Set<String> invalidRequestValues = new HashSet<String>();
-
-
-    JSONArray returnArray = new JSONArray();
-    for (int i = 0; i < resultsComplete.length(); i++) {
-      JSONObject resultObj = new JSONObject();
-      for (String requestedValue: fieldMaskArr) {
-        try {
-          String value = getValueFromJSON((JSONObject) resultsComplete.get(i), requestedValue);
-          resultObj.put(requestedValue, value);
-        } catch (Exception e) {
-          invalidRequestValues.add(requestedValue);
-        }
-      }
-      returnArray.put(resultObj);
-    }
-
-    System.out.println(Arrays.toString(invalidRequestValues.toArray()));
-    System.out.println(jsonObject.get("fieldMask"));
-    JSONObject metaObj = processMetaJSON(invalidRequestValues);
-
-    JSONObject finalJSON = new JSONObject();
-    finalJSON.put("response", returnArray);
-    finalJSON.put("meta", metaObj);
-    finalJSON.put("fieldmask", fieldMaskArr);
-
-    System.out.println(finalJSON.toString());
-
-    return finalJSON.toString();
-  }
-
-  private JSONObject processMetaJSON(Set<String> invalidRequestValuesSet) {
-    JSONObject metaObj = new JSONObject();
-    if (invalidRequestValuesSet.size() == 0) {
-      metaObj.put("status", "200");
-      return metaObj;
-    }
-
-    String errorMessage = "Values not found: ";
-    for (String requestValue: invalidRequestValuesSet) {
-      errorMessage = errorMessage + requestValue + " ";
-    }
-    //JSONArray invalidRequestValuesJSON = new JSONArray(invalidRequestValuesSet.toArray());
-    metaObj.put("message", errorMessage);
-    metaObj.put("status", "400");
-    return metaObj;
-  }
-
-  private String getValueFromJSON(JSONObject obj, String requestedValue) {
-    String returnValue = "";
-    String[] path = requestedValue.split("\\.");
-    JSONObject objInUse = obj;
-    for (int i = 0; i < path.length - 1; i++) {
-      String stepInPath = path[i];
-      obj = (JSONObject) obj.get(stepInPath);
-    }
-    returnValue = obj.get(path[path.length-1]).toString();
-    return returnValue;
+    super.writeServletResponse(response, returnJSON);
+    return;
   }
 }

@@ -296,24 +296,6 @@ public class AccessibleCustomersServlet extends HttpServlet {
     
     long customerId = customerClient.getId().getValue();
 
-    //Print hierarchy to terminal for debugging
-
-    // String leadingSpace = " ";
-    // if (depth == 0) {
-    //   System.out.println("Customer ID (Descriptive Name, Currency Code, Time Zone");
-    //   leadingSpace = "";
-    // } else {
-    //   System.out.println("|");
-    // }
-    // System.out.print(Strings.repeat("-", depth * 2));
-    // System.out.printf(
-    //     leadingSpace + "%d ('%s', '%s', '%s')%n",
-    //     customerId,
-    //     customerClient.getDescriptiveName().getValue(),
-    //     customerClient.getCurrencyCode().getValue(),
-    //     customerClient.getTimeZone().getValue()
-    //     );
-    
     //do not put rootCustomerClient as its own child
     if (depth != 0) {
       accountHierarchies.add(customerClient);

@@ -16,83 +16,50 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '@material-ui/core/styles';
 import {
-  LineChart,
-  Line,
+  ScatterChart,
+  Scatter,
   XAxis,
   YAxis,
   ZAxis,
+  Tooltip,
+  CartesianGrid,
   Label,
   ResponsiveContainer,
 } from 'recharts';
+import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
 import Title from '../../../Utilities/Title';
 import { createChainedFunction } from '@material-ui/core';
 
-export default function Chart() {
+export default function SentimentGraph() {
   const theme = useTheme();
-  const [data, setData] = useState([]);
+  const [scatterData, setScatterData] = useState([]);
+  const useStyles = makeStyles({
+    depositContext: {
+      flex: 1,
+    },
+  });
+  const classes = useStyles();
   const [state, setState] = useState('loading');
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get('/chart-2');
+        const { data } = await axios.get('/chart-api');
         console.log(data);
-        /*const data = {
-          meta: { status: HttpStatus.OK.toString() },
-          response: {
-            data: [
-              {
-                time: '00:00',
-                amount: 0,
-              },
-              {
-                time: '03:00',
-                amount: 300,
-              },
-              {
-                time: '06:00',
-                amount: 600,
-              },
-              {
-                time: '09:00',
-                amount: 800,
-              },
-              {
-                time: '12:00',
-                amount: 1500,
-              },
-              {
-                time: '15:00',
-                amount: 2000,
-              },
-              {
-                time: '18:00',
-                amount: 2400,
-              },
-              {
-                time: '21:00',
-                amount: 2400,
-              },
-              {
-                time: '24:00',
-                amount: 'undefined',
-              },
-            ],
-          },
-        };*/
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
           for (var i = 0; i < data.response.length; i++) {
             data.response[i]["metrics.clicks"] = +data.response[i]["metrics.clicks"];
           }
-          setData(data.response);
+          setScatterData(data.response);
           setState('loaded');
         }
       } catch (err) {
         console.log(err.message);
-        setData(err.message);
+        setScatterData(err.message);
         setState('error');
       }
     })();
@@ -103,21 +70,17 @@ export default function Chart() {
       case 'loading':
         return <Title> Loading ... </Title>;
       case 'loaded':
+        var clicksArr = scatterData.map(point => point["metrics.clicks"]);
+        var maxClicks = Math.max(...clicksArr);
         return (
           <ResponsiveContainer>
-            <LineChart
-              data={data}
-              margin={{
-                top: 16,
-                right: 16,
-                bottom: 24,
-                left: 24,
-              }}
-            >
+            <ScatterChart width={400} height={400} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
+              <CartesianGrid />
               <XAxis 
-                dataKey="metrics.impressions" 
-                stroke={theme.palette.text.secondary} 
-                domain={[0, 'dataMax']}
+                dataKey={'sentiment'} 
+                type="number" 
+                name='sentiment'
+                domain={[0, 1]}
               >
                 <Label
                   position="bottom"
@@ -126,10 +89,15 @@ export default function Chart() {
                     fill: theme.palette.text.primary,
                   }}
                 >
-                Impressions over last 30 days
+                Sentiment
                 </Label>
               </XAxis>
-              <YAxis dataKey="metrics.clicks" stroke={theme.palette.text.secondary} domain={[0, 'dataMax']}>
+              <YAxis 
+                dataKey={'metrics.clicks'} 
+                type="number" 
+                name='clicks' 
+                domain={[0, 'dataMax']}
+              >
                 <Label
                   angle={270}
                   position="left"
@@ -138,23 +106,19 @@ export default function Chart() {
                     fill: theme.palette.text.primary,
                   }}
                 >
-                  Ad clicks
+                Clicks
                 </Label>
               </YAxis>
-              <ZAxis dataKey={'campaign.name'} name='campaign' />
-              <Line
-                type="monotone"
-                dataKey="metrics.clicks"
-                stroke={theme.palette.primary.main}
-                dot={true}
-              />
-            </LineChart>
+              <ZAxis dataKey={'headline'} name='ad headline' />
+              <Scatter name='Sentiment Graph' data={scatterData} fill='#8884d8'/>
+              <Tooltip cursor={{strokeDasharray: '3 3'}}/>
+            </ScatterChart>
           </ResponsiveContainer>
         );
       case 'error':
         return (
           <Title>
-            {"Something Went Wrong. Here's the Error Message: " + data}
+            {"Something Went Wrong. Here's the Error Message: " + scatterData}
           </Title>
         );
       default:
@@ -164,7 +128,10 @@ export default function Chart() {
 
   return (
     <React.Fragment>
-      <Title>Ad Clicks vs. Impressions (Last 30 Days)</Title>
+      <Title>Sentiment vs. Clicks</Title>
+      <Typography color="textSecondary" className={classes.depositContext}>
+        Description (extended text ad headlines calculate sentiment)
+      </Typography>
       {pickContentToDisplay()}
     </React.Fragment>
   );
