@@ -12,25 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-         /*const data = {
-          meta: { status: HttpStatus.OK.toString() },
-          response: {
-            data: [
-              {
-                time: '0.3',
-                amount: 100,
-              },
-              {
-                time: '0.8',
-                amount: 1000,
-              },
-              {
-                time: '0.5',
-                amount: 200,
-              },
-            ],
-          },
-        };
  */
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '@material-ui/core/styles';
@@ -39,6 +20,7 @@ import {
   Scatter,
   XAxis,
   YAxis,
+  ZAxis,
   Tooltip,
   CartesianGrid,
   Label,
@@ -53,7 +35,7 @@ import { createChainedFunction } from '@material-ui/core';
 
 export default function SentimentGraph() {
   const theme = useTheme();
-  const [data, setData] = useState([]);
+  const [scatterData, setScatterData] = useState([]);
   const useStyles = makeStyles({
     depositContext: {
       flex: 1,
@@ -69,12 +51,15 @@ export default function SentimentGraph() {
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
-          setData(data.response);
+          for (var i = 0; i < data.response.length; i++) {
+            data.response[i]["metrics.clicks"] = +data.response[i]["metrics.clicks"];
+          }
+          setScatterData(data.response);
           setState('loaded');
         }
       } catch (err) {
         console.log(err.message);
-        setData(err.message);
+        setScatterData(err.message);
         setState('error');
       }
     })();
@@ -85,11 +70,18 @@ export default function SentimentGraph() {
       case 'loading':
         return <Title> Loading ... </Title>;
       case 'loaded':
+        var clicksArr = scatterData.map(point => point["metrics.clicks"]);
+        var maxClicks = Math.max(...clicksArr);
         return (
           <ResponsiveContainer>
             <ScatterChart width={400} height={400} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
               <CartesianGrid />
-              <XAxis dataKey={'sentiment'} type="number" name='stature'>
+              <XAxis 
+                dataKey={'sentiment'} 
+                type="number" 
+                name='sentiment'
+                domain={[0, 1]}
+              >
                 <Label
                   position="bottom"
                   style={{
@@ -100,7 +92,12 @@ export default function SentimentGraph() {
                 Sentiment
                 </Label>
               </XAxis>
-              <YAxis dataKey={'metrics.clicks'} type="number" name='weight'>
+              <YAxis 
+                dataKey={'metrics.clicks'} 
+                type="number" 
+                name='clicks' 
+                domain={[0, 'dataMax']}
+              >
                 <Label
                   angle={270}
                   position="left"
@@ -112,7 +109,8 @@ export default function SentimentGraph() {
                 Clicks
                 </Label>
               </YAxis>
-              <Scatter name='Sentiment Graph' data={data} fill='#8884d8'/>
+              <ZAxis dataKey={'headline'} name='ad headline' />
+              <Scatter name='Sentiment Graph' data={scatterData} fill='#8884d8'/>
               <Tooltip cursor={{strokeDasharray: '3 3'}}/>
             </ScatterChart>
           </ResponsiveContainer>
@@ -120,7 +118,7 @@ export default function SentimentGraph() {
       case 'error':
         return (
           <Title>
-            {"Something Went Wrong. Here's the Error Message: " + data}
+            {"Something Went Wrong. Here's the Error Message: " + scatterData}
           </Title>
         );
       default:

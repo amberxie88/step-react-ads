@@ -62,11 +62,14 @@ public class GetCampaignsServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String query = request.getParameter("query");
     String sessionId = (String) request.getSession().getId();
-    String customerId = "4498877497";
-    String loginId = "9797005693";
+    //String customerId = "4498877497";
+    //String loginId = "9797005693";
     // test
-    //String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
-    //String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
+    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    System.out.println(customerId);
+    System.out.println(loginId);
+    System.out.println("login an  customer id");
     long customerIdLong;
     long loginIdLong;
 
@@ -112,14 +115,15 @@ public class GetCampaignsServlet extends HttpServlet {
   protected String runExample(long loginId, long customerId, String query, String sessionId) {
     String returnJSON = "";
     GoogleAdsClient googleAdsClient;
+    System.out.println(query);
 
     // test
-    File propertiesFile = new File("ads.properties");
+    //File propertiesFile = new File("ads.properties");
     try {
       // test
-      googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).build();
-      //googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
-      //  DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN), loginId);
+      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).build();
+      googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
+        DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN), loginId);
     } catch (Exception e) {
       return processErrorJSON(e.toString(), Constants.ERROR_503);
     }
@@ -167,6 +171,8 @@ public class GetCampaignsServlet extends HttpServlet {
   protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
     try {
       String returnJSON = JsonFormat.printer().print(response);
+      System.out.println("to json");
+      System.out.println(returnJSON);
       return returnJSON;
     } catch (Exception e) {
       System.err.println(e);

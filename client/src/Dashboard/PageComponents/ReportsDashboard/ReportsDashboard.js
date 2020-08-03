@@ -44,25 +44,25 @@ export default function Reports(props) {
       />
       <Grid container spacing={3}>
         {/* ClicksPerCampaignChart */}
-        <Grid item xs={12} md={12} xl={9}>
+        <Grid item xs={12} md={9} xl={9}>
           <Paper className={fixedHeightPaper + " clicks-per-campaign"}>
             <ClicksPerCampaignChart />
           </Paper>
         </Grid>
         {/* Recent Deposits */}
-        <Grid item xs={12} md={4} xl={3}>
+        <Grid item xs={12} md={3} xl={3}>
           <Paper className={fixedHeightPaper + " recent-deposits"}>
             <Deposits />
           </Paper>
         </Grid>
         {/* API-integrated Graph */}
-        <Grid item xs={12} md={1} xl={6}>
+        <Grid item xs={12} md={12} xl={6}>
           <Paper className={fixedHeightPaper + " chart-api"}>
             <SentimentGraph />
           </Paper>
         </Grid>
         {/* Chart */}
-        <Grid item xs={12} md={1} xl={6}>
+        <Grid item xs={12} md={12} xl={6}>
           <Paper className={fixedHeightPaper + " chart-1"}>
             <Chart />
           </Paper>

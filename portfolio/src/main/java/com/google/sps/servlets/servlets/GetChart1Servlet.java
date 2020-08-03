@@ -66,17 +66,15 @@ public class GetChart1Servlet extends GetCampaignsServlet {
     + "ad_group_ad.ad.expanded_text_ad.headline_part2, metrics.clicks FROM ad_group_ad WHERE ad_group_ad.ad.type = EXPANDED_TEXT_AD LIMIT 100";
   private final static boolean devMode = false;
 
-
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String query = finalQuery;
     String sessionId = (String) request.getSession().getId();
-    String customerId = "4498877497";
-    String loginId = "9797005693";
-    System.out.println(query);
+    //String customerId = "4498877497";
+    //String loginId = "9797005693";
     // test
-    //String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
-    //String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
+    String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
+    String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
     long customerIdLong;
     long loginIdLong;
 
@@ -123,14 +121,16 @@ public class GetChart1Servlet extends GetCampaignsServlet {
       JSONObject objInUse = (JSONObject) results.get(i);
       String headline_part1 = objInUse.get("adGroupAd.ad.expandedTextAd.headlinePart1").toString();
       String headline_part2 = objInUse.get("adGroupAd.ad.expandedTextAd.headlinePart2").toString();
-      String sentiment = getSentimentValue(headline_part1 + " " + headline_part2);
+      String headline = headline_part1 + " " + headline_part2;
+      String sentiment = getSentimentValue(headline);
       objInUse.put("sentiment", sentiment);
+      objInUse.put("headline", headline);
       objInUse.remove("adGroupAd.ad.expandedTextAd.headlinePart1");
       objInUse.remove("adGroupAd.ad.expandedTextAd.headlinePart2");
       // giving metrics.clicks some real data
-      if (devMode || !devMode) {
+      if (devMode && !devMode) {
         objInUse.remove("metrics.clicks");
-        objInUse.put("metrics.clicks", String.valueOf(i));
+        objInUse.put("clicks", String.valueOf(i));
       }
     }
     return jsonObject.toString();

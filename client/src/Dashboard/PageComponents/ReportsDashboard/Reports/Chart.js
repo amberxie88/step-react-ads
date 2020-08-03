@@ -20,6 +20,7 @@ import {
   Line,
   XAxis,
   YAxis,
+  ZAxis,
   Label,
   ResponsiveContainer,
 } from 'recharts';
@@ -35,8 +36,9 @@ export default function Chart() {
   useEffect(() => {
     (async () => {
       try {
-        // const {data} = await axios.get('/data');
-        const data = {
+        const { data } = await axios.get('/chart-2');
+        console.log(data);
+        /*const data = {
           meta: { status: HttpStatus.OK.toString() },
           response: {
             data: [
@@ -78,11 +80,14 @@ export default function Chart() {
               },
             ],
           },
-        };
+        };*/
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
-          setData(data.response.data);
+          for (var i = 0; i < data.response.length; i++) {
+            data.response[i]["metrics.clicks"] = +data.response[i]["metrics.clicks"];
+          }
+          setData(data.response);
           setState('loaded');
         }
       } catch (err) {
@@ -105,12 +110,26 @@ export default function Chart() {
               margin={{
                 top: 16,
                 right: 16,
-                bottom: 0,
+                bottom: 24,
                 left: 24,
               }}
             >
-              <XAxis dataKey="time" stroke={theme.palette.text.secondary} />
-              <YAxis stroke={theme.palette.text.secondary}>
+              <XAxis 
+                dataKey="metrics.impressions" 
+                stroke={theme.palette.text.secondary} 
+                domain={[0, 'dataMax']}
+              >
+                <Label
+                  position="bottom"
+                  style={{
+                    textAnchor: 'middle',
+                    fill: theme.palette.text.primary,
+                  }}
+                >
+                Impressions over last 30 days
+                </Label>
+              </XAxis>
+              <YAxis dataKey="metrics.clicks" stroke={theme.palette.text.secondary} domain={[0, 'dataMax']}>
                 <Label
                   angle={270}
                   position="left"
@@ -119,14 +138,15 @@ export default function Chart() {
                     fill: theme.palette.text.primary,
                   }}
                 >
-                  Sales ($)
+                  Ad clicks
                 </Label>
               </YAxis>
+              <ZAxis dataKey={'campaign.name'} name='campaign' />
               <Line
                 type="monotone"
-                dataKey="amount"
+                dataKey="metrics.clicks"
                 stroke={theme.palette.primary.main}
-                dot={false}
+                dot={true}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -144,7 +164,7 @@ export default function Chart() {
 
   return (
     <React.Fragment>
-      <Title>Today's Sales</Title>
+      <Title>Ad Clicks vs. Impressions (Last 30 Days)</Title>
       {pickContentToDisplay()}
     </React.Fragment>
   );

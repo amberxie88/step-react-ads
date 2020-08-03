@@ -55,7 +55,7 @@ public class OAuthServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Add credentials to datastore (just do this once for deployment)
     //addCredentialsToDatastore();
-    
+
     String clientId = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_ID);
     String clientSecret = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET);
     String loginEmailAddressHint = null;
@@ -86,9 +86,9 @@ public class OAuthServlet extends HttpServlet {
               .setScopes(SCOPES)
               .setCallbackUri(URI.create(OAUTH2_CALLBACK))
               .build();
-      URI baseUri = URI.create("http://localhost:8080/");
+      //URI baseUri = URI.create("http://localhost:8080/");
       //deploy
-      //baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
+      URI baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
       return userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri).toString();
   }
   
