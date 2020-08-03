@@ -117,7 +117,6 @@ public class AccessibleCustomersServlet extends HttpServlet {
     JSONArray customerArray = new JSONArray();
 
     try (CustomerServiceClient customerService = createCustomerServiceClient(client)) {
-      System.out.println("List AccessibleCustomer");
       ListAccessibleCustomersResponse response = listAccessibleCustomers(customerService);
       System.out.printf("Total results: %d%n", response.getResourceNamesCount());
 
@@ -296,6 +295,7 @@ public class AccessibleCustomersServlet extends HttpServlet {
       int depth, ArrayList<CustomerClient> accountHierarchies) {
     
     long customerId = customerClient.getId().getValue();
+
     //do not put rootCustomerClient as its own child
     if (depth != 0) {
       accountHierarchies.add(customerClient);
