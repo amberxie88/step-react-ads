@@ -64,11 +64,9 @@ class Query extends React.Component {
 
   async handleQuery(event, exportTable) {
     const query = this.state.value;
-    //const exportTable = event.target.exportTable;
-    this.setState({ status: 'loading' });
-    console.log(query);
-    console.log(event);
-    console.log(exportTable);
+    if (!exportTable) {
+      this.setState({ status: 'loading' });
+    }
     try {
       const { data } = await axios.post(
         '/campaign',
@@ -77,13 +75,15 @@ class Query extends React.Component {
       if (data.meta.status !== HttpStatus.OK.toString()) {
         throw new Error(data.meta.message);
       } else {
-        this.setState({
-          rows: parseRows(data.response),
-          fields: data.fieldmask,
-          status: 'loaded',
-        });
+        //don't rerender table if exporting
         if (exportTable) {
           alert('export successful');
+        } else {
+          this.setState({
+            rows: parseRows(data.response),
+            fields: data.fieldmask,
+            status: 'loaded',
+          });
         }
       }
     } catch (err) {
@@ -100,11 +100,14 @@ class Query extends React.Component {
         return <Title> Loading ... </Title>;
       case 'loaded':
         return (
-          <QueryResults
-            rows={this.state.rows}
-            fields={this.state.fields}
-            rowsPerPage={this.state.rowsPerPage}
-          />
+          <React.Fragment>
+            <QueryResults
+              rows={this.state.rows}
+              fields={this.state.fields}
+              rowsPerPage={this.state.rowsPerPage}
+            />
+            <ExportButton onClick={(e) => this.handleQuery(e, true)} />
+          </React.Fragment>
         );
       case 'error':
         return (
@@ -137,7 +140,6 @@ class Query extends React.Component {
           }}
         />
         <SubmitButton onClick={(e) => this.handleQuery(e, false)} />
-        <ExportButton onClick={(e) => this.handleQuery(e, true)} />
         {this.pickContentToDisplay()}
       </React.Fragment>
     );
