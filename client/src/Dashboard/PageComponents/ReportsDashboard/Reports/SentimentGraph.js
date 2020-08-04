@@ -128,9 +128,9 @@ export default function SentimentGraph() {
 
   return (
     <React.Fragment>
-      <Title>Sentiment vs. Clicks</Title>
-      <Typography color="textSecondary" className={classes.depositContext}>
-        Description (extended text ad headlines calculate sentiment)
+      <Title>Expanded Text Ad Clicks vs. Sentiment</Title>
+      <Typography color="textSecondary" className={classes.depositContext}> 
+        Graph of clicks vs. headline sentiment (0 most negative, 1 most positive).
       </Typography>
       {pickContentToDisplay()}
     </React.Fragment>
