@@ -118,7 +118,7 @@ public class CallbackServlet extends HttpServlet {
       try {
         UserCredentials userCredentials = userAuthorizer.getCredentialsFromCode(authorizationResponse.code, baseUri);
         DatastoreRetrieval.addEntityToDatastore(Constants.REFRESH, sessionId, userCredentials.getRefreshToken());
-        System.out.println("refresh token generated");
+        System.out.println("refresh token generated: " + userCredentials.getRefreshToken());
         return TOKEN_GRANTED;
       } catch (Exception e) {
         System.out.println(e.toString());

@@ -25,38 +25,49 @@ const useStyles = makeStyles({
   },
 });
 
-class Logout extends React.Component {
+class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.handleLogout = this.handleLogout.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
+    this.state = { redirect: '' };
   }
 
-  async handleLogout() {
-    console.log('clicked');
-    const { data } = await axios.get('/logout');
-    alert(data);
-    window.location.reload(true);
+  async handleLogin() {
+    try {
+      const { data } = await axios.get('/oauth');
+      this.setState({
+        redirect: data,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async componentDidMount() {
+    this.handleLogin();
   }
 
   render() {
     return (
       <React.Fragment>
-        <Title>Logout</Title>
-        <LogoutButton onClick={this.handleLogout} />
+        <Title>Authenticate your Ads Account</Title>
+        <LoginButton onClick={this.state.redirect} />
       </React.Fragment>
     );
   }
 }
 
-function LogoutButton(props) {
+function LoginButton(props) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <Button variant="outlined" onClick={props.onClick}>
-        Logout
+      <Button variant="outlined">
+        <a style={{ textDecoration: 'none' }} href={props.onClick}>
+          Add Account
+        </a>
       </Button>
     </div>
   );
 }
 
-export default Logout;
+export default Login;

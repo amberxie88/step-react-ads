@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 import React from 'react';
+import axios from 'axios';
 import clsx from 'clsx';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import HelpIcon from '@material-ui/icons/Help';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Badge from '@material-ui/core/Badge';
 import Typography from '@material-ui/core/Typography';
 import Drawer from '@material-ui/core/Drawer';
@@ -27,7 +29,7 @@ import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { makeStyles } from '@material-ui/core/styles';
-
+import Logout from '../Pages/LoginPage/Logout';
 import { Title } from '../Utilities/Constants';
 import { DrawerItems } from './DrawerItems';
 
@@ -44,8 +46,13 @@ export default function AppBarWithDrawer(props) {
     setOpen(false);
   };
   const handleQuestion = () => {
-    props.setTutorial(true);
-  }
+    localStorage.setItem('runTutorial', true);
+    window.dispatchEvent(new StorageEvent('storage')); // notify components about new state
+  };
+  const handleLogout = () => {
+    axios.get('/logout');
+    window.location.reload(true);
+  };
   return (
     <React.Fragment>
       <AppBar
@@ -74,11 +81,11 @@ export default function AppBarWithDrawer(props) {
           >
             {Title}
           </Typography>
-          <IconButton 
-            color="inherit"
-            onClick={handleQuestion}
-          >
-              <HelpIcon />
+          <IconButton color="inherit" onClick={handleQuestion}>
+            <HelpIcon />
+          </IconButton>
+          <IconButton color="inherit" onClick={handleLogout}>
+            <ExitToAppIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -96,7 +103,9 @@ export default function AppBarWithDrawer(props) {
           </IconButton>
         </div>
         <Divider />
-        <List><DrawerItems message={'ok'} /></List>
+        <List>
+          <DrawerItems message={'ok'} />
+        </List>
       </Drawer>
     </React.Fragment>
   );

@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 import React from 'react';
-import ReportsDashboard from './ReportsDashboard';
+React.useLayoutEffect = React.useEffect; // Necessary to supress warning during tests. The tests use server side rendering which doesn't support useLayoutEffect.
+import QueryPageLayout from './QueryPageLayout';
 import { configure, shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import Chart from './Reports/Chart';
-import ClicksPerCampaignChart from './Reports/ClicksPerCampaignChart';
-import Deposits from './Reports/Deposits';
-import CampaignData from './Reports/CampaignData';
 
 configure({ adapter: new Adapter() });
 
-describe('ReportsDashboard Unit Testing', () => {
-  it('ReportsDashboard displays correct components', async () => {
-    const dashboard = shallow(<ReportsDashboard />);
-    [
-      <Chart />,
-      <ClicksPerCampaignChart />,
-      <Deposits />,
-      <CampaignData />,
-    ].forEach((component) => {
-      expect(dashboard.contains(component)).toBeTruthy();
-    });
-
-    const dashboardHTML = dashboard.html();
-    expect(dashboardHTML).toMatchSnapshot();
+describe('QueryPageLayout Unit Testing', () => {
+  it('renders correct HTML for Query Dashboard', async () => {
+    const component = shallow(<QueryPageLayout />);
+    const componentHTML = component.html();
+    expect(componentHTML).toMatchSnapshot();
   });
 });

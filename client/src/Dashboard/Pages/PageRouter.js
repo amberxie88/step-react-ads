@@ -17,20 +17,20 @@ import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { PagesWithAttributes } from '../Utilities/Constants';
 
-const mapPageToRouteAndComponent = (page, tutorial, handleJoyrideCallback) => {
+const mapPageToRouteAndComponent = (page) => {
   return (
     <Route exact path={page.route}>
-      {<page.component runTutorial={tutorial} handleJoyrideCallback={handleJoyrideCallback}/>}
+      {<page.component />}
     </Route>
   );
 };
 
-const generateRoutes = (tutorial, handleJoyrideCallback) => {
-  return PagesWithAttributes.map((page) => mapPageToRouteAndComponent(page, tutorial, handleJoyrideCallback));
+const generateRoutes = () => {
+  return PagesWithAttributes.map((page) => mapPageToRouteAndComponent(page));
 };
 
-const PageRouter = (props) => {
-  return <Switch>{generateRoutes(props.tutorial, props.handleJoyrideCallback)}</Switch>;
+const PageRouter = () => {
+  return <Switch>{generateRoutes()}</Switch>;
 };
 
 export { PageRouter };

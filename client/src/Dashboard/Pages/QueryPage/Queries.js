@@ -21,7 +21,7 @@ import QueryResults from './QueryResults';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Title from '../../Utilities/Title';
-
+import { LoadingComponent } from '../../Utilities/Constants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//JSON data parsing here
+//add key for table rows
 function addKey(index, responseObj) {
   responseObj.id = index;
   return responseObj;
@@ -59,22 +59,33 @@ class Query extends React.Component {
     };
   }
 
-  async handleQuery() {
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
+  async handleQuery(event, exportTable) {
     const query = this.state.value;
-    this.setState({ status: 'loading' });
+    if (!exportTable) {
+      this.setState({ status: 'loading' });
+    }
     try {
       const { data } = await axios.post(
         '/campaign',
-        new URLSearchParams({ query }),
+        new URLSearchParams({ query, exportTable }),
       );
       if (data.meta.status !== HttpStatus.OK.toString()) {
         throw new Error(data.meta.message);
       } else {
-        this.setState({
-          rows: parseRows(data.response),
-          fields: data.fieldmask,
-          status: 'loaded',
-        });
+        //don't rerender table if exporting
+        if (exportTable) {
+          alert('export successful');
+        } else {
+          this.setState({
+            rows: parseRows(data.response),
+            fields: data.fieldmask,
+            status: 'loaded',
+          });
+        }
       }
     } catch (err) {
       console.log(err.message);
@@ -87,14 +98,17 @@ class Query extends React.Component {
       case 'inputRequired':
         return <Title> Enter a query to see the results </Title>;
       case 'loading':
-        return <Title> Loading ... </Title>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
-          <QueryResults
-            rows={this.state.rows}
-            fields={this.state.fields}
-            rowsPerPage={this.state.rowsPerPage}
-          />
+          <React.Fragment>
+            <QueryResults
+              rows={this.state.rows}
+              fields={this.state.fields}
+              rowsPerPage={this.state.rowsPerPage}
+            />
+            <ExportButton onClick={(e) => this.handleQuery(e, true)} />
+          </React.Fragment>
         );
       case 'error':
         return (
@@ -108,13 +122,7 @@ class Query extends React.Component {
     }
   }
 
-  handleChange(event) {
-    this.setState({ value: event.target.value });
-  }
-
   render() {
-    // const rows = this.state.rows;
-    // const fields = this.state.fields;
     return (
       <React.Fragment>
         <Title>Query Here</Title>
@@ -132,7 +140,7 @@ class Query extends React.Component {
             shrink: true,
           }}
         />
-        <SubmitButton onClick={this.handleQuery} />
+        <SubmitButton onClick={(e) => this.handleQuery(e, false)} />
         {this.pickContentToDisplay()}
       </React.Fragment>
     );
@@ -145,6 +153,17 @@ function SubmitButton(props) {
     <div className={classes.root}>
       <Button variant="outlined" onClick={props.onClick}>
         Submit
+      </Button>
+    </div>
+  );
+}
+
+function ExportButton(props) {
+  const classes = useStyles();
+  return (
+    <div className={classes.root}>
+      <Button variant="outlined" onClick={props.onClick}>
+        Export to Google Sheets
       </Button>
     </div>
   );

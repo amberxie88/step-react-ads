@@ -22,6 +22,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import { LoadingComponent } from '../../Utilities/Constants';
 
 class QueryAccount extends React.Component {
   constructor(props) {
@@ -57,7 +58,7 @@ class QueryAccount extends React.Component {
           </Typography>
         );
       case 'loading':
-        return <Typography variant="overline">Loading . . .</Typography>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <TableBody>
@@ -89,10 +90,9 @@ class QueryAccount extends React.Component {
 
   render() {
     const selectedClient = this.state.selectedClient;
-    console.log(selectedClient);
     return (
       <React.Fragment>
-        <Title>Selected Client Account to Query</Title>
+        <Title>Select a Client Account to Query</Title>
         <Table size="small">
           <TableHead>
             <TableRow>

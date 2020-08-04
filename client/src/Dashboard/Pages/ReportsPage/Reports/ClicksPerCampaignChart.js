@@ -28,6 +28,7 @@ import {
 import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
 import Title from '../../../Utilities/Title';
+import { LoadingComponent } from '../../../Utilities/Constants';
 
 export default function ClicksPerCampaignChart() {
   const theme = useTheme();
@@ -41,10 +42,10 @@ export default function ClicksPerCampaignChart() {
         //const { data } = await axios.get('/data'); //fake data so there's some actual results
         // only returns 1 campaign
         const { data } = await axios.post(
-           '/campaign',
-           new URLSearchParams({
-             query: `SELECT campaign.name, metrics.clicks FROM campaign ORDER BY metrics.clicks DESC LIMIT 5`,
-           })
+          '/campaign',
+          new URLSearchParams({
+            query: `SELECT campaign.name, metrics.clicks FROM campaign ORDER BY metrics.clicks DESC LIMIT 5`,
+          }),
         );
         console.log(data);
         if (data.meta.status !== HttpStatus.OK.toString()) {
@@ -64,7 +65,7 @@ export default function ClicksPerCampaignChart() {
   const pickContentToDisplay = () => {
     switch (state) {
       case 'loading':
-        return <Title> Loading ... </Title>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <ResponsiveContainer>

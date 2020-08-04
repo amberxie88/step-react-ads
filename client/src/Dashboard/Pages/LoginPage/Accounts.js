@@ -23,6 +23,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
+import { LoadingComponent } from '../../Utilities/Constants';
 
 class Accounts extends React.Component {
   constructor(props) {
@@ -47,7 +48,6 @@ class Accounts extends React.Component {
       if (data.meta.status !== '200') {
         throw new Error(data.meta.message);
       } else {
-        console.log(data.response);
         this.setState({
           customerIds: data.response,
           status: 'loaded',
@@ -64,7 +64,6 @@ class Accounts extends React.Component {
 
   pickContentToDisplay() {
     const customerIds = this.state.customerIds;
-    console.log(customerIds);
     switch (this.state.status) {
       case 'none authenticated':
         return (
@@ -80,7 +79,7 @@ class Accounts extends React.Component {
           </Typography>
         );
       case 'loading':
-        return <Typography variant="overline">Loading . . .</Typography>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <TableBody>
@@ -131,7 +130,7 @@ class Accounts extends React.Component {
     const loginId = row.id;
     const customerId = row.child;
     const name = row.name;
-    const { data } = await axios.post(
+    await axios.post(
       '/client',
       new URLSearchParams({ loginId, customerId, name }),
     );
@@ -141,6 +140,10 @@ class Accounts extends React.Component {
     return (
       <React.Fragment>
         <Title>Available Customer IDs</Title>
+        <Typography variant="overline">
+          Make sure to select an account before visiting the dashboard or query
+          page.
+        </Typography>
         <Table size="small">
           <TableHead>
             <TableRow>
