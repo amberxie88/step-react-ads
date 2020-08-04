@@ -15,6 +15,7 @@
  */
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import HomeIcon from '@material-ui/icons/Home';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import BarChartIcon from '@material-ui/icons/BarChart';
@@ -43,7 +44,5 @@ const PagesWithAttributes = [
     component: Queries,
   },
 ];
-const LoadingComponent = () => (
-  <Typography variant="overline">Loading . . .</Typography>
-);
+const LoadingComponent = () => <CircularProgress />;
 export { Title, PagesWithAttributes, LoadingComponent };

@@ -55,14 +55,6 @@ function Results(props) {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
   );
-
-function Results(props) {
-  const rows = props.rows;
-  const fields = props.fields;
-  const rowsPerPage = props.rowsPerPage;
-  const page = props.page;
-  const handleChangePage = props.handleChangePage;
-  const handleChangeRowsPerPage = props.handleChangeRowsPerPage;
   return (
     <div>
       <Table size="small">

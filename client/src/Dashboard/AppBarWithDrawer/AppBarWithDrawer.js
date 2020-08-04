@@ -29,7 +29,7 @@ import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { makeStyles } from '@material-ui/core/styles';
-import Logout from '../PageComponents/LoginDashboard/Logout';
+import Logout from '../Pages/LoginPage/Logout';
 import { Title } from '../Utilities/Constants';
 import { DrawerItems } from './DrawerItems';
 
