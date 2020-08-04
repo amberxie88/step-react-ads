@@ -36,51 +36,15 @@ export default function Chart() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get('/chart-2');
+        const { data } = await axios.post(
+           '/campaign',
+           new URLSearchParams({
+             query: `SELECT campaign.name, metrics.impressions, metrics.clicks, segments.device FROM campaign
+                WHERE segments.date DURING LAST_30_DAYS AND metrics.impressions > 0 
+                ORDER BY metrics.clicks ASC LIMIT 100`,
+           })
+        );
         console.log(data);
-        /*const data = {
-          meta: { status: HttpStatus.OK.toString() },
-          response: {
-            data: [
-              {
-                time: '00:00',
-                amount: 0,
-              },
-              {
-                time: '03:00',
-                amount: 300,
-              },
-              {
-                time: '06:00',
-                amount: 600,
-              },
-              {
-                time: '09:00',
-                amount: 800,
-              },
-              {
-                time: '12:00',
-                amount: 1500,
-              },
-              {
-                time: '15:00',
-                amount: 2000,
-              },
-              {
-                time: '18:00',
-                amount: 2400,
-              },
-              {
-                time: '21:00',
-                amount: 2400,
-              },
-              {
-                time: '24:00',
-                amount: 'undefined',
-              },
-            ],
-          },
-        };*/
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
