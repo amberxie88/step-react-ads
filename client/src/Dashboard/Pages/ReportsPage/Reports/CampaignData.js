@@ -22,20 +22,112 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
 import Title from '../../../Utilities/Title';
-import { LoadingComponent } from '../../../Utilities/Constants';
 import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
+import PropTypes from "prop-types";
+import Checkbox from "@material-ui/core/Checkbox";
+import { TableSortLabel } from "@material-ui/core";
+
 const useStyles = makeStyles((theme) => ({
   seeMore: {
     marginTop: theme.spacing(3),
   },
 }));
 
+const headCells = [
+  {
+    id: "campaign.id",
+    numeric: false,
+    label: "Id"
+  },
+  { id: "campaign.name", numeric: false, label: "Name" },
+  { id: "campaign.status", numeric: false, label: "Status" },
+  { id: "metrics.clicks", numeric: true, label: "Clicks" },
+  { id: "metrics.impressions", numeric: true, label: "Impressions" }
+];
+
+function createData(name, calories, fat, carbs, protein) {
+  return { name, calories, fat, carbs, protein };
+}
+
+function descendingComparator(a, b, orderBy) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+
+function getComparator(order, orderBy) {
+  return order === "desc"
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+function stableSort(array, comparator) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map(el => el[0]);
+}
+
+function EnhancedTableHead(props) {
+  const {
+    classes,
+    order,
+    orderBy,
+    rowCount,
+    onRequestSort
+  } = props;
+  const createSortHandler = property => event => {
+    onRequestSort(event, property);
+  };
+
+  return (
+    <TableHead>
+      <TableRow>
+        {headCells.map(headCell => (
+          <TableCell
+            key={headCell.id}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : "asc"}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+            </TableSortLabel>
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
+EnhancedTableHead.propTypes = {
+  classes: PropTypes.object.isRequired,
+  onRequestSort: PropTypes.func.isRequired,
+  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
+  orderBy: PropTypes.string.isRequired,
+  rowCount: PropTypes.number.isRequired
+};
+
+
 export default function CampaignData() {
+  const classes = useStyles();
   const [data, setData] = useState([]);
   const [state, setState] = useState('loading');
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(0);
+  const [order, setOrder] = React.useState("asc");
+  const [orderBy, setOrderBy] = React.useState("campaign.id");
+  const [dense, setDense] = React.useState(false);
 
   const handleChangeRowsPerPage = (event) => {
     // If the selection is [A]ll the rows.
@@ -45,19 +137,108 @@ export default function CampaignData() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
+
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+  };
+
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
   };
 
   useEffect(() => {
     (async () => {
       try {
+        /*
+        const data = {
+          meta: {status: '200'},
+          response: [
+            {
+              'campaign.name': 'aname',
+              'campaign.id': '999',
+              'campaign.status': 'agood',
+              'metrics.clicks': '100',
+              'metrics.impressions': '100',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '3',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '200',
+              'metrics.impressions': '200',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '444',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '200',
+              'metrics.impressions': '200',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '4344',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '200',
+              'metrics.impressions': '200',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '4441',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '33',
+              'metrics.impressions': '9767',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '141',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '66',
+              'metrics.impressions': '22',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '31',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '533',
+              'metrics.impressions': '23',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '831',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '10',
+              'metrics.impressions': '83',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '3331',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '200',
+              'metrics.impressions': '12',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '3001',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '245',
+              'metrics.impressions': '432',
+            }, {
+              'campaign.name': 'bname',
+              'campaign.id': '891',
+              'campaign.status': 'bgood',
+              'metrics.clicks': '12',
+              'metrics.impressions': '4',
+            },
+          ]
+        }*/
+        
         const { data } = await axios.post(
           '/campaign',
           new URLSearchParams({
             query: `SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions FROM campaign ORDER BY campaign.id          `,
           }),
         );
+        for (var i = 0; i < data.response.length; i++) {
+          data.response[i]["campaign.id"] = +data.response[i]["campaign.id"];
+          data.response[i]["metrics.clicks"] = +data.response[i]["metrics.clicks"];
+          data.response[i]["metrics.impressions"] = +data.response[i]["metrics.impressions"];
+        }
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
@@ -75,24 +256,24 @@ export default function CampaignData() {
   const pickContentToDisplay = () => {
     switch (state) {
       case 'loading':
-        return <LoadingComponent />;
+        return <Title> Loading ... </Title>;
       case 'loaded':
         return (
           <div>
             <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Id</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Clicks</TableCell>
-                  <TableCell>Impressions</TableCell>
-                </TableRow>
-              </TableHead>
+              <EnhancedTableHead
+                classes={classes}
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+                rowCount={data.length}
+              />
               <TableBody>
-                {data
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
+              {stableSort(data, getComparator(order, orderBy))
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map(
+                (row, index) => {
+                  return (
                     <TableRow key={row['campaign.id']}>
                       <TableCell>{row['campaign.id']}</TableCell>
                       <TableCell>{row['campaign.name']}</TableCell>
@@ -100,7 +281,10 @@ export default function CampaignData() {
                       <TableCell>{row['metrics.clicks']}</TableCell>
                       <TableCell>{row['metrics.impressions']}</TableCell>
                     </TableRow>
-                  ))}
+                  );
+                }
+              )}
+              
               </TableBody>
             </Table>
             <TablePagination
