@@ -5,7 +5,7 @@ The Google Ads dashboard provides a useful UI for users to create and measure th
 
 Preview the project [here](http://app-infra-transformer-step.appspot.com/)
 
-Read the developer guide for this project [here] (https://docs.google.com/document/d/1-EjyReZFxCKP3ugHAvVEOXWw5HsXm5x40Qz2nhNSF1s/edit?usp=sharing)
+Read the developer guide for this project [here](https://docs.google.com/document/d/1-EjyReZFxCKP3ugHAvVEOXWw5HsXm5x40Qz2nhNSF1s/edit?usp=sharing)
 *replace with non-google owned doc before we leave*
 
 ## Front End with React
