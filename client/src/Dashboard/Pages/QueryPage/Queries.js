@@ -21,6 +21,7 @@ import QueryResults from './QueryResults';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Title from '../../Utilities/Title';
+import { LoadingComponent } from '../../Utilities/Constants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -97,7 +98,7 @@ class Query extends React.Component {
       case 'inputRequired':
         return <Title> Enter a query to see the results </Title>;
       case 'loading':
-        return <Title> Loading ... </Title>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <React.Fragment>

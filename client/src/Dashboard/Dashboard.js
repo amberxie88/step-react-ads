@@ -19,31 +19,22 @@ import Container from '@material-ui/core/Container';
 import AppBarWithDrawer from './AppBarWithDrawer/AppBarWithDrawer';
 import { BrowserRouter } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { PageRouter } from './PageComponents/PageRouter';
+import { PageRouter } from './Pages/PageRouter';
 import { stylesSettings } from './Utilities/Styles';
 const Styles = makeStyles(stylesSettings);
 
 export default function Dashboard() {
-  /*setter, variable, prop in appbarwithdrawer*/
-  const [runTutorial, setRunTutorial] = React.useState(true);
   const classes = Styles();
-
-  function handleJoyrideCallback(data) {
-    const {status, type} = data;
-    if (status == "ready") {
-      setRunTutorial(false);
-    }
-  };
 
   return (
     <div className={classes.root}>
       <CssBaseline />
       <BrowserRouter>
-        <AppBarWithDrawer setTutorial={setRunTutorial}/>
+        <AppBarWithDrawer />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
           <Container maxWidth="lg" className={classes.container}>
-            <PageRouter tutorial={runTutorial} handleJoyrideCallback={handleJoyrideCallback}/>
+            <PageRouter />
           </Container>
         </main>
       </BrowserRouter>

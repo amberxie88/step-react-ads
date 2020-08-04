@@ -29,7 +29,7 @@ import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { makeStyles } from '@material-ui/core/styles';
-import Logout from '../PageComponents/LoginDashboard/Logout';
+import Logout from '../Pages/LoginPage/Logout';
 import { Title } from '../Utilities/Constants';
 import { DrawerItems } from './DrawerItems';
 
@@ -46,7 +46,8 @@ export default function AppBarWithDrawer(props) {
     setOpen(false);
   };
   const handleQuestion = () => {
-    props.setTutorial(true);
+    localStorage.setItem('runTutorial', true);
+    window.dispatchEvent(new StorageEvent('storage')); // notify components about new state
   };
   const handleLogout = () => {
     axios.get('/logout');

@@ -20,10 +20,7 @@ import Typography from '@material-ui/core/Typography';
 import Title from '../../../Utilities/Title';
 import * as HttpStatus from 'http-status-codes';
 import axios from 'axios';
-
-function preventDefault(event) {
-  event.preventDefault();
-}
+import { LoadingComponent } from '../../../Utilities/Constants';
 
 const useStyles = makeStyles({
   depositContext: {
@@ -31,7 +28,6 @@ const useStyles = makeStyles({
   },
 });
 
-//
 export default function Deposits() {
   const classes = useStyles();
   const [data, setData] = useState([]); //data for chart along with setter function
@@ -42,14 +38,13 @@ export default function Deposits() {
     (async () => {
       try {
         const { data } = await axios.post(
-           '/campaign',
-           new URLSearchParams({
-             query: `SELECT account_budget.status, 
+          '/campaign',
+          new URLSearchParams({
+            query: `SELECT account_budget.status, 
               account_budget.amount_served_micros, customer.currency_code 
               FROM account_budget`,
-           })
+          }),
         );
-        console.log(data);
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
@@ -67,14 +62,18 @@ export default function Deposits() {
   const pickContentToDisplay = () => {
     switch (state) {
       case 'loading':
-        return <Title> Loading ... </Title>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <div>
             <Typography component="p" variant="h4">
-              {data[0]['accountBudget.amountServedMicros'] / 1000000} {data[0]['customer.currencyCode']}
+              {data[0]['accountBudget.amountServedMicros'] / 1000000}{' '}
+              {data[0]['customer.currencyCode']}
             </Typography>
-            <Typography color="textSecondary" className={classes.depositContext}>
+            <Typography
+              color="textSecondary"
+              className={classes.depositContext}
+            >
               Account Budget Status: {data[0]['accountBudget.status']}
             </Typography>
           </div>
