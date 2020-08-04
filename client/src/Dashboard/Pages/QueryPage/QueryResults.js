@@ -24,6 +24,17 @@ import TablePagination from '@material-ui/core/TablePagination';
 
 export default function QueryResults(props) {
   const { rows, fields } = props;
+
+  return (
+    <React.Fragment>
+      <Title>Query Results</Title>
+      <Results rows={rows} fields={fields} />
+    </React.Fragment>
+  );
+}
+
+function Results(props) {
+  const { rows, fields } = props;
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(0);
 
@@ -39,20 +50,11 @@ export default function QueryResults(props) {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  return (
-    <React.Fragment>
-      <Title>Query Results</Title>
-      <Results
-        rows={rows}
-        fields={fields}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        handleChangePage={handleChangePage}
-        handleChangeRowsPerPage={handleChangeRowsPerPage}
-      />
-    </React.Fragment>
+
+  const rowSlice = rows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
   );
-}
 
 function Results(props) {
   const rows = props.rows;
@@ -72,15 +74,13 @@ function Results(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((row) => (
-              <TableRow key={'row' + row.id}>
-                {fields.map((key) => (
-                  <TableCell key={key}>{row[key]}</TableCell>
-                ))}
-              </TableRow>
-            ))}
+          {rowSlice.map((row) => (
+            <TableRow key={'row' + row.id}>
+              {fields.map((key) => (
+                <TableCell key={key}>{row[key]}</TableCell>
+              ))}
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
       <TablePagination

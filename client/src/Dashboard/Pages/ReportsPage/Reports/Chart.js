@@ -27,7 +27,7 @@ import {
 import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
 import Title from '../../../Utilities/Title';
-import { createChainedFunction } from '@material-ui/core';
+import { LoadingComponent } from '../../../Utilities/Constants';
 
 export default function Chart() {
   const theme = useTheme();
@@ -65,7 +65,7 @@ export default function Chart() {
   const pickContentToDisplay = () => {
     switch (state) {
       case 'loading':
-        return <Title> Loading ... </Title>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <ResponsiveContainer>

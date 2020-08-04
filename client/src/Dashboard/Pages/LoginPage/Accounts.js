@@ -23,6 +23,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
+import { LoadingComponent } from '../../Utilities/Constants';
 
 class Accounts extends React.Component {
   constructor(props) {
@@ -78,7 +79,7 @@ class Accounts extends React.Component {
           </Typography>
         );
       case 'loading':
-        return <Typography variant="overline">Loading . . .</Typography>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <TableBody>
@@ -129,7 +130,7 @@ class Accounts extends React.Component {
     const loginId = row.id;
     const customerId = row.child;
     const name = row.name;
-    const { data } = await axios.post(
+    await axios.post(
       '/client',
       new URLSearchParams({ loginId, customerId, name }),
     );

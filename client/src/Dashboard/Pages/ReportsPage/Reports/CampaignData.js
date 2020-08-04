@@ -22,6 +22,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
 import Title from '../../../Utilities/Title';
+import { LoadingComponent } from '../../../Utilities/Constants';
 import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
 const useStyles = makeStyles((theme) => ({
@@ -31,7 +32,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CampaignData() {
-  const classes = useStyles();
   const [data, setData] = useState([]);
   const [state, setState] = useState('loading');
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -75,7 +75,7 @@ export default function CampaignData() {
   const pickContentToDisplay = () => {
     switch (state) {
       case 'loading':
-        return <Title> Loading ... </Title>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <div>

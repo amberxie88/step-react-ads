@@ -28,6 +28,7 @@ import {
 import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
 import Title from '../../../Utilities/Title';
+import { LoadingComponent } from '../../../Utilities/Constants';
 
 export default function ClicksPerCampaignChart() {
   const theme = useTheme();
@@ -64,7 +65,7 @@ export default function ClicksPerCampaignChart() {
   const pickContentToDisplay = () => {
     switch (state) {
       case 'loading':
-        return <Title> Loading ... </Title>;
+        return <LoadingComponent />;
       case 'loaded':
         return (
           <ResponsiveContainer>

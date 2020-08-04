@@ -46,6 +46,8 @@ export default function AppBarWithDrawer(props) {
     setOpen(false);
   };
   const handleQuestion = () => {
+    localStorage.setItem('runTutorial', true);
+    window.dispatchEvent(new StorageEvent('storage')); // notify components about new state
     props.setTutorial(true);
   };
   const handleLogout = () => {

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 import React from 'react';
+import Typography from '@material-ui/core/Typography';
 import HomeIcon from '@material-ui/icons/Home';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import BarChartIcon from '@material-ui/icons/BarChart';
-import Reports from '../PageComponents/ReportsDashboard/ReportsDashboard';
-import Queries from '../PageComponents/QueryDashboard/QueryDashboard';
-import Login from '../PageComponents/LoginDashboard/LoginDashboard';
+import Reports from '../Pages/ReportsPage/ReportsPageLayout';
+import Queries from '../Pages/QueryPage/QueryPageLayout';
+import LoginPageLayout from '../Pages/LoginPage/LoginPageLayout';
 
 const Title = 'Google Ads API Web App Demo';
 const PagesWithAttributes = [
@@ -27,7 +28,7 @@ const PagesWithAttributes = [
     name: 'Login',
     route: '/',
     icon: <HomeIcon />,
-    component: Login,
+    component: LoginPageLayout,
   },
   {
     name: 'Dashboard',
@@ -42,4 +43,7 @@ const PagesWithAttributes = [
     component: Queries,
   },
 ];
-export { Title, PagesWithAttributes };
+const LoadingComponent = () => (
+  <Typography variant="overline">Loading . . .</Typography>
+);
+export { Title, PagesWithAttributes, LoadingComponent };
