@@ -93,13 +93,12 @@ const ComponentLayout = (props) => {
           <Accounts />
         </Paper>
       </Grid>
-
-      {/* Logout Button */}
+      {/* Logout Button
       <Grid item xs={12}>
         <Paper className={classes.paper + ' logout-button'}>
           <Logout />
         </Paper>
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 };
