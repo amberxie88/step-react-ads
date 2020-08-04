@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from '@material-ui/core/Link';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Title from '../../../Utilities/Title';
+import * as HttpStatus from 'http-status-codes';
+import axios from 'axios';
 
 function preventDefault(event) {
   event.preventDefault();
@@ -29,22 +31,69 @@ const useStyles = makeStyles({
   },
 });
 
+//
 export default function Deposits() {
   const classes = useStyles();
+  const [data, setData] = useState([]); //data for chart along with setter function
+  const [state, setState] = useState('loading');
+
+  useEffect(() => {
+    //loads data asynchronously so page can load faster
+    (async () => {
+      try {
+        const { data } = await axios.post(
+           '/campaign',
+           new URLSearchParams({
+             query: `SELECT account_budget.status, 
+              account_budget.amount_served_micros, customer.currency_code 
+              FROM account_budget`,
+           })
+        );
+        console.log(data);
+        if (data.meta.status !== HttpStatus.OK.toString()) {
+          throw new Error(data.meta.message);
+        } else {
+          setData(data.response);
+          setState('loaded');
+        }
+      } catch (err) {
+        console.log(err.message);
+        setData(err.message);
+        setState('error');
+      }
+    })();
+  }, []);
+
+  const pickContentToDisplay = () => {
+    switch (state) {
+      case 'loading':
+        return <Title> Loading ... </Title>;
+      case 'loaded':
+        return (
+          <div>
+            <Typography component="p" variant="h4">
+              {data[0]['accountBudget.amountServedMicros'] / 1000000} {data[0]['customer.currencyCode']}
+            </Typography>
+            <Typography color="textSecondary" className={classes.depositContext}>
+              Account Budget Status: {data[0]['accountBudget.status']}
+            </Typography>
+          </div>
+        );
+      case 'error':
+        return (
+          <Title>
+            {"Something Went Wrong. Here's the Error Message: " + data}
+          </Title>
+        );
+      default:
+        return <Title> Something Went Wrong</Title>;
+    }
+  };
   return (
     <React.Fragment>
       <Title>Total Ad Spend</Title>
-      <Typography component="p" variant="h4">
-        $3,024.00
-      </Typography>
-      <Typography color="textSecondary" className={classes.depositContext}>
-        as of 15 March, 2019
-      </Typography>
-      <div>
-        <Link color="primary" href="#" onClick={preventDefault}>
-          View more
-        </Link>
-      </div>
+
+      {pickContentToDisplay()}
     </React.Fragment>
   );
 }

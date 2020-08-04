@@ -65,7 +65,7 @@ public class GetChart2Servlet extends GetCampaignsServlet {
   //SELECT campaign.name, campaign.status, segments.device, metrics.impressions,        metrics.clicks, metrics.ctr FROM campaign WHERE segments.date DURING LAST_30_DAYS ORDER BY metrics.clicks DESC
   private final static String finalQuery = "SELECT campaign.name, metrics.impressions, metrics.clicks, segments.device FROM campaign"
     + " WHERE segments.date DURING LAST_30_DAYS AND metrics.impressions > 0"
-    + " ORDER BY metrics.clicks DESC LIMIT 100";
+    + " ORDER BY metrics.clicks ASC LIMIT 100";
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
