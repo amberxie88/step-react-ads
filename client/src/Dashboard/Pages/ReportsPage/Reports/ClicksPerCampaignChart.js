@@ -42,10 +42,10 @@ export default function ClicksPerCampaignChart() {
         //const { data } = await axios.get('/data'); //fake data so there's some actual results
         // only returns 1 campaign
         const { data } = await axios.post(
-           '/campaign',
-           new URLSearchParams({
-             query: `SELECT campaign.name, metrics.clicks FROM campaign ORDER BY metrics.clicks DESC LIMIT 5`,
-           })
+          '/campaign',
+          new URLSearchParams({
+            query: `SELECT campaign.name, metrics.clicks FROM campaign ORDER BY metrics.clicks DESC LIMIT 5`,
+          }),
         );
         console.log(data);
         if (data.meta.status !== HttpStatus.OK.toString()) {

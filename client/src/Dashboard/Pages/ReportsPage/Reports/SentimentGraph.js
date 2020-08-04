@@ -32,6 +32,7 @@ import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
 import Title from '../../../Utilities/Title';
 import { createChainedFunction } from '@material-ui/core';
+import { LoadingComponent } from '../../../Utilities/Constants';
 
 export default function SentimentGraph() {
   const theme = useTheme();
@@ -52,7 +53,9 @@ export default function SentimentGraph() {
           throw new Error(data.meta.message);
         } else {
           for (var i = 0; i < data.response.length; i++) {
-            data.response[i]["metrics.clicks"] = +data.response[i]["metrics.clicks"];
+            data.response[i]['metrics.clicks'] = +data.response[i][
+              'metrics.clicks'
+            ];
           }
           setScatterData(data.response);
           setState('loaded');
@@ -68,18 +71,22 @@ export default function SentimentGraph() {
   const pickContentToDisplay = () => {
     switch (state) {
       case 'loading':
-        return <Title> Loading ... </Title>;
+        return <LoadingComponent />;
       case 'loaded':
-        var clicksArr = scatterData.map(point => point["metrics.clicks"]);
+        var clicksArr = scatterData.map((point) => point['metrics.clicks']);
         var maxClicks = Math.max(...clicksArr);
         return (
           <ResponsiveContainer>
-            <ScatterChart width={400} height={400} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
+            <ScatterChart
+              width={400}
+              height={400}
+              margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+            >
               <CartesianGrid />
-              <XAxis 
-                dataKey={'sentiment'} 
-                type="number" 
-                name='sentiment'
+              <XAxis
+                dataKey={'sentiment'}
+                type="number"
+                name="sentiment"
                 domain={[0, 1]}
               >
                 <Label
@@ -89,13 +96,13 @@ export default function SentimentGraph() {
                     fill: theme.palette.text.primary,
                   }}
                 >
-                Sentiment
+                  Sentiment
                 </Label>
               </XAxis>
-              <YAxis 
-                dataKey={'metrics.clicks'} 
-                type="number" 
-                name='clicks' 
+              <YAxis
+                dataKey={'metrics.clicks'}
+                type="number"
+                name="clicks"
                 domain={[0, 'dataMax']}
               >
                 <Label
@@ -106,12 +113,16 @@ export default function SentimentGraph() {
                     fill: theme.palette.text.primary,
                   }}
                 >
-                Clicks
+                  Clicks
                 </Label>
               </YAxis>
-              <ZAxis dataKey={'headline'} name='ad headline' />
-              <Scatter name='Sentiment Graph' data={scatterData} fill='#8884d8'/>
-              <Tooltip cursor={{strokeDasharray: '3 3'}}/>
+              <ZAxis dataKey={'headline'} name="ad headline" />
+              <Scatter
+                name="Sentiment Graph"
+                data={scatterData}
+                fill="#8884d8"
+              />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
             </ScatterChart>
           </ResponsiveContainer>
         );
@@ -129,8 +140,9 @@ export default function SentimentGraph() {
   return (
     <React.Fragment>
       <Title>Expanded Text Ad Clicks vs. Sentiment</Title>
-      <Typography color="textSecondary" className={classes.depositContext}> 
-        Graph of clicks vs. headline sentiment (0 most negative, 1 most positive).
+      <Typography color="textSecondary" className={classes.depositContext}>
+        Graph of clicks vs. headline sentiment (0 most negative, 1 most
+        positive).
       </Typography>
       {pickContentToDisplay()}
     </React.Fragment>

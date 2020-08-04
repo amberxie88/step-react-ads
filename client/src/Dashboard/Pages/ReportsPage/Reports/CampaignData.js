@@ -91,16 +91,16 @@ export default function CampaignData() {
               </TableHead>
               <TableBody>
                 {data
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => (
-                  <TableRow key={row['campaign.id']}>
-                    <TableCell>{row['campaign.id']}</TableCell>
-                    <TableCell>{row['campaign.name']}</TableCell>
-                    <TableCell>{row['campaign.status']}</TableCell>
-                    <TableCell>{row['metrics.clicks']}</TableCell>
-                    <TableCell>{row['metrics.impressions']}</TableCell>
-                  </TableRow>
-                ))}
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => (
+                    <TableRow key={row['campaign.id']}>
+                      <TableCell>{row['campaign.id']}</TableCell>
+                      <TableCell>{row['campaign.name']}</TableCell>
+                      <TableCell>{row['campaign.status']}</TableCell>
+                      <TableCell>{row['metrics.clicks']}</TableCell>
+                      <TableCell>{row['metrics.impressions']}</TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
             <TablePagination

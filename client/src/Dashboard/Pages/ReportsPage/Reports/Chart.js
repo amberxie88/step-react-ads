@@ -37,19 +37,21 @@ export default function Chart() {
     (async () => {
       try {
         const { data } = await axios.post(
-           '/campaign',
-           new URLSearchParams({
-             query: `SELECT campaign.name, metrics.impressions, metrics.clicks, segments.device FROM campaign
+          '/campaign',
+          new URLSearchParams({
+            query: `SELECT campaign.name, metrics.impressions, metrics.clicks, segments.device FROM campaign
                 WHERE segments.date DURING LAST_30_DAYS AND metrics.impressions > 0 
                 ORDER BY metrics.clicks ASC LIMIT 100`,
-           })
+          }),
         );
         console.log(data);
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
           for (var i = 0; i < data.response.length; i++) {
-            data.response[i]["metrics.clicks"] = +data.response[i]["metrics.clicks"];
+            data.response[i]['metrics.clicks'] = +data.response[i][
+              'metrics.clicks'
+            ];
           }
           setData(data.response);
           setState('loaded');
@@ -78,9 +80,9 @@ export default function Chart() {
                 left: 24,
               }}
             >
-              <XAxis 
-                dataKey="metrics.impressions" 
-                stroke={theme.palette.text.secondary} 
+              <XAxis
+                dataKey="metrics.impressions"
+                stroke={theme.palette.text.secondary}
                 domain={[0, 'dataMax']}
               >
                 <Label
@@ -90,10 +92,14 @@ export default function Chart() {
                     fill: theme.palette.text.primary,
                   }}
                 >
-                Impressions over last 30 days
+                  Impressions over last 30 days
                 </Label>
               </XAxis>
-              <YAxis dataKey="metrics.clicks" stroke={theme.palette.text.secondary} domain={[0, 'dataMax']}>
+              <YAxis
+                dataKey="metrics.clicks"
+                stroke={theme.palette.text.secondary}
+                domain={[0, 'dataMax']}
+              >
                 <Label
                   angle={270}
                   position="left"
@@ -105,7 +111,7 @@ export default function Chart() {
                   Ad clicks
                 </Label>
               </YAxis>
-              <ZAxis dataKey={'campaign.name'} name='campaign' />
+              <ZAxis dataKey={'campaign.name'} name="campaign" />
               <Line
                 type="monotone"
                 dataKey="metrics.clicks"
