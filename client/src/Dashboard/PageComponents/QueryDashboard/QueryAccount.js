@@ -89,10 +89,9 @@ class QueryAccount extends React.Component {
 
   render() {
     const selectedClient = this.state.selectedClient;
-    console.log(selectedClient);
     return (
       <React.Fragment>
-        <Title>Selected Client Account to Query</Title>
+        <Title>Select a Client Account to Query</Title>
         <Table size="small">
           <TableHead>
             <TableRow>

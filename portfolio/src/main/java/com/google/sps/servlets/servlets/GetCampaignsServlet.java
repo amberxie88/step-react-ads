@@ -16,6 +16,14 @@ package com.google.sps.servlets;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileNotFoundException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +33,6 @@ import com.google.ads.googleads.lib.GoogleAdsClient;
 import com.google.ads.googleads.v3.services.CampaignServiceClient;
 import com.google.ads.googleads.examples.utils.CodeSampleParams;
 import com.google.ads.googleads.examples.utils.ArgumentNames;
-import com.beust.jcommander.Parameter;
 import com.google.ads.googleads.v3.errors.GoogleAdsException;
 import com.google.ads.googleads.v3.errors.GoogleAdsError;
 import com.google.ads.googleads.v3.services.GoogleAdsServiceClient;
@@ -36,7 +43,20 @@ import com.google.ads.googleads.v3.services.GoogleAdsRow;
 
 import com.google.ads.googleads.v3.services.stub.GrpcGoogleAdsServiceStub;
 import com.google.auth.oauth2.UserCredentials;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.auth.Credentials;
+import com.google.api.client.auth.oauth2.Credential;
+
+
+import com.google.common.collect.Lists;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.*;
+
+import com.beust.jcommander.Parameter;
 
 import com.google.protobuf.util.JsonFormat;
 import com.google.gson.Gson;
@@ -61,6 +81,9 @@ public class GetCampaignsServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String query = request.getParameter("query");
+    Boolean exportTable = Boolean.parseBoolean(request.getParameter("exportTable"));
+    System.out.println("export table: " + exportTable);
+
     String sessionId = (String) request.getSession().getId();
     //String customerId = "4498877497";
     //String loginId = "9797005693";
@@ -85,6 +108,15 @@ public class GetCampaignsServlet extends HttpServlet {
     try {
       returnJSON = runExample(loginIdLong, customerIdLong, query, sessionId);
       returnJSON = processJSON(returnJSON);
+      
+      if (exportTable) {
+        try {
+          createSpreadsheet(sessionId, returnJSON);
+        } catch (IOException e){
+          System.err.print(e);
+        }
+      }
+
     } catch (GoogleAdsException gae) {
       // GoogleAdsException is the base class for most exceptions thrown by an API request.
       // Instances of this exception have a message and a GoogleAdsFailure that contains a
@@ -142,7 +174,82 @@ public class GetCampaignsServlet extends HttpServlet {
     } catch (Exception e) {
       return processErrorJSON(e.toString(), Constants.ERROR_500);
     }
+
     return returnJSON;
+  }
+
+  private void createSpreadsheet(String sessionId, String returnJSON) throws IOException {
+    JSONObject jsonObject = new JSONObject(returnJSON);
+    JSONArray responseArr = jsonObject.getJSONArray("response");
+    JSONArray fieldMaskArr = jsonObject.getJSONArray("fieldmask");
+    //for now, set title as the date time
+    LocalDateTime now = LocalDateTime.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    String title = now.format(formatter);;
+
+    System.out.println(title);
+
+    String CLIENT_ID = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
+	  String CLIENT_SECRET = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
+    String refreshToken =  DatastoreRetrieval.getEntityFromDatastore("Refresh", sessionId);
+    HttpTransport httpTransport =  null;
+    JsonFactory jsonFactory = null;
+
+    try {
+      System.out.println("create networks");
+      httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+      jsonFactory = JacksonFactory.getDefaultInstance();
+    } catch (Exception e) {
+      System.err.print(e);
+    }
+
+    System.out.println("create credential");
+    Credential credential = new GoogleCredential.Builder()
+                      .setJsonFactory(jsonFactory)
+                      .setTransport(httpTransport)
+                      .setClientSecrets(CLIENT_ID, CLIENT_SECRET).build();
+    credential.setRefreshToken(refreshToken);
+
+    Sheets service = new Sheets.Builder(httpTransport, jsonFactory, credential)
+                .setApplicationName("demoApp")
+                .build();
+
+    System.out.println("creating spreadsheet");
+    Spreadsheet spreadsheet = new Spreadsheet()
+        .setProperties(new SpreadsheetProperties()
+                .setTitle(title));
+    spreadsheet = service.spreadsheets().create(spreadsheet)
+            .setFields("spreadsheetId")
+            .execute();
+
+    System.out.println("Spreadsheet ID: " + spreadsheet.getSpreadsheetId());
+    String spreadsheetId = spreadsheet.getSpreadsheetId();
+
+    List<List<Object>> values = new ArrayList<>();
+
+    //push content to spreadsheet
+    List<Object> header = new ArrayList<>();
+    for (int k = 0; k < fieldMaskArr.length(); k++) {
+        header.add(fieldMaskArr.get(k));
+    }
+    values.add(header);
+
+    for (int i = 0; i < responseArr.length(); i++ ) {
+      JSONObject responseRow = (JSONObject) responseArr.get(i);
+      List<Object> sheetRow = new ArrayList<>();
+      for (int j = 0; j < fieldMaskArr.length(); j++) {
+        sheetRow.add(responseRow.get((String) fieldMaskArr.get(j)));
+      }
+      values.add(sheetRow);
+      System.out.println(sheetRow);
+    }
+
+    ValueRange body = new ValueRange()
+      .setValues(values);
+    UpdateValuesResponse result = service.spreadsheets().values()
+      .update(spreadsheetId, "A1", body)
+      .setValueInputOption("RAW")
+      .execute();
   }
 
   protected GoogleAdsClient buildGoogleAdsClient(Credentials c, String developerToken, long loginCustomerId) throws Exception {

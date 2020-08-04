@@ -47,7 +47,6 @@ class Accounts extends React.Component {
       if (data.meta.status !== '200') {
         throw new Error(data.meta.message);
       } else {
-        console.log(data.response);
         this.setState({
           customerIds: data.response,
           status: 'loaded',
@@ -64,7 +63,6 @@ class Accounts extends React.Component {
 
   pickContentToDisplay() {
     const customerIds = this.state.customerIds;
-    console.log(customerIds);
     switch (this.state.status) {
       case 'none authenticated':
         return (
@@ -135,12 +133,17 @@ class Accounts extends React.Component {
       '/client',
       new URLSearchParams({ loginId, customerId, name }),
     );
+    alert(data);
   }
 
   render() {
     return (
       <React.Fragment>
         <Title>Available Customer IDs</Title>
+        <Typography variant="overline">
+          Make sure to select an account before visiting the dashboard or query
+          page.
+        </Typography>
         <Table size="small">
           <TableHead>
             <TableRow>

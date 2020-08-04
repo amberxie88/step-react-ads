@@ -35,7 +35,6 @@ class Login extends React.Component {
   async handleLogin() {
     try {
       const { data } = await axios.get('/oauth');
-      console.log(data);
       this.setState({
         redirect: data,
       });

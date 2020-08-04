@@ -61,8 +61,6 @@ function Results(props) {
   const page = props.page;
   const handleChangePage = props.handleChangePage;
   const handleChangeRowsPerPage = props.handleChangeRowsPerPage;
-  //console.log(rows);
-  //console.log(fields);
   return (
     <div>
       <Table size="small">

@@ -34,7 +34,7 @@ class Logout extends React.Component {
   async handleLogout() {
     console.log('clicked');
     const { data } = await axios.get('/logout');
-    alert(data);
+    console(data);
     window.location.reload(true);
   }
 

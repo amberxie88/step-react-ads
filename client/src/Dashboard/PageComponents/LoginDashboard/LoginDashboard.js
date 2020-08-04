@@ -29,34 +29,33 @@ export default function LoginDash(props) {
   const classes = Styles();
   return (
     <React.Fragment>
-      <Joyride 
-        steps = {LoginWalkthrough}
-        continuous = {true}
-        showProgress = {true}
-        showSkipButton = {true}
+      <Joyride
+        steps={LoginWalkthrough}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
         run={props.runTutorial}
         callback={props.handleJoyrideCallback}
       />
       <Grid container spacing={3}>
         {/* Login Button */}
         <Grid item xs={12}>
-          <Paper className={classes.paper + " login-button"}>
+          <Paper className={classes.paper + ' login-button'}>
             <Login />
           </Paper>
         </Grid>
         {/* Available Accounts */}
         <Grid item xs={12}>
-          <Paper className={classes.paper + " available-accounts"}>
+          <Paper className={classes.paper + ' available-accounts'}>
             <Accounts />
           </Paper>
         </Grid>
-
         {/* Logout Button */}
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Paper className={classes.paper + " logout-button"}>
             <Logout />
           </Paper>
-        </Grid>
+        </Grid> */}
       </Grid>
     </React.Fragment>
   );

@@ -69,6 +69,8 @@ public class SetClientAccServlet extends HttpServlet {
     DatastoreRetrieval.addEntityToDatastore("CustomerId", sessionId, customerId);
     DatastoreRetrieval.addEntityToDatastore("AccountName", sessionId, name);
 
+    System.out.println("set account");
+
     response.setContentType("text/html;");
     response.getWriter().println("Selected account successfully!");
     response.getWriter().println("LoginID: " + loginId); 
