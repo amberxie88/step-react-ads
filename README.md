@@ -5,6 +5,9 @@ The Google Ads dashboard provides a useful UI for users to create and measure th
 
 Preview the project [here](http://app-infra-transformer-step.appspot.com/)
 
+Read the developer guide for this project [here] (https://docs.google.com/document/d/1-EjyReZFxCKP3ugHAvVEOXWw5HsXm5x40Qz2nhNSF1s/edit?usp=sharing)
+*replace with non-google owned doc before we leave*
+
 ## Front End with React
 
 ### To start the Front End, run the following:
@@ -39,5 +42,3 @@ or
 1. `npm run build`
 1. Copy the `build` folder into `src/main` of `portfolio` and rename `webapp`. The static files of the React App will be served from here
 1. `mvn package appengine:deploy`
-
-<img src="https://lh3.googleusercontent.com/zJC6NArcX0z6g52VXToy-pdmtfWcjgEyVDXTZg_uH1x5ljaWfMmgjVS7fFCu_Cw0cgLGv4bLWz8zsnENsiUnjhvrQ8FeeqdQtccf_n4Upg=w672-h16383-o">
