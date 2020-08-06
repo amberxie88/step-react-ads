@@ -40,25 +40,4 @@ public class LogoutServlet extends HttpServlet {
     response.getWriter().println("Logged out successfully!");
   }
 
-
-  @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    System.out.println("setting account");
-    
-    String loginId = request.getParameter("loginId");
-    String customerId = request.getParameter("customerId");
-    System.out.println(loginId);
-    System.out.println(customerId);
-
-    String sessionId = (String) request.getSession().getId();
-
-    
-    DatastoreRetrieval.addEntityToDatastore("LoginId", sessionId, loginId);
-    DatastoreRetrieval.addEntityToDatastore("CustomerId", sessionId, customerId);
-
-    response.setContentType("text/html;");
-    response.getWriter().println("Selected account successfully!");
-    response.getWriter().println("LoginID: " + loginId); 
-    response.getWriter().println("CustomerID: " + customerId); 
-  }
 } 

@@ -147,13 +147,9 @@ public class GetCampaignsServlet extends HttpServlet {
   protected String runExample(long loginId, long customerId, String query, String sessionId) {
     String returnJSON = "";
     GoogleAdsClient googleAdsClient;
-    System.out.println(query);
+    //System.out.println(query);
 
-    // test
-    //File propertiesFile = new File("ads.properties");
     try {
-      // test
-      //googleAdsClient = GoogleAdsClient.newBuilder().fromPropertiesFile(propertiesFile).build();
       googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
         DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.DEVELOPER_TOKEN), loginId);
     } catch (Exception e) {
