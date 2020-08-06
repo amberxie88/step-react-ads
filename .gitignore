@@ -1,18 +1,18 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/client/node_modules/
+/frontend/node_modules/
 /.pnp
 .pnp.js
 
 # testing
-/client/coverage
+/frontend/coverage
 
 # production
-/client/build/
-/client/public/
-/portfolio/target/
-/portfolio/src/main/webapp/
+/frontend/build/
+/frontend/public/
+/server/target/
+/server/src/main/webapp/
 
 
 # misc
