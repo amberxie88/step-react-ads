@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="17" failures="0" name="com.google.sps.CampaignServletTest" time="2.449" errors="0" skipped="0">
+<testsuite tests="17" failures="0" name="com.google.sps.CampaignServletTest" time="2.625" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="java.vm.version" value="11.0.8+10-post-Debian-1deb10u1"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-11-openjdk-amd64/lib"/>
-    <property name="maven.multiModuleProjectDirectory" value="/home/kjchan/step-react-ads/portfolio"/>
+    <property name="maven.multiModuleProjectDirectory" value="/home/kjchan/step-react-ads/server"/>
     <property name="java.vm.vendor" value="Debian"/>
     <property name="java.vendor.url" value="https://tracker.debian.org/openjdk-11"/>
     <property name="guice.disable.misplaced.annotation.check" value="true"/>
@@ -14,7 +14,7 @@
     <property name="user.country" value="US"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="user.dir" value="/home/kjchan/step-react-ads/portfolio"/>
+    <property name="user.dir" value="/home/kjchan/step-react-ads/server"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
     <property name="java.runtime.version" value="11.0.8+10-post-Debian-1deb10u1"/>
     <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
@@ -43,7 +43,7 @@
     <property name="java.class.path" value="/home/kjchan/apache-maven-3.6.3/boot/plexus-classworlds-2.6.0.jar"/>
     <property name="java.vm.specification.version" value="11"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher package appengine:deploy"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher package"/>
     <property name="java.home" value="/usr/lib/jvm/java-11-openjdk-amd64"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
@@ -60,21 +60,21 @@
     <property name="sun.cpu.endian" value="little"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase classname="com.google.sps.CampaignServletTest" name="processErrorJSON" time="1.143"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_simple" time="0.025"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_ignoreExtraValues" time="0.035"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_returnCurrentJSONOnErrorMeta" time="0.015"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_processNormallyOnValidMeta" time="0.014"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_validInputs" time="0.966"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="getValueFromJSON_exceptionOnInvalidPath" time="0.004"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="getValueFromJSON_validFullPathToString" time="0.015"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_returnErrorMessageWithValuesNotFound" time="0.023"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_returnErrorJSONWhenNoResult" time="0.009"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_invalidQuery" time="0.059"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_invalidRefreshToken" time="0.023"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_invalidCredentialRetrieval" time="0.007"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_invalidDatastoreRetrieval" time="0.006"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="doPost_simpleQuery" time="0.09"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="doPost_nullCustomerId" time="0.008"/>
-  <testcase classname="com.google.sps.CampaignServletTest" name="getValueFromJSON_validPathToJSONObject" time="0.007"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="processErrorJSON" time="1.635"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_simple" time="0.014"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_ignoreExtraValues" time="0.008"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_returnCurrentJSONOnErrorMeta" time="0.007"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_processNormallyOnValidMeta" time="0.008"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_validInputs" time="0.528"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_invalidQuery" time="0.031"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_invalidRefreshToken" time="0.058"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_invalidCredentialRetrieval" time="0.028"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="runExample_invalidDatastoreRetrieval" time="0.033"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="doPost_simpleQuery" time="0.172"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="doPost_nullCustomerId" time="0.047"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_returnErrorMessageWithValuesNotFound" time="0.032"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="processJSON_returnErrorJSONWhenNoResult" time="0.004"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="getValueFromJSON_validPathToJSONObject" time="0.004"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="getValueFromJSON_exceptionOnInvalidPath" time="0.013"/>
+  <testcase classname="com.google.sps.CampaignServletTest" name="getValueFromJSON_validFullPathToString" time="0.003"/>
 </testsuite>

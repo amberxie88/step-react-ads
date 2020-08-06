@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="4" failures="0" name="com.google.sps.AccessibleCustomersTest" time="0.067" errors="0" skipped="0">
+<testsuite tests="4" failures="0" name="com.google.sps.AccessibleCustomersTest" time="0.09" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="java.vm.version" value="11.0.8+10-post-Debian-1deb10u1"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-11-openjdk-amd64/lib"/>
-    <property name="maven.multiModuleProjectDirectory" value="/home/kjchan/step-react-ads/portfolio"/>
+    <property name="maven.multiModuleProjectDirectory" value="/home/kjchan/step-react-ads/server"/>
     <property name="java.vm.vendor" value="Debian"/>
     <property name="java.vendor.url" value="https://tracker.debian.org/openjdk-11"/>
     <property name="guice.disable.misplaced.annotation.check" value="true"/>
@@ -14,7 +14,7 @@
     <property name="user.country" value="US"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="user.dir" value="/home/kjchan/step-react-ads/portfolio"/>
+    <property name="user.dir" value="/home/kjchan/step-react-ads/server"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
     <property name="java.runtime.version" value="11.0.8+10-post-Debian-1deb10u1"/>
     <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
@@ -43,7 +43,7 @@
     <property name="java.class.path" value="/home/kjchan/apache-maven-3.6.3/boot/plexus-classworlds-2.6.0.jar"/>
     <property name="java.vm.specification.version" value="11"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher package appengine:deploy"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher package"/>
     <property name="java.home" value="/usr/lib/jvm/java-11-openjdk-amd64"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
@@ -60,8 +60,8 @@
     <property name="sun.cpu.endian" value="little"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase classname="com.google.sps.AccessibleCustomersTest" name="buildAccountHierarchy2" time="0.062"/>
+  <testcase classname="com.google.sps.AccessibleCustomersTest" name="buildAccountHierarchy2" time="0.086"/>
   <testcase classname="com.google.sps.AccessibleCustomersTest" name="buildAccountHierarchy1" time="0.001"/>
-  <testcase classname="com.google.sps.AccessibleCustomersTest" name="buildAccountHierarchy3" time="0.002"/>
+  <testcase classname="com.google.sps.AccessibleCustomersTest" name="buildAccountHierarchy3" time="0.001"/>
   <testcase classname="com.google.sps.AccessibleCustomersTest" name="buildAccountHierarchy4" time="0.002"/>
 </testsuite>
