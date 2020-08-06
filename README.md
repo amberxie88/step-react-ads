@@ -42,3 +42,7 @@ or
 1. `npm run build`
 1. Copy the `build` folder into `src/main` of `portfolio` and rename `webapp`. The static files of the React App will be served from here
 1. `mvn package appengine:deploy`
+
+## View some demos!
+### Query Page
+![query gif](demos/query.gif)

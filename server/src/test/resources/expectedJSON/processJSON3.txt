@@ -1,0 +1,2 @@
+{"fieldmask":["campaign.name","campaign.id"],"response":[{"campaign.name":"name1"},{"campaign.name":"name2"}],
+"meta":{"status":"400", "message": "Values not found: campaign.id "}}
