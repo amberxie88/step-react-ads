@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.google.sps.CampaignServletTest
 -------------------------------------------------------------------------------
-Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.244 sec
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.658 sec
