@@ -43,6 +43,11 @@ or
 1. `mvn package appengine:deploy`
 
 ## View some demos!
+### Login Page
+![login gif](demos/login.gif)
+### Dashbaord Page
+![dashboard gif](demos/dashboard.gif)
 ### Query Page
 ![query gif](demos/query.gif)
-![login gif](demos/login.gif)
+### User Tour
+![user_tour gif](demos/usertour.gif)
