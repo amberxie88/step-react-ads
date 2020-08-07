@@ -47,8 +47,8 @@ describe('CampaignData Unit Testing', () => {
       await new Promise((resolve) => setImmediate(resolve));
       component.update();
     });
-    const CampaignDataHTML = component.html();
-    expect(CampaignDataHTML).toMatchSnapshot(); //displayed state also needs to match expected results
+    const tableHTML = component.find('table').html();
+    expect(tableHTML).toMatchSnapshot(); //displayed state also needs to match expected results
   });
 
   it('CampaignData correctly displays error when API call returns error', async () => {
