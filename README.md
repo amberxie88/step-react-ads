@@ -46,3 +46,4 @@ or
 ## View some demos!
 ### Query Page
 ![query gif](demos/query.gif)
+![login gif](demos/4aomxs.gif)
