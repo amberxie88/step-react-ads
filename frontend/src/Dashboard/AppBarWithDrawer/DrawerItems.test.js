@@ -26,7 +26,7 @@ configure({ adapter: new Adapter() });
 describe('DrawerItems Unit Testing', () => {
   //this test uses the real PagesWithAttributes in its test. Compare this to the test for PageRouter.
   it('returns list with links for each page in PagesWithAttributes', async () => {
-    const drawerItems = shallow(DrawerItems);
+    const drawerItems = shallow(<DrawerItems />);
     const drawerList = drawerItems.props().children;
     expect(drawerList.length).toEqual(PagesWithAttributes.length);
     expect(drawerList).toMatchSnapshot();

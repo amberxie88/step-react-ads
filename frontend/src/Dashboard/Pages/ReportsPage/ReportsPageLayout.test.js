@@ -21,22 +21,26 @@ import Chart from './Reports/Chart';
 import ClicksPerCampaignChart from './Reports/ClicksPerCampaignChart';
 import Deposits from './Reports/Deposits';
 import CampaignData from './Reports/CampaignData';
+import SentimentGraph from './Reports/SentimentGraph';
 
 configure({ adapter: new Adapter() });
 
 describe('ReportsPageLayout Unit Testing', () => {
   it('ReportsPageLayout displays correct components', async () => {
     const dashboard = shallow(<ReportsPageLayout />);
+    const layout = dashboard.children().at(1);
+
     [
       <Chart />,
       <ClicksPerCampaignChart />,
       <Deposits />,
       <CampaignData />,
+      <SentimentGraph />,
     ].forEach((component) => {
-      expect(dashboard.contains(component)).toBeTruthy();
+      expect(layout.find(component)).toBeTruthy();
     });
 
-    const dashboardHTML = dashboard.html();
-    expect(dashboardHTML).toMatchSnapshot();
+    const layoutHTML = layout.html();
+    expect(layoutHTML).toMatchSnapshot();
   });
 });
