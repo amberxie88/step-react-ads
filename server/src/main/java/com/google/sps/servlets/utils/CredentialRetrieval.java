@@ -21,9 +21,6 @@ import com.google.auth.Credentials;
 import com.google.sps.utils.Constants;
 
 public class CredentialRetrieval {
-	// TODO: clean up code -- turn "Settings" into a variable in another Java file
-	// create Constants.java or for a list of all the constants. 
-  
   public static Credentials getCredentials(String sessionId) {
 	String CLIENT_ID = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_ID);
 	String CLIENT_SECRET = DatastoreRetrieval.getEntityFromDatastore(Constants.SETTINGS, Constants.CLIENT_SECRET);

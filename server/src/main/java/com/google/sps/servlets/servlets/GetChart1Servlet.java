@@ -64,15 +64,11 @@ public class GetChart1Servlet extends GetCampaignsServlet {
 
   private final static String finalQuery = "SELECT ad_group_ad.ad.expanded_text_ad.headline_part1, "
     + "ad_group_ad.ad.expanded_text_ad.headline_part2, metrics.clicks FROM ad_group_ad WHERE ad_group_ad.ad.type = EXPANDED_TEXT_AD LIMIT 100";
-  private final static boolean devMode = false;
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String query = finalQuery;
     String sessionId = (String) request.getSession().getId();
-    //String customerId = "4498877497";
-    //String loginId = "9797005693";
-    // test
     String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
     String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
     long customerIdLong;
@@ -103,7 +99,6 @@ public class GetChart1Servlet extends GetCampaignsServlet {
       super.writeServletResponse(response, processErrorJSON(errorString, Constants.ERROR_500));
       return;
     } catch (Exception e) {
-      System.err.println(e);
       super.writeServletResponse(response, processErrorJSON(e.getMessage(), Constants.ERROR_500));
     }
     super.writeServletResponse(response, returnJSON);
@@ -127,11 +122,6 @@ public class GetChart1Servlet extends GetCampaignsServlet {
       objInUse.put("headline", headline);
       objInUse.remove("adGroupAd.ad.expandedTextAd.headlinePart1");
       objInUse.remove("adGroupAd.ad.expandedTextAd.headlinePart2");
-      // giving metrics.clicks some real data
-      if (devMode && !devMode) {
-        objInUse.remove("metrics.clicks");
-        objInUse.put("clicks", String.valueOf(i));
-      }
     }
     return jsonObject.toString();
   }
@@ -139,15 +129,10 @@ public class GetChart1Servlet extends GetCampaignsServlet {
   private String getSentimentValue(String input) {
     Document doc;
     LanguageServiceClient languageService;
-    // the API doesn't work locally, so this may return a filler String
-    if (devMode) {
-      return "0.5";
-    }
     try {
       doc = Document.newBuilder().setContent(input).setType(Document.Type.PLAIN_TEXT).build();      
       languageService = LanguageServiceClient.create();
     } catch (Exception e) {
-      System.out.println(e);
       return "";
     }
 

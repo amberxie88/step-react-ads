@@ -82,17 +82,10 @@ public class GetCampaignsServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String query = request.getParameter("query");
     Boolean exportTable = Boolean.parseBoolean(request.getParameter("exportTable"));
-    System.out.println("export table: " + exportTable);
 
     String sessionId = (String) request.getSession().getId();
-    //String customerId = "4498877497";
-    //String loginId = "9797005693";
-    // test
     String customerId = DatastoreRetrieval.getEntityFromDatastore("CustomerId", sessionId);
     String loginId = DatastoreRetrieval.getEntityFromDatastore("LoginId", sessionId);
-    System.out.println(customerId);
-    System.out.println(loginId);
-    System.out.println("login an  customer id");
     long customerIdLong;
     long loginIdLong;
 
@@ -147,7 +140,6 @@ public class GetCampaignsServlet extends HttpServlet {
   protected String runExample(long loginId, long customerId, String query, String sessionId) {
     String returnJSON = "";
     GoogleAdsClient googleAdsClient;
-    //System.out.println(query);
 
     try {
       googleAdsClient = buildGoogleAdsClient(CredentialRetrieval.getCredentials(sessionId), 
@@ -178,12 +170,10 @@ public class GetCampaignsServlet extends HttpServlet {
     JSONObject jsonObject = new JSONObject(returnJSON);
     JSONArray responseArr = jsonObject.getJSONArray("response");
     JSONArray fieldMaskArr = jsonObject.getJSONArray("fieldmask");
-    //for now, set title as the date time
+    // For now, set title as the date time
     LocalDateTime now = LocalDateTime.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    String title = now.format(formatter);;
-
-    System.out.println(title);
+    String title = now.format(formatter);
 
     String CLIENT_ID = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_ID");
 	  String CLIENT_SECRET = DatastoreRetrieval.getEntityFromDatastore("Settings", "CLIENT_SECRET");
@@ -192,14 +182,12 @@ public class GetCampaignsServlet extends HttpServlet {
     JsonFactory jsonFactory = null;
 
     try {
-      System.out.println("create networks");
       httpTransport = GoogleNetHttpTransport.newTrustedTransport();
       jsonFactory = JacksonFactory.getDefaultInstance();
     } catch (Exception e) {
       System.err.print(e);
     }
 
-    System.out.println("create credential");
     Credential credential = new GoogleCredential.Builder()
                       .setJsonFactory(jsonFactory)
                       .setTransport(httpTransport)
@@ -210,7 +198,6 @@ public class GetCampaignsServlet extends HttpServlet {
                 .setApplicationName("demoApp")
                 .build();
 
-    System.out.println("creating spreadsheet");
     Spreadsheet spreadsheet = new Spreadsheet()
         .setProperties(new SpreadsheetProperties()
                 .setTitle(title));
@@ -218,7 +205,6 @@ public class GetCampaignsServlet extends HttpServlet {
             .setFields("spreadsheetId")
             .execute();
 
-    System.out.println("Spreadsheet ID: " + spreadsheet.getSpreadsheetId());
     String spreadsheetId = spreadsheet.getSpreadsheetId();
 
     List<List<Object>> values = new ArrayList<>();
@@ -237,7 +223,6 @@ public class GetCampaignsServlet extends HttpServlet {
         sheetRow.add(responseRow.get((String) fieldMaskArr.get(j)));
       }
       values.add(sheetRow);
-      System.out.println(sheetRow);
     }
 
     ValueRange body = new ValueRange()
@@ -274,8 +259,6 @@ public class GetCampaignsServlet extends HttpServlet {
   protected String searchGoogleAdsStreamResponseToJSON(SearchGoogleAdsStreamResponse response) {
     try {
       String returnJSON = JsonFormat.printer().print(response);
-      System.out.println("to json");
-      System.out.println(returnJSON);
       return returnJSON;
     } catch (Exception e) {
       System.err.println(e);

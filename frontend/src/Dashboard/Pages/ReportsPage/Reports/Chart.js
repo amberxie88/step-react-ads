@@ -44,7 +44,6 @@ export default function Chart() {
                 ORDER BY metrics.clicks ASC LIMIT 100`,
           }),
         );
-        console.log(data);
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {

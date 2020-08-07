@@ -48,7 +48,6 @@ export default function SentimentGraph() {
     (async () => {
       try {
         const { data } = await axios.get('/chart-api');
-        console.log(data);
         if (data.meta.status !== HttpStatus.OK.toString()) {
           throw new Error(data.meta.message);
         } else {
