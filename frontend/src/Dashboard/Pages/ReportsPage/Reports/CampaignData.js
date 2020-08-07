@@ -25,7 +25,6 @@ import Title from '../../../Utilities/Title';
 import axios from 'axios';
 import * as HttpStatus from 'http-status-codes';
 import PropTypes from 'prop-types';
-import Checkbox from '@material-ui/core/Checkbox';
 import { TableSortLabel } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
@@ -45,10 +44,6 @@ const headCells = [
   { id: 'metrics.clicks', numeric: true, label: 'Clicks' },
   { id: 'metrics.impressions', numeric: true, label: 'Impressions' },
 ];
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
