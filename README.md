@@ -45,7 +45,7 @@ or
 ## View some demos!
 ### Login Page
 ![login gif](demos/login.gif)
-### Dashbaord Page
+### Dashboard Page
 ![dashboard gif](demos/dashboard.gif)
 ### Query Page
 ![query gif](demos/queries.gif)
