@@ -6,13 +6,13 @@ Array [
     exact={true}
     path="/"
   >
-    <UNDEFINED />
+    <Memo(HomeIcon) />
   </Route>,
   <Route
     exact={true}
     path="/test"
   >
-    <UNDEFINED />
+    <Memo(HomeIcon) />
   </Route>,
 ]
 `;
