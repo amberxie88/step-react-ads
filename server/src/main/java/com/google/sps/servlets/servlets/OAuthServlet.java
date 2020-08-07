@@ -68,7 +68,6 @@ public class OAuthServlet extends HttpServlet {
       response.getWriter().println(authorizationLink);
     } catch (Exception e) {
       response.getWriter().println(RETRIEVAL_ERROR);
-      System.out.println(e);
     }
   }
 
@@ -87,8 +86,6 @@ public class OAuthServlet extends HttpServlet {
               .setScopes(SCOPES)
               .setCallbackUri(URI.create(OAUTH2_CALLBACK))
               .build();
-      //URI baseUri = URI.create("http://localhost:8080/");
-      //deploy
       URI baseUri = URI.create("http://app-infra-transformer-step.appspot.com/");
       return userAuthorizer.getAuthorizationUrl(loginEmailAddressHint, state, baseUri).toString();
   }
