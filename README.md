@@ -48,6 +48,6 @@ or
 ### Dashbaord Page
 ![dashboard gif](demos/dashboard.gif)
 ### Query Page
-![query gif](demos/query.gif)
+![query gif](demos/queries.gif)
 ### User Tour
 ![user_tour gif](demos/usertour.gif)
